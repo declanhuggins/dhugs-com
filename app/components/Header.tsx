@@ -7,7 +7,7 @@ import Image from 'next/image';
 import styles from './Header.module.css';
 
 export default function Header() {
-  const [timestamp, setTimestamp] = useState('');
+  const [timestamp, setTimestamp] = useState('YYYY-MM-DDTHH:MM:SS±HH:MM');
 
   useEffect(() => {
     const now = new Date();
