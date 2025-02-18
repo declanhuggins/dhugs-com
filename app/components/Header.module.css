@@ -1,0 +1,112 @@
+.headerContainer {
+  position: relative;
+  height: 15rem;
+  overflow: visible;
+}
+
+/* This wrapper controls the main header width */
+.innerWrapper {
+  width: 100%;
+  max-width: 75%; /* Default width on large screens */
+  min-width: 600px; /* Prevents the header from collapsing */
+  margin: 0 auto;
+  height: 100%;
+  position: relative;
+}
+
+/* The outer border box should adjust buffer space first */
+.borderBox {
+  position: absolute;
+  top: 2.5rem;
+  left: 1rem;
+  right: 1rem;
+  bottom: 2.5rem;
+  border: 2px solid var(--foreground);
+  min-width: 500px;
+}
+
+/* Top & Bottom Rows positioned absolutely so their centers align with the border lines */
+.headerTopRow,
+.headerBottomRow {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.headerTopRow {
+  top: 0;
+  transform: translateY(50%);
+}
+
+.headerBottomRow {
+  bottom: 0;
+  transform: translateY(-50%);
+}
+
+/* Middle Row: branding centered vertically within the container */
+.middleRow {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  text-align: center;
+}
+
+/* Title & Tagline */
+.headerTitle {
+  font-size: 45px;
+  font-weight: bold;
+}
+
+.tagline {
+  font-size: 16px;
+}
+
+/* Buttons & timestamp use a black background to hide the border behind them */
+.timestamp {
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  border: 2px solid var(--foreground);
+  padding: 4px 8px;
+  text-decoration: none;
+}
+
+/* Social and search buttons: square containers */
+.socialButton,
+.searchButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  border: 2px solid var(--foreground);
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  text-decoration: none;
+}
+
+.socialIcon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Navigation links: uppercase, bold, with extra padding for spacing */
+.navLink {
+  font-size: 16px;
+  text-decoration: none;
+  color: inherit;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.buttonBorder {
+  background: var(--background);
+  border: 2px solid var(--foreground);
+  padding: 6px 10px;
+}
