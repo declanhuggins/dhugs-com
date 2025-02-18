@@ -48,7 +48,7 @@
 /* Middle Row: branding centered vertically within the container */
 .middleRow {
   position: absolute;
-  top: 50%;
+  top: 47%;
   left: 0;
   right: 0;
   transform: translateY(-50%);
@@ -112,6 +112,14 @@
 }
 
 @media (max-width: 490px) {
+  .headerTitle {
+    font-size: calc(35px + (10 * ((100vw - 390px) / 100))); /* Scales between 30px (390px width) and 45px (490px width) */
+  }
+
+  .tagline {
+    font-size: calc(12px + (4 * ((100vw - 390px) / 100))); /* Scales from 12px to 16px */
+  }
+
   /* Hide the standard nav links */
   .navLink {
     display: none;
@@ -123,11 +131,21 @@
   }
 
   .innerWrapper {
-    min-width: 460px;
+    min-width: 390px;
     max-width: 100%;
   }
 
   .borderBox {
-    min-width: 390px;
+    min-width: 0px;
+  }
+}
+
+@media (max-width: 390px) {
+  .headerTitle {
+    font-size: 35px;
+  }
+
+  .tagline {
+    font-size: 12px;
   }
 }

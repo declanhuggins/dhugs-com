@@ -88,7 +88,7 @@ export default function Header() {
           <h1 className={styles.headerTitle}>
             <Link href="/" rel="home">Declan Huggins</Link>
           </h1>
-          <p className={`text-gray-300 ${styles.tagline}`}>
+          <p className={`${styles.tagline}`}>
             Photographer | Computer Scientist
           </p>
         </div>
