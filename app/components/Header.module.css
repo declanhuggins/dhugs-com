@@ -8,7 +8,7 @@
 .innerWrapper {
   width: 100%;
   max-width: 75%; /* Default width on large screens */
-  min-width: 600px; /* Prevents the header from collapsing */
+  min-width: 490px; /* Prevents the header from collapsing */
   margin: 0 auto;
   height: 100%;
   position: relative;
@@ -22,7 +22,7 @@
   right: 1rem;
   bottom: 2.5rem;
   border: 2px solid var(--foreground);
-  min-width: 500px;
+  min-width: 390px;
 }
 
 /* Top & Bottom Rows positioned absolutely so their centers align with the border lines */
@@ -109,4 +109,25 @@
   background: var(--background);
   border: 2px solid var(--foreground);
   padding: 6px 10px;
+}
+
+@media (max-width: 490px) {
+  /* Hide the standard nav links */
+  .navLink {
+    display: none;
+  }
+
+  /* Hide the social buttons */
+  .socialButton {
+    display: none;
+  }
+
+  .innerWrapper {
+    min-width: 460px;
+    max-width: 100%;
+  }
+
+  .borderBox {
+    min-width: 390px;
+  }
 }
