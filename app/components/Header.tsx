@@ -11,14 +11,29 @@ export default function Header() {
 
   useEffect(() => {
     const now = new Date();
-    const iso = now.toISOString(); // e.g., "2025-02-17T19:01:01.123Z"
-    const base = iso.split('.')[0]; // "YYYY-MM-DDTHH:MM:SS"
+  
+    // Helper to pad numbers with a leading zero
+    const pad = (num: number) => String(num).padStart(2, '0');
+  
+    // Build the local date string in ISO format (without timezone)
+    const year = now.getFullYear();
+    const month = pad(now.getMonth() + 1); // Months are 0-indexed
+    const day = pad(now.getDate());
+    const hour = pad(now.getHours());
+    const minute = pad(now.getMinutes());
+    const second = pad(now.getSeconds());
+    const base = `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+  
+    // Calculate the timezone offset
+    // getTimezoneOffset() returns the offset in minutes from local time to UTC.
+    // Multiplying by -1 gives the correct sign.
     const offsetMinutes = now.getTimezoneOffset() * -1;
     const sign = offsetMinutes >= 0 ? '+' : '-';
-    const pad = (num: number) => String(Math.floor(Math.abs(num))).padStart(2, '0');
-    const hours = pad(offsetMinutes / 60);
-    const mins = pad(offsetMinutes % 60);
-    const localIso = `${base}${sign}${hours}:${mins}`;
+    const offsetHours = pad(Math.floor(Math.abs(offsetMinutes) / 60));
+    const offsetMins = pad(Math.abs(offsetMinutes) % 60);
+  
+    // Combine the local date string with the offset
+    const localIso = `${base}${sign}${offsetHours}:${offsetMins}`;
     setTimestamp(localIso);
   }, []);
 
