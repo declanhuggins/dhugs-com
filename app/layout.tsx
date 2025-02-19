@@ -1,8 +1,8 @@
-// app/layout.tsx
 import './globals.css';
 import { ReactNode } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import { ThemeProvider } from 'next-themes';
 
 export const metadata = {
   title: 'Declan Huggins | Photographer | Computer Scientist',
@@ -11,12 +11,14 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-[var(--background)] text-[var(--foreground)] font-mono">
-        <Header />
-        <main className="max-w-screen-xl mx-auto p-4">
-          {children}
-        </main>
-        <Footer />
+      <body suppressHydrationWarning className="bg-[var(--background)] text-[var(--foreground)] font-mono">
+        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem={true}>
+          <Header />
+          <main className="max-w-screen-xl mx-auto p-4">
+            {children}
+          </main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
