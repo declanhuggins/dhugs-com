@@ -12,7 +12,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body suppressHydrationWarning className="bg-[var(--background)] text-[var(--foreground)] font-mono">
-        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem={true}>
+        <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem={true}>
           <Header />
           <main className="max-w-screen-xl mx-auto p-4">
             {children}
