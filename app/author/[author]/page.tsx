@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 import React, { JSX } from 'react';
 import { getAllPosts } from '../../../lib/posts';
 import PostPreview from '../../../app/components/PostPreview';
@@ -12,15 +11,23 @@ function getProperAuthorName(slug: string): string {
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
-interface PageProps {
-  params: Promise<{
-    author: string;
-  }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+export const dynamic = 'force-static';
+
+export async function generateStaticParams() {
+  const posts = getAllPosts();
+  const authors = Array.from(new Set(posts.map(post => getAuthorSlug(post.author))));
+  return authors.map(author => ({ author }));
 }
 
-export default async function AuthorPage({ params }: PageProps): Promise<JSX.Element> {
-  const { author: authorSlug } = await params;
+interface PageProps {
+  params: {
+    author: string;
+  };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default function AuthorPage({ params }: PageProps): JSX.Element {
+  const { author: authorSlug } = params;
   const posts = getAllPosts().filter(post => getAuthorSlug(post.author) === authorSlug);
 
   return (
