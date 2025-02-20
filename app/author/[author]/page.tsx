@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import React, { JSX } from 'react';
 import { getAllPosts } from '../../../lib/posts';
 import PostPreview from '../../../app/components/PostPreview';
