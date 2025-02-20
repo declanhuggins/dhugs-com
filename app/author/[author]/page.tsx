@@ -20,14 +20,14 @@ export async function generateStaticParams() {
 }
 
 interface PageProps {
-  params: {
+  params: Promise<{
     author: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
+  }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default function AuthorPage({ params }: PageProps): JSX.Element {
-  const { author: authorSlug } = params;
+export default async function AuthorPage({ params }: PageProps): Promise<JSX.Element> {
+  const { author: authorSlug } = await params;
   const posts = getAllPosts().filter(post => getAuthorSlug(post.author) === authorSlug);
 
   return (
