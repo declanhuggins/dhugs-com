@@ -1,9 +1,9 @@
-// app/[year]/[month]/[slug]/page.tsx
 import React, { JSX } from 'react';
 import { notFound } from 'next/navigation';
 import { getAllPosts, getPostBySlug } from '../../../../lib/posts';
 import { remark } from 'remark';
 import html from 'remark-html';
+import TagLink from '../../../components/TagLink';  // Adjust the import path as needed
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
@@ -46,14 +46,44 @@ export default async function PostPage({
   const processedContent = await remark().use(html).process(post.content);
   const contentHtml = processedContent.toString();
 
-  // Ensure a fixed, deterministic date format
-  const formattedDate = new Date(post.date).toLocaleDateString('en-US');
+  // Format the date including time and local timezone.
+  const formattedDateTime = postDate.toLocaleString('en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  });
+
+  // Helper function to render tags as linked items with proper punctuation.
+  const renderTagLinks = (tags: string[]) => {
+    return tags.map((tag, index) => (
+      <React.Fragment key={tag}>
+        <TagLink tag={tag} className="underline" />
+        {index < tags.length - 2 ? ", " : ""}
+        {index === tags.length - 2 ? " and " : ""}
+      </React.Fragment>
+    ));
+  };
 
   return (
-    <article className="prose mx-auto py-8">
-      <h1>{post.title}</h1>
-      <div className="text-[var(--text-muted)] mb-4">{formattedDate}</div>
-      <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
+    <article className="mx-auto py-8">
+      <div className="text-center">
+        <h1 className="text-5xl font-bold">{post.title}</h1>
+        {/* Wrap metadata lines in a container for consistent spacing */}
+        <div className="mt-4 space-y-2 text-sm text-[var(--text-muted)]">
+          <div>
+            Posted on {formattedDateTime} by {post.author}
+          </div>
+          {post.tags && post.tags.length > 0 && (
+            <div>
+              Posted in { renderTagLinks(post.tags) }
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="prose w-full mx-auto max-w-none py-8" dangerouslySetInnerHTML={{ __html: contentHtml }} />
     </article>
   );
 }

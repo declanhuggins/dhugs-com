@@ -11,6 +11,8 @@ export interface Post {
   date: string;
   excerpt?: string;
   content: string;
+  author: string;
+  tags?: string[]; // Optional tags field
 }
 
 export function getAllPosts(): Post[] {
@@ -26,6 +28,8 @@ export function getAllPosts(): Post[] {
       date: data.date,
       excerpt: data.excerpt,
       content,
+      tags: data.tags, // Return tags if provided
+      author: data.author || 'Unknown Author', // Use default if not provided
     };
   });
 }
@@ -43,5 +47,7 @@ export function getPostBySlug(slug: string): Post | null {
     date: data.date,
     excerpt: data.excerpt,
     content,
+    tags: data.tags,
+    author: data.author || 'Unknown Author',
   };
 }

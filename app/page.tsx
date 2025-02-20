@@ -1,5 +1,7 @@
+import React from 'react';
 import PostPreview from './components/PostPreview';
 import { getAllPosts } from '../lib/posts';
+import Link from 'next/link';
 
 export default function Home() {
   const posts = getAllPosts().sort(
@@ -22,21 +24,34 @@ export default function Home() {
     return b.year.localeCompare(a.year);
   });
 
+  // Build a unique list of categories (tags)
+  const categorySet = new Set<string>();
+  posts.forEach(post => {
+    if (post.tags && Array.isArray(post.tags)) {
+      post.tags.forEach(tag => categorySet.add(tag));
+    }
+  });
+  const categories = Array.from(categorySet).sort((a, b) => a.localeCompare(b));
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-[8fr_2fr] gap-8">
       <section>
         <h2 className="text-2xl font-bold mb-4">Latest Posts</h2>
-        {posts.map(post => (
-          <PostPreview
-            key={post.slug}
-            slug={post.slug}
-            title={post.title}
-            date={post.date}
-            imageSrc={`/${post.slug}.avif`}
-          />
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {posts.map(post => (
+            <PostPreview
+              key={post.slug}
+              slug={post.slug}
+              title={post.title}
+              author={post.author}
+              date={post.date}
+              imageSrc={`/thumbnails/${post.slug}.avif`}
+              tags={post.tags}
+            />
+          ))}
+        </div>
       </section>
-      <aside>
+      <aside className="mx-auto lg:mx-0 text-center lg:text-left">
         <div className="mb-8">
           <h3 className="font-bold mb-2">Recent Posts</h3>
           <ul className="space-y-1 text-sm">
@@ -53,7 +68,9 @@ export default function Home() {
           </ul>
         </div>
         <div className="mb-8">
-          <h3 className="font-bold mb-2">Archives</h3>
+          <Link href="/archive">
+            <h3 className="font-bold mb-2 hover:underline">Archives</h3>
+          </Link>
           <ul className="space-y-1 text-sm">
             {archives.map(archive => (
               <li key={`${archive.year}-${archive.month}`}>
@@ -65,6 +82,25 @@ export default function Home() {
             ))}
           </ul>
         </div>
+        {/* New Categories Section */}
+        <section className="mt-8">
+          <Link href="/category">
+            <h3 className="font-bold mb-2 hover:underline">Categories</h3>
+          </Link>
+          {categories.length === 0 ? (
+            <p className="text-sm">No categories available.</p>
+          ) : (
+            <ul className="space-y-1 text-sm">
+              {categories.map(tag => (
+                <li key={tag}>
+                  <Link href={`/category/${tag.toLowerCase()}`} className="hover:underline">
+                    {tag}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </aside>
     </div>
   );

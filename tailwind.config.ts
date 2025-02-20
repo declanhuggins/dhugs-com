@@ -14,5 +14,7 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'), // ensure this plugin is installed and referenced
+  ],
 } satisfies Config;

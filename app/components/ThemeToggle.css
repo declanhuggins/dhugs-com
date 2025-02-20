@@ -1,0 +1,26 @@
+.theme-toggle-button {
+  padding: 0.5rem;
+  background-color: var(--background);
+  border: 1px solid var(--border-color);
+}
+
+.theme-toggle-button.loading {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.theme-toggle-loading-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: var(--text-light-muted);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.theme-toggle-icon {
+  display: block;
+}

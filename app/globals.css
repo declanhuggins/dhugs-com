@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@plugin "@tailwindcss/typography";
 
 :root {
   --background: #ffffff;
@@ -21,8 +22,8 @@
   --link-color: #8ab4f8;
   --link-hover-color: #ff4081;
   --border-color: #f0f0f0;
-  --text-muted: #d1d5db; /* gray-300 */
-  --text-light-muted: #e5e7eb; /* gray-200 */
+  --text-muted: #e5e7eb; /* gray-300 */
+  --text-light-muted: #d1d5db; /* gray-200 */
 }
 
 body {
@@ -53,4 +54,18 @@ button {
 
 [data-theme='dark'] .svg-foreground {
   filter: invert(1);
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6,
+.prose strong{
+  color: var(--foreground);
+}
+
+.prose h1 {
+  text-align: center;
 }

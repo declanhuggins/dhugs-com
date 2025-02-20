@@ -22,7 +22,7 @@ export default function Header() {
               <Link href="https://www.instagram.com/declanhuggins/" target="_blank" className={styles.socialButton}>
                 <span className="sr-only">Instagram</span>
                 <Image
-                  src="/instagram.svg"
+                  src="/icons/instagram.svg"
                   alt="Instagram"
                   width={20}
                   height={20}
@@ -34,7 +34,7 @@ export default function Header() {
               <Link href="https://github.com/declanhuggins" target="_blank" className={styles.socialButton}>
                 <span className="sr-only">GitHub</span>
                 <Image
-                  src="/github.svg"
+                  src="/icons/github.svg"
                   alt="GitHub"
                   width={20}
                   height={20}
@@ -46,7 +46,7 @@ export default function Header() {
               <Link href="https://linkedin.com/in/declanhuggins" target="_blank" className={styles.socialButton}>
                 <span className="sr-only">LinkedIn</span>
                 <Image
-                  src="/linkedin.svg"
+                  src="/icons/linkedin.svg"
                   alt="LinkedIn"
                   width={20}
                   height={20}
@@ -73,11 +73,11 @@ export default function Header() {
             <Link href="/about" className={`${styles.navLink} ${styles.buttonBorder}`}>About</Link>
             <Link href="/portfolio" className={`${styles.navLink} ${styles.buttonBorder}`}>Portfolio</Link>
             <Link href="/minecraft" className={`${styles.navLink} ${styles.buttonBorder}`}>Minecraft</Link>
-            <Link href="/map" className={`${styles.navLink} ${styles.buttonBorder}`}>Map</Link>
+            <Link href="https://map.dhugs.com" className={`${styles.navLink} ${styles.buttonBorder}`}>Map</Link>
           </nav>
           <Link href="#" title="Search" className={styles.searchButton}>
             <Image
-              src="/magnifying.svg"
+              src="/icons/magnifying.svg"
               alt="Search"
               width={20}
               height={20}

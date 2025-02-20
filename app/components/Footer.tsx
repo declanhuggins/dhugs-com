@@ -1,12 +1,13 @@
 import ThemeToggle from './ThemeToggle';
+import styles from './Footer.module.css';
 
 export default function Footer() {
   return (
-    <footer className="w-full py-4 mt-8 bg-[var(--footer-background)] relative">
-      <div className="max-w-screen-xl mx-auto px-4 text-sm text-center">
+    <footer className={styles.footer}>
+      <div className={styles.content}>
         {new Date().getFullYear()} © Declan Huggins
       </div>
-      <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+      <div className={styles.themeToggle}>
         <ThemeToggle />
       </div>
     </footer>
