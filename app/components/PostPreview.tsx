@@ -35,7 +35,7 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
             {tags.map((tag, index) => (
               <Link 
                 key={index} 
-                href={`/tags/${encodeURIComponent(tag)}`} 
+                href={`/category/${tag.toLowerCase()}`} 
                 className={styles.tag}
               >
                 {tag}
