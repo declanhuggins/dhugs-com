@@ -45,6 +45,7 @@ export default async function AuthorPage({ params }: PageProps): Promise<JSX.Ele
               author={post.author}
               date={post.date}
               imageSrc={`/thumbnails/${post.slug}.avif`}
+              thumbnail={post.thumbnail} // Pass thumbnail for album posts
               tags={post.tags}
             />
           ))}

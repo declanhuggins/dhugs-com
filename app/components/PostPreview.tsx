@@ -5,10 +5,10 @@ import styles from './PostPreview.module.css';
 
 interface PostPreviewProps {
   title: string;
-  author: string;
+  author: string; // added author prop
   date: string;
   imageSrc: string;
-  thumbnail?: string; // Optional; for album posts, should be set to cdn.dhugs.com/albums/[year]/[month]/[slug]/thumbnail.avif
+  thumbnail?: string; // Optional thumbnail for album posts
   slug: string;
   altText?: string;
   tags?: string[];
@@ -19,7 +19,7 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
   const year = postDate.getFullYear().toString();
   const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
   const formattedDate = postDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
-  // Use thumbnail if provided (for album posts), otherwise fallback to imageSrc
+  // Use album thumbnail if provided, otherwise fallback to imageSrc.
   const imgSrc = thumbnail || imageSrc;
 
   return (
@@ -45,10 +45,7 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
         )}
       </div>
       <div className={styles.meta}>
-        <Link 
-          href={`/author/${author.toLowerCase().replace(/\s+/g, '-')}`} 
-          className={styles.author}
-        >
+        <Link href={`/author/${author.toLowerCase().replace(/\s+/g, '-')}`} className={styles.author}>
           <Image 
             src="/icons/user.svg" 
             alt="Author" 
@@ -69,10 +66,11 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
           {formattedDate}
         </span>
       </div>
-      {/* Wrap image in a Link to navigate to the post's page */}
+      {/* Wrap image in a Link */}
       <Link href={`/${year}/${month}/${slug}`} className={styles.link}>
         <div className={styles.imageWrapper}>
           <Image
+            unoptimized={!!thumbnail}
             src={imgSrc}
             alt={altText || title}
             width={700}

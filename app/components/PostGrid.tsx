@@ -18,6 +18,7 @@ export default function PostGrid({ posts }: PostGridProps) {
           author={post.author}
           date={post.date}
           imageSrc={`/thumbnails/${post.slug}.avif`}
+          thumbnail={post.thumbnail}  // Pass thumbnail to use album CDN URL when available.
           tags={post.tags}
         />
       ))}

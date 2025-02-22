@@ -55,25 +55,20 @@ function getAlbumPosts(): Post[] {
         const parts = relativePath.split(path.sep);
         if (parts.length === 3) {
           const [year, month, fileName] = parts;
-          const slug = fileName.replace(/\.json$/, ''); // Use only the file base name (e.g. "dec-20")
-          const fullSlug = slug; // The album's slug is just the file base name.
+          const slug = fileName.replace(/\.json$/, ''); // e.g. "dec-20"
           const fileContents = fs.readFileSync(fullPath, 'utf8');
           const data = JSON.parse(fileContents);
-          // Look for a thumbnail file named "thumbnail.avif" in the same directory.
-          let thumbnail = undefined;
-          const thumbPath = path.join(dir, 'thumbnail.avif');
-          if (fs.existsSync(thumbPath)) {
-            thumbnail = `https://cdn.dhugs.com/albums/${year}/${month}/${slug}/thumbnail.avif`;
-          }
+          // Always build the album thumbnail URL:
+          const thumbnail = `https://cdn.dhugs.com/albums/${year}/${month}/${slug}/thumbnail.avif`;
           results.push({
-            slug: fullSlug,
+            slug,
             title: data.title,
             date: data.date,
             excerpt: data.excerpt || '',
             content: '', // Album posts don't have content
             tags: data.tags,
             author: data.author,
-            thumbnail, // Uses the album-specific thumbnail URL if available
+            thumbnail, // Album-specific thumbnail URL
           });
         }
       }
