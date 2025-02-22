@@ -5,40 +5,45 @@ import styles from './PostPreview.module.css';
 
 interface PostPreviewProps {
   title: string;
-  author: string; // added author prop
+  author: string;
   date: string;
   imageSrc: string;
+  thumbnail?: string; // Optional; for album posts, should be set to cdn.dhugs.com/albums/[year]/[month]/[slug]/thumbnail.avif
   slug: string;
   altText?: string;
   tags?: string[];
 }
 
-export default function PostPreview({ title, author, date, imageSrc, slug, altText, tags }: PostPreviewProps) {
+export default function PostPreview({ title, author, date, imageSrc, thumbnail, slug, altText, tags }: PostPreviewProps) {
   const postDate = new Date(date);
   const year = postDate.getFullYear().toString();
   const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
   const formattedDate = postDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  // Use thumbnail if provided (for album posts), otherwise fallback to imageSrc
+  const imgSrc = thumbnail || imageSrc;
 
   return (
     <article className={styles.wrapper}>
-      <h2 className={styles.title}>
-        <Link href={`/${year}/${month}/${slug}`} className={styles.link}>
-          {title}
-        </Link>
-      </h2>
-      {tags && tags.length > 0 && (
-        <div className={styles.tags}>
-          {tags.map((tag, index) => (
-            <Link 
-              key={index} 
-              href={`/tags/${encodeURIComponent(tag)}`} 
-              className={styles.tag}
-            >
-              {tag}
-            </Link>
-          ))}
-        </div>
-      )}
+      <div className={styles.header}>
+        <h2 className={styles.title}>
+          <Link href={`/${year}/${month}/${slug}`} className={styles.link}>
+            {title}
+          </Link>
+        </h2>
+        {tags && tags.length > 0 && (
+          <div className={styles.tags}>
+            {tags.map((tag, index) => (
+              <Link 
+                key={index} 
+                href={`/tags/${encodeURIComponent(tag)}`} 
+                className={styles.tag}
+              >
+                {tag}
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
       <div className={styles.meta}>
         <Link 
           href={`/author/${author.toLowerCase().replace(/\s+/g, '-')}`} 
@@ -64,15 +69,18 @@ export default function PostPreview({ title, author, date, imageSrc, slug, altTe
           {formattedDate}
         </span>
       </div>
-      <div className={styles.imageWrapper}>
-        <Image
-          src={imageSrc}
-          alt={altText || title}
-          width={700}
-          height={475}
-          className={styles.image}
-        />
-      </div>
+      {/* Wrap image in a Link to navigate to the post's page */}
+      <Link href={`/${year}/${month}/${slug}`} className={styles.link}>
+        <div className={styles.imageWrapper}>
+          <Image
+            src={imgSrc}
+            alt={altText || title}
+            width={700}
+            height={475}
+            className={styles.image}
+          />
+        </div>
+      </Link>
     </article>
   );
 }

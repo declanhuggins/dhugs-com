@@ -4,7 +4,7 @@
 import { useTheme } from 'next-themes';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import "./ThemeToggle.css";
+import "./ThemeToggle.module.css";
 
 export default function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();

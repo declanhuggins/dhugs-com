@@ -2,7 +2,45 @@
   margin-bottom: 2rem;
 }
 
-/* New meta container for author and date */
+/* Updated header container: now both title and tags are left aligned */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* gap between title and tags */
+}
+
+/* Adjust title and tag spacing as needed */
+.title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0; /* removed extra margin */
+}
+
+.link {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Adjusted tags styling */
+.tags {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tag {
+  display: inline-block;
+  color: var(--foreground);
+  background-color: var(--footer-background);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+}
+
+/* Meta area remains unchanged */
 .meta {
   display: flex;
   align-items: center;
@@ -18,45 +56,15 @@
   gap: 0.25rem;
 }
 
-/* Added white color for author link */
 .author {
   color: var(--foreground);
 }
 
-/* Icon styling */
 .icon {
   display: inline-block;
 }
 
-.title {
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.link {
-  color: var(--link-color);
-  text-decoration: none;
-}
-
-.link:hover {
-  text-decoration: underline;
-}
-
-.tags {
-  margin-bottom: 0.5rem;
-}
-
-.tag {
-  display: inline-block;
-  color: var(--foreground); /* equivalent to Tailwind white */
-  background-color: var(--footer-background); /* equivalent to Tailwind gray-200 */
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  margin-right: 0.5rem;
-  border-radius: 0.375rem;
-}
-
+/* Existing image styles */
 .imageWrapper {
   position: relative;
   width: 100%;

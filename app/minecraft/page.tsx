@@ -11,7 +11,7 @@ export default async function MinecraftPage() {
   const contentHtml = processedContent.toString();
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-8">
+    <div className="container mx-auto max-w-3xl px-4">
       <article 
         className="prose w-full mx-auto max-w-none" 
         style={{ color: 'var(--foreground)' }}

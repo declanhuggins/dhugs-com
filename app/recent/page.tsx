@@ -1,16 +1,11 @@
 import React from 'react';
-import Sidebar from './components/Sidebar';
-import PostGrid from './components/PostGrid';
-import { getAllPosts } from '../lib/posts';
+import PostGrid from '../components/PostGrid';
+import Sidebar from '../components/Sidebar';
+import { getAllPosts } from '../../lib/posts';
 
-export default function Home() {
+export default function RecentPage() {
   const posts = getAllPosts().sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
-  const latestTag = 'Photography';
-  const filteredPosts = posts.filter(
-    post => post.tags && post.tags.includes(latestTag)
   );
 
   // Build archives
@@ -28,7 +23,7 @@ export default function Home() {
     if (a.year === b.year) return b.month.localeCompare(a.month);
     return b.year.localeCompare(a.year);
   });
-
+  
   // Build categories
   const categorySet = new Set<string>();
   posts.forEach(post => {
@@ -41,8 +36,8 @@ export default function Home() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[8fr_2fr] gap-8">
       <section>
-        <h2 className="text-2xl font-bold mb-4">Latest in {latestTag}</h2>
-        <PostGrid posts={filteredPosts} />
+        <h2 className="text-2xl font-bold mb-4">Recent Posts</h2>
+        <PostGrid posts={posts} />
       </section>
       <Sidebar posts={posts} archives={archives} categories={categories} />
     </div>

@@ -2,13 +2,14 @@ import Image from 'next/image';
 
 export default function AboutPage() {
   return (
-    <div className="max-w-screen-xl mx-auto p-4">
+    <div>
       <h1 className="text-3xl font-bold mb-8 text-center">About</h1>
       <article className="space-y-6">
         {/* First image container: centered and full-width by default, 40% with float on md+ */}
         <div className="w-full mx-auto md:w-[40%] md:float-left md:mr-4 md:mb-4">
           <Image
-            src="/about/AboutOne.avif"
+            unoptimized
+            src="https://cdn.dhugs.com/about/AboutOne.avif"
             alt="About photo one"
             width={500}
             height={500}
@@ -25,7 +26,8 @@ export default function AboutPage() {
         {/* Second image container: centered and full-width by default, 30% with float on md+ */}
         <div className="w-full mx-auto md:w-[30%] md:float-right md:ml-4 md:mb-4">
           <Image
-            src="/about/AboutTwo.avif"
+            unoptimized
+            src="https://cdn.dhugs.com/about/AboutTwo.avif"
             alt="About photo two"
             width={500}
             height={500}

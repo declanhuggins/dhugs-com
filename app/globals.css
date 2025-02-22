@@ -69,3 +69,17 @@ button {
 .prose h1 {
   text-align: center;
 }
+
+/* Default container from root layout */
+.main-container {
+  max-width: 100rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Full width override for portfolio pages */
+.portfolio-container {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
