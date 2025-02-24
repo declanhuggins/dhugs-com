@@ -1,6 +1,10 @@
+"use client";
+import React, { useContext } from 'react';
 import Image from 'next/image';
+import { PriorityImageContext } from '../components/PriorityImageContext';
 
 export default function AboutPage() {
+  const { markLoaded } = useContext(PriorityImageContext);
   return (
     <div>
       <h1 className="text-3xl font-bold mb-8 text-center">About</h1>
@@ -14,6 +18,7 @@ export default function AboutPage() {
             width={500}
             height={500}
             className="object-cover rounded w-full"
+            onLoad={() => markLoaded()}
           />
         </div>
         <p>
@@ -32,6 +37,7 @@ export default function AboutPage() {
             width={500}
             height={500}
             className="object-cover rounded w-full"
+            onLoad={() => markLoaded()}
           />
         </div>
         <p>

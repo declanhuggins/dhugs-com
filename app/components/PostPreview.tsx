@@ -1,7 +1,9 @@
-// app/components/PostPreview.tsx
+"use client";
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './PostPreview.module.css';
+import React, { useContext, useEffect } from 'react';
+import { PriorityImageContext } from './PriorityImageContext';
 
 interface PostPreviewProps {
   title: string;
@@ -12,9 +14,18 @@ interface PostPreviewProps {
   slug: string;
   altText?: string;
   tags?: string[];
+  priority?: boolean; // new prop for image priority
 }
 
-export default function PostPreview({ title, author, date, imageSrc, thumbnail, slug, altText, tags }: PostPreviewProps) {
+export default function PostPreview({ title, author, date, imageSrc, thumbnail, slug, altText, tags, priority }: PostPreviewProps) {
+  const { register, markLoaded } = useContext(PriorityImageContext);
+
+  useEffect(() => {
+    if (priority) {
+      register();
+    }
+  }, [priority, register]);
+
   const postDate = new Date(date);
   const year = postDate.getFullYear().toString();
   const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
@@ -76,6 +87,8 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
             width={700}
             height={475}
             className={styles.image}
+            priority={priority} // pass priority flag here
+            onLoad={priority ? () => markLoaded() : undefined} // replaced onLoadingComplete with onLoad
           />
         </div>
       </Link>

@@ -10,7 +10,7 @@ interface PostGridProps {
 export default function PostGrid({ posts }: PostGridProps) {
   return (
     <div className={styles.grid}>
-      {posts.map(post => (
+      {posts.map((post, index) => (
         <PostPreview
           key={post.slug}
           slug={post.slug}
@@ -20,6 +20,7 @@ export default function PostGrid({ posts }: PostGridProps) {
           imageSrc={`/thumbnails/${post.slug}.avif`}
           thumbnail={post.thumbnail}  // Pass thumbnail to use album CDN URL when available.
           tags={post.tags}
+          priority={index < 4} // first 4 posts load with priority
         />
       ))}
     </div>
