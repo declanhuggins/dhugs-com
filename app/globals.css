@@ -49,11 +49,11 @@ button {
 }
 
 .svg-foreground {
-  filter: none;
+  filter: invert(1);
 }
 
-[data-theme='dark'] .svg-foreground {
-  filter: invert(1);
+[data-theme='light'] .svg-foreground {
+  filter: none;
 }
 
 .prose h1,
