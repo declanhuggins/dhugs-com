@@ -4,26 +4,26 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #ffffff;
-  --foreground: #101010;
-  --footer-background: #f0f0f0;
-  --link-color: #1a0dab;
-  --link-hover-color: #d61f69;
-  --border-color: #1A1A1A;
-  --header-height: 15rem;
-  --text-muted: #6b7280; /* gray-500 */
-  --text-light-muted: #9ca3af; /* gray-400 */
-}
-
-[data-theme='dark'] {
   --background: #101010;
   --foreground: #ffffff;
   --footer-background: #1A1A1A;
   --link-color: #8ab4f8;
   --link-hover-color: #ff4081;
   --border-color: #f0f0f0;
-  --text-muted: #e5e7eb; /* gray-300 */
-  --text-light-muted: #d1d5db; /* gray-200 */
+  --header-height: 15rem;
+  --text-muted: #e5e7eb;
+  --text-light-muted: #d1d5db;
+}
+
+[data-theme='light'] {
+  --background: #ffffff;
+  --foreground: #101010;
+  --footer-background: #f0f0f0;
+  --link-color: #1a0dab;
+  --link-hover-color: #d61f69;
+  --border-color: #1A1A1A;
+  --text-muted: #6b7280;
+  --text-light-muted: #9ca3af;
 }
 
 body {
