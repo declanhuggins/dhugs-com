@@ -14,13 +14,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Updated inline script to default to dark if no stored theme */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
                   var storedTheme = localStorage.getItem('theme');
-                  var theme = storedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                  var theme = storedTheme || 'dark';
                   document.documentElement.dataset.theme = theme;
                 } catch (e) {}
               })();
