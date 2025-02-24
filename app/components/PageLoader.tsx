@@ -1,28 +1,22 @@
 "use client";
-import React, { useContext, useEffect, useState } from 'react';
-import { PriorityImageProvider, PriorityImageContext } from './PriorityImageContext';
+import React from 'react';
+import { PriorityImageProvider } from './PriorityImageContext';
 import styles from './PageLoader.module.css';
 
 export default function PageLoader({ children }: { children: React.ReactNode }) {
-  const [hideLoader, setHideLoader] = useState(false);
-  const { total, loaded } = useContext(PriorityImageContext);
-
-  useEffect(() => {
-    // If no priority images registered, or all loaded, hide loader.
-    if (total === 0 || loaded === total) {
-      setHideLoader(true);
-    }
-  }, [total, loaded]);
-
+  // Loading overlay is temporarily disabled.
   return (
     <PriorityImageProvider>
       <div className={styles.wrapper}>
         {children}
+        {/*
+        // ...previous loading overlay code disabled...
         {!hideLoader && (
           <div className={styles.overlay}>
             Loading...
           </div>
         )}
+        */}
       </div>
     </PriorityImageProvider>
   );
