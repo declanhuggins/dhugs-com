@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body suppressHydrationWarning className="bg-[var(--background)] text-[var(--foreground)] font-mono">
-        <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem={true}>
+        <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem={false}>
           <Header />
           <PageLoader>
             <Container>{children}</Container>
