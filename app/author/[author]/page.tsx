@@ -32,7 +32,9 @@ export default async function AuthorPage({ params }: PageProps): Promise<JSX.Ele
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Posts by {getProperAuthorName(authorSlug)}</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        <Link href="/author" className="--link-color hover:underline">Author:</Link> {getProperAuthorName(authorSlug)}
+      </h1>
       {posts.length === 0 ? (
         <p>No posts found for this author.</p>
       ) : (
