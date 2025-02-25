@@ -9,7 +9,7 @@ export interface AlbumImage {
   alt: string;
 }
 
-const allowedExtensions = [".jpg", ".jpeg", ".png", ".cr2", ".avif"];
+const allowedExtensions = [".jpg", ".jpeg", ".png", ".avif"];
 const bucket = process.env.AWS_BUCKET_NAME;
 
 // Configure S3 client for Cloudflare R2
