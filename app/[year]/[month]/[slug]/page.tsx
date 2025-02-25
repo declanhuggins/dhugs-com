@@ -68,6 +68,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      timeZone: 'America/New_York',
       timeZoneName: 'short'
     });
     return (
@@ -99,6 +100,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'America/New_York',
     timeZoneName: 'short'
   });
 

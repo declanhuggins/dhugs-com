@@ -29,7 +29,12 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
   const postDate = new Date(date);
   const year = postDate.getFullYear().toString();
   const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
-  const formattedDate = postDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  const formattedDate = postDate.toLocaleDateString('en-US', { 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric',
+    timeZone: 'America/New_York'
+  });
   // Use album thumbnail if provided, otherwise fallback to imageSrc.
   const imgSrc = thumbnail || imageSrc;
 
