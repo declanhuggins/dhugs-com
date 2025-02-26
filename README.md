@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# dhugs-com
+
+dhugs-com is a personal website showcasing photo albums, posts, and various projects. It is built with Next.js and powered by React, offering a modern and responsive design.
+
+## Features
+- **Photo Albums:** Browse albums sorted by year and month.
+- **Blog Posts:** Read and explore various posts.
+- **Dynamic Routing:** Experience a seamless navigation with Next.js' file system routing.
+- **Responsive Design:** Optimized for desktop and mobile devices.
+
+## Technologies
+- [Next.js](https://nextjs.org) for the React framework
+- [React](https://reactjs.org) for building user interfaces
+- [Tailwind CSS](https://tailwindcss.com) for styling
+- Various npm libraries for enhanced functionality
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Run the development server:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Cloning the Repository
+
+Clone the repository with:
+   ```bash
+   git clone https://github.com/declanhuggins/dhugs-com.git
+   cd dhugs-com
+   ```
+
+## Build & Deployment
+
+- To build:
+   ```bash
+   npm run build
+   ```
+- To start the production server:
+   ```bash
+   npm run start
+   ```
+
+## Environment Variables for S3 Bucket
+
+To properly deploy and serve album images, set the following environment variables in your deployment environment:
+
+- AWS_REGION=
+- AWS_BUCKET_NAME=
+- S3_ENDPOINT=
+- AWS_ACCESS_KEY_ID=
+- AWS_SECRET_ACCESS_KEY=
+
+## Album Images
+
+Album images are served from the S3 bucket with the following URL structure:
+
+- Full-sized images: 
+  https://cdn.dhugs.com/albums/[year]/[month]/[slug]/images/[filename]
+
+- Thumbnails:
+  https://cdn.dhugs.com/albums/[year]/[month]/[slug]/thumbnail.avif
+
+## Tools
+
+### Avifier Script
+
+The avifier.sh script converts supported images (JPEG, PNG, CR2) to AVIF format using ImageMagick.
+
+Usage:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+./tools/avifier.sh /path/to/source /path/to/destination
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Checks required arguments and supported file extensions.
+- Retrieves image dimensions and file size for metadata.
+- Outputs conversion status for each file.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Contributing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Feel free to submit issues or pull requests. Follow the standard GitHub workflow.
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License.
