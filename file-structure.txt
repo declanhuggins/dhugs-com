@@ -68,6 +68,9 @@
 │   │   ├── ThemeToggle.module.css
 │   │   └── ThemeToggle.tsx
 │   ├── globals.css
+│   ├── go
+│   │   └── [key]
+│   │       └── page.tsx
 │   ├── layout.tsx
 │   ├── minecraft
 │   │   ├── minecraft.md
@@ -82,6 +85,8 @@
 ├── lib
 │   ├── album.ts
 │   └── posts.ts
+├── links
+│   └── links.md
 ├── next.config.ts
 ├── package-lock.json
 ├── package.json
@@ -101,7 +106,10 @@
 │       ├── sun.svg
 │       └── user.svg
 ├── README.md
+├── SECURITY.md
 ├── tailwind.config.ts
+├── tools
+│   └── avifier.sh
 └── tsconfig.json
 
-34 directories, 71 files
+38 directories, 75 files

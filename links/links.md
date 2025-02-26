@@ -1,0 +1,12 @@
+---
+y217: “https://chatgpt.com/share/67be0cf6-a918-800c-9f19-58be6c651f06”
+q0yc: “https://chatgpt.com/share/67aad6c2-de4c-800c-8c49-a9799c377fc1”
+mrdunne: “https://www.paypal.com/paypalme/WalshHall”
+lnkd: “https://www.linkedin.com/in/declanhuggins/”
+insta: “https://www.instagram.com/declanhuggins/”
+41n6: “https://chatgpt.com/share/67a18f8e-7cf4-800c-a873-1afb7c604be5”
+882m: “https://chatgpt.com/share/67a18e6a-e6bc-800c-9f08-1d5204401556”
+dpsk: “https://www.linkedin.com/pulse/what-america-got-wrong-deepseek-declan-huggins-cvlwc”
+a2cv: “https://chatgpt.com/share/6792eedc-8d58-800c-b93c-bc258244914a”
+3ipx: “https://chatgpt.com/share/6792eedc-8d58-800c-b93c-bc258244914a”
+---
