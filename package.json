@@ -2,9 +2,6 @@
   "name": "dhugs-com",
   "version": "1.0.0",
   "private": true,
-  "engines": {
-    "node": "18.17.1"
-  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
