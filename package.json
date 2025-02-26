@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npm run tree && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "dev-build": "npm run tree && npm run build",
     "tree": "bash -c 'pattern=\"$(( sed \"/^\\s*#/d;/^$/d\" .gitignore; echo .next; echo node_modules ) | tr \"\\n\" \"|\" | sed \"s/|$//\")\"; tree -I \"$pattern\" > file-structure.txt'"
   },
   "dependencies": {
