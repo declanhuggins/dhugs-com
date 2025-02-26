@@ -1,0 +1,107 @@
+.
+├── albums
+│   ├── 2023
+│   │   ├── 09
+│   │   │   └── sep-21.json
+│   │   └── 11
+│   │       └── nov-18.json
+│   ├── 2024
+│   │   ├── 03
+│   │   │   ├── mar-16.json
+│   │   │   └── mar-27.json
+│   │   ├── 04
+│   │   │   ├── apr-16.json
+│   │   │   └── apr-19.json
+│   │   ├── 05
+│   │   │   └── may-10.json
+│   │   ├── 07
+│   │   │   └── jul-17.json
+│   │   ├── 08
+│   │   │   ├── aug-29.json
+│   │   │   └── aug-31.json
+│   │   ├── 09
+│   │   │   ├── sep-10.json
+│   │   │   ├── sep-20.json
+│   │   │   └── sep-28.json
+│   │   ├── 10
+│   │   │   └── oct-20.json
+│   │   ├── 11
+│   │   │   └── nov-17.json
+│   │   └── 12
+│   │       └── dec-20.json
+│   └── 2025
+├── app
+│   ├── [year]
+│   │   ├── [month]
+│   │   │   ├── [slug]
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   ├── about
+│   │   └── page.tsx
+│   ├── archive
+│   │   └── page.tsx
+│   ├── author
+│   │   ├── [author]
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   ├── category
+│   │   ├── [tag]
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   ├── components
+│   │   ├── Body.tsx
+│   │   ├── ClientTimestamp.tsx
+│   │   ├── Footer.module.css
+│   │   ├── Footer.tsx
+│   │   ├── Header.module.css
+│   │   ├── Header.tsx
+│   │   ├── ImageGallery.module.css
+│   │   ├── ImageGallery.tsx
+│   │   ├── PostGrid.module.css
+│   │   ├── PostGrid.tsx
+│   │   ├── PostPreview.module.css
+│   │   ├── PostPreview.tsx
+│   │   ├── PriorityImageContext.tsx
+│   │   ├── Sidebar.module.css
+│   │   ├── Sidebar.tsx
+│   │   ├── ThemeToggle.module.css
+│   │   └── ThemeToggle.tsx
+│   ├── globals.css
+│   ├── layout.tsx
+│   ├── minecraft
+│   │   ├── minecraft.md
+│   │   └── page.tsx
+│   ├── page.tsx
+│   ├── portfolio
+│   │   └── page.tsx
+│   └── recent
+│       └── page.tsx
+├── eslint.config.mjs
+├── file-structure.txt
+├── lib
+│   ├── album.ts
+│   └── posts.ts
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── posts
+│   └── resume.md
+├── public
+│   ├── favicon.ico
+│   └── icons
+│       ├── burger.svg
+│       ├── calendar.svg
+│       ├── github.svg
+│       ├── instagram.svg
+│       ├── linkedin.svg
+│       ├── magnifying.svg
+│       ├── moon.svg
+│       ├── sun.svg
+│       └── user.svg
+├── README.md
+├── tailwind.config.ts
+└── tsconfig.json
+
+34 directories, 71 files
