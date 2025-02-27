@@ -1,4 +1,5 @@
 .
+├── _redirects
 ├── albums
 │   ├── 2023
 │   │   ├── 09
@@ -68,9 +69,6 @@
 │   │   ├── ThemeToggle.module.css
 │   │   └── ThemeToggle.tsx
 │   ├── globals.css
-│   ├── go
-│   │   └── [key]
-│   │       └── page.tsx
 │   ├── layout.tsx
 │   ├── minecraft
 │   │   ├── minecraft.md
@@ -106,10 +104,12 @@
 │       ├── sun.svg
 │       └── user.svg
 ├── README.md
+├── scripts
+│   └── generate-redirects.js
 ├── SECURITY.md
 ├── tailwind.config.ts
 ├── tools
 │   └── avifier.sh
 └── tsconfig.json
 
-38 directories, 75 files
+37 directories, 76 files
