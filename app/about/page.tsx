@@ -1,3 +1,4 @@
+// AboutPage: Renders the biography with responsive images.
 "use client";
 import React, { useContext } from 'react';
 import Image from 'next/image';
@@ -9,11 +10,10 @@ export default function AboutPage() {
     <div>
       <h1 className="text-3xl font-bold mb-8 text-center">About</h1>
       <article className="space-y-6">
-        {/* First image container: centered and full-width by default, 40% with float on md+ */}
         <div className="w-full mx-auto md:w-[40%] md:float-left md:mr-4 md:mb-4">
           <Image
             unoptimized
-            src="https://cdn.dhugs.com/about/AboutOne.avif"
+            src={`${process.env.CDN_SITE}/about/AboutOne.avif`}
             alt="About photo one"
             width={500}
             height={500}
@@ -27,12 +27,10 @@ export default function AboutPage() {
         <p>
           My coding journey began young, but I’m never satisfied with just the basics. I’m a tinkerer and a troubleshooter, always digging deeper into languages like Python and Java, server management, cloud platforms, and the ever-evolving landscape of cybersecurity. Beyond my formal studies, I find a creative outlet in AI exploration, experimenting with image and voice synthesis tools to craft unique digital experiences.
         </p>
-
-        {/* Second image container: centered and full-width by default, 30% with float on md+ */}
         <div className="w-full mx-auto md:w-[30%] md:float-right md:ml-4 md:mb-4">
           <Image
             unoptimized
-            src="https://cdn.dhugs.com/about/AboutTwo.avif"
+            src={`${process.env.CDN_SITE}/about/AboutTwo.avif`}
             alt="About photo two"
             width={500}
             height={500}

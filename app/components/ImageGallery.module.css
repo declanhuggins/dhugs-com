@@ -1,7 +1,6 @@
 .masonry {
-  display: block;
   column-count: 3;
-  column-gap: 0.25rem; /* reduced gap between columns */
+  column-gap: 0.25rem;
 }
 
 @media (max-width: 768px) {
@@ -12,10 +11,10 @@
 
 .item {
   width: 100%;
-  display: block; /* ensure image is block-level */
-  margin-bottom: 0.25rem; /* reduced vertical gap */
+  display: block;
+  margin-bottom: 0.25rem;
   break-inside: avoid;
   cursor: pointer;
   transition: transform 0.2s ease;
-  overflow: hidden; /* clip any overflow from scaling */
+  overflow: hidden;
 }

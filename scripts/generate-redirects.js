@@ -1,26 +1,22 @@
-// Usage: node scripts/push-bulk-redirects.js
-// Ensure .env.local contains AWS_REDIRECT_API_KEY, CLOUDFLARE_ACCOUNT_ID, BASE_URL_1, and BASE_URL_2
-
+// generate-redirects.js: Sets up bulk redirects using Cloudflare's API.
+// Usage: node scripts/push-bulk-redirects.js (ensure required env vars are set in .env.local)
 const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter');
-require('dotenv').config({ path: path.join(__dirname, '../.env.local') }); // load env variables
+require('dotenv').config({ path: path.join(__dirname, '../.env.local') });
 
 const API_KEY = process.env.AWS_REDIRECT_API_KEY;
 const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-const BASE_URL_1 = process.env.BASE_URL_1; // First base URL
-const BASE_URL_2 = process.env.BASE_URL_2; // Second base URL
+const BASE_URL_1 = process.env.BASE_URL_1;
+const BASE_URL_2 = process.env.BASE_URL_2;
 if (!API_KEY || !ACCOUNT_ID || !BASE_URL_1 || !BASE_URL_2) {
-  console.error("Missing AWS_REDIRECT_API_KEY, CLOUDFLARE_ACCOUNT_ID, BASE_URL_1, or BASE_URL_2 in .env.local");
+  console.error("Missing required environment variables.");
   process.exit(1);
 }
 
-const LIST_NAME = "links"; // same as used in ruleset below
-
-// Cloudflare API endpoints
+const LIST_NAME = "links";
 const CF_BASE_URL = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}`;
 
-// Helper: make API requests
 async function cfRequest(url, method, body) {
   const res = await fetch(url, {
     method,
@@ -50,9 +46,9 @@ async function deleteAllItemsFromList(listId) {
   const listItemsResult = await cfRequest(listItemsUrl, 'GET');
   const itemIds = listItemsResult.map(item => item.id);
   if (itemIds.length > 0) {
-    console.log("Deleting existing items from the list...");
+    console.log("Deleting existing items...");
     await cfRequest(listItemsUrl, 'DELETE', { items: itemIds.map(id => ({ id })) });
-    console.log("Deleted all existing items from the list.");
+    console.log("Deleted all items.");
   }
 }
 
@@ -64,7 +60,6 @@ async function getRulesetIdByPhase(phase) {
 }
 
 async function main() {
-  // Step A: Read links.md and build list items
   const linksFilePath = path.join(__dirname, '../links/links.md');
   const fileContent = fs.readFileSync(linksFilePath, 'utf8');
   const { data } = matter(fileContent);
@@ -73,23 +68,21 @@ async function main() {
     {
       redirect: {
         source_url: `${BASE_URL_1}/${key}`,
-        target_url: url.replace(/^“|”$/g, ''), // ensure no surrounding quotes
+        target_url: url.replace(/^“|”$/g, ''),
         status_code: 302
       }
     },
     {
       redirect: {
         source_url: `${BASE_URL_2}/${key}`,
-        target_url: url.replace(/^“|”$/g, ''), // ensure no surrounding quotes
+        target_url: url.replace(/^“|”$/g, ''),
         status_code: 302
       }
     }
   ]);
   
-  // Step 1: Check if the Bulk Redirect List already exists
   let listId = await getListIdByName(LIST_NAME);
   if (!listId) {
-    // Create a new Bulk Redirect List if it doesn't exist
     const createListUrl = `${CF_BASE_URL}/rules/lists`;
     const listPayload = {
       name: LIST_NAME,
@@ -101,18 +94,15 @@ async function main() {
     listId = listResult.id;
     console.log("Created list with ID:", listId);
   } else {
-    console.log(`List with name "${LIST_NAME}" already exists with ID: ${listId}`);
-    // Delete all existing items from the list
+    console.log(`List "${LIST_NAME}" exists with ID: ${listId}`);
     await deleteAllItemsFromList(listId);
   }
   
-  // Step 2: Add items to the list
   const addItemsUrl = `${CF_BASE_URL}/rules/lists/${listId}/items`;
-  console.log("Adding redirect items to the list...");
+  console.log("Adding redirect items...");
   await cfRequest(addItemsUrl, 'POST', items);
-  console.log("Added all items to the list.");
+  console.log("Added all items.");
   
-  // Step 3: Check if a Bulk Redirect Rule already exists for the phase
   const phase = "http_request_redirect";
   let rulesetId = await getRulesetIdByPhase(phase);
   const rulesetPayload = {
@@ -135,14 +125,12 @@ async function main() {
   };
   
   if (!rulesetId) {
-    // Create a new Bulk Redirect Rule if it doesn't exist
     const rulesetUrl = `${CF_BASE_URL}/rulesets`;
     console.log("Creating Bulk Redirect Rule...");
     const rulesetResult = await cfRequest(rulesetUrl, 'POST', rulesetPayload);
     rulesetId = rulesetResult.id;
     console.log("Bulk Redirect Rule created with ID:", rulesetId);
   } else {
-    // Update the existing Bulk Redirect Rule
     const updateRulesetUrl = `${CF_BASE_URL}/rulesets/${rulesetId}`;
     console.log("Updating Bulk Redirect Rule...");
     await cfRequest(updateRulesetUrl, 'PUT', rulesetPayload);

@@ -1,3 +1,4 @@
+// Header: Displays site branding, navigation, and social media links.
 'use client';
 
 import Link from 'next/link';
@@ -9,10 +10,8 @@ export default function Header() {
   return (
     <div className={styles.headerContainer}>
       <div className={styles.innerWrapper}>
-        {/* Inner border box */}
         <div className={styles.borderBox} />
 
-        {/* Top Row: Timestamp & Social Icons */}
         <div className={styles.headerTopRow}>
           <div className={styles.timestamp}>
             <ClientTimestamp />
@@ -57,7 +56,6 @@ export default function Header() {
           </ul>
         </div>
 
-        {/* Middle Row: Branding */}
         <div className={styles.middleRow}>
           <h1 className={styles.headerTitle}>
             <Link href="/" rel="home">Declan Huggins</Link>
@@ -67,7 +65,6 @@ export default function Header() {
           </p>
         </div>
 
-        {/* Bottom Row: Navigation & Search */}
         <div className={styles.headerBottomRow}>
           <nav className="flex gap-2">
             <Link href="/about" className={`${styles.navLink} ${styles.buttonBorder}`}>About</Link>

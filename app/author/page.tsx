@@ -1,3 +1,4 @@
+// AuthorIndex: Lists all unique authors from posts.
 import React from 'react';
 import Link from 'next/link';
 import { getAllPosts } from '../../lib/posts';
