@@ -39,10 +39,6 @@
   color: var(--link-color);
 }
 
-.link:hover {
-  text-decoration: underline;
-}
-
 .emptyText {
   font-size: 0.875rem;
 }

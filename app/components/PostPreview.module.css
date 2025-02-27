@@ -29,9 +29,15 @@
 
 .tag {
   background-color: var(--footer-background);
+  color: var(--foreground);
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
   border-radius: 0.375rem;
+}
+
+.tag:hover {
+  background-color: var(--link-color);
+  color: var(--background);
 }
 
 .meta {

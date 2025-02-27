@@ -63,6 +63,7 @@
 │   │   ├── PostPreview.module.css
 │   │   ├── PostPreview.tsx
 │   │   ├── PriorityImageContext.tsx
+│   │   ├── ProseContent.tsx
 │   │   ├── Sidebar.module.css
 │   │   ├── Sidebar.tsx
 │   │   ├── ThemeToggle.module.css
@@ -111,4 +112,4 @@
 │   └── avifier.sh
 └── tsconfig.json
 
-37 directories, 75 files
+37 directories, 76 files
