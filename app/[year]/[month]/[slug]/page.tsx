@@ -7,6 +7,7 @@ import html from 'remark-html';
 import { getAllPosts, getPostBySlug } from '../../../../lib/posts';
 import { getAlbumImages } from '../../../../lib/album';
 import ImageGallery, { GalleryImage } from '../../../components/ImageGallery';
+import ProseContent from '../../../components/ProseContent';
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
@@ -93,7 +94,10 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
           )}
         </div>
       </div>
-      <div className="prose w-full mx-auto max-w-none py-8" dangerouslySetInnerHTML={{ __html: contentHtml }} />
+      <ProseContent
+        contentHtml={contentHtml}
+        className="w-full mx-auto max-w-none py-8"
+      />
     </article>
   );
 }
