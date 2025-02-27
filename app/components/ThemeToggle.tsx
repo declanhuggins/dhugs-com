@@ -1,4 +1,4 @@
-// app/components/ThemeToggle.tsx
+// ThemeToggle: Renders a button that toggles between light and dark themes.
 'use client';
 
 import { useTheme } from 'next-themes';

@@ -1,3 +1,4 @@
+// RootLayout: Main layout that applies global styles and wraps the site in theme and layout providers.
 import './globals.css';
 import { ReactNode } from 'react';
 import Header from './components/Header';

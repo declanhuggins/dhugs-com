@@ -1,3 +1,4 @@
+// CategoryIndex: Lists all unique categories from posts.
 import React from 'react';
 import Link from 'next/link';
 import { getAllPosts } from '../../lib/posts';

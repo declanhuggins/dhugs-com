@@ -1,8 +1,8 @@
+// Posts module: Handles retrieval and merging of markdown and album posts.
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 
-// Renamed postsBinDir to postsDir
 const postsDir = path.join(process.cwd(), 'posts');
 
 export interface Post {
@@ -12,11 +12,11 @@ export interface Post {
   excerpt?: string;
   content: string;
   author: string;
-  tags?: string[]; // Optional tags field
-  thumbnail?: string; // For album posts, set separately. For regular posts, taken from /thumbnails.
+  tags?: string[];
+  thumbnail?: string;
 }
 
-// Helper: Get posts from posts directory
+// Read posts from the posts directory.
 export function getPostsFromBin(): Post[] {
   const fileNames = fs.readdirSync(postsDir);
   return fileNames.map((fileName) => {
@@ -37,7 +37,7 @@ export function getPostsFromBin(): Post[] {
   });
 }
 
-// Helper: Recursively crawl /albums/ for album.json files and convert them to Post objects.
+// Recursively search for album JSON files and convert them to Post objects.
 function getAlbumPosts(): Post[] {
   const albumsDir = path.join(process.cwd(), 'albums');
   const results: Post[] = [];
@@ -50,25 +50,23 @@ function getAlbumPosts(): Post[] {
       if (stat.isDirectory()) {
         walk(fullPath);
       } else if (stat.isFile() && path.extname(item).toLowerCase() === '.json') {
-        // Expect structure: /albums/[year]/[month]/[slug].json
-        const relativePath = path.relative(albumsDir, fullPath); // e.g. "2024/12/dec-20.json"
+        const relativePath = path.relative(albumsDir, fullPath);
         const parts = relativePath.split(path.sep);
         if (parts.length === 3) {
           const [year, month, fileName] = parts;
-          const slug = fileName.replace(/\.json$/, ''); // e.g. "dec-20"
+          const slug = fileName.replace(/\.json$/, '');
           const fileContents = fs.readFileSync(fullPath, 'utf8');
           const data = JSON.parse(fileContents);
-          // Always build the album thumbnail URL:
           const thumbnail = `${process.env.CDN_SITE}/albums/${year}/${month}/${slug}/thumbnail.avif`;
           results.push({
             slug,
             title: data.title,
             date: data.date,
             excerpt: data.excerpt || '',
-            content: '', // Album posts don't have content
+            content: '',
             tags: data.tags,
             author: data.author,
-            thumbnail, // Album-specific thumbnail URL
+            thumbnail,
           });
         }
       }
@@ -79,17 +77,17 @@ function getAlbumPosts(): Post[] {
   return results;
 }
 
+// Merge markdown and album posts, sorted by date (newest first).
 export function getAllPosts(): Post[] {
   const binPosts = getPostsFromBin();
   const albumPosts = getAlbumPosts();
-  // Combine and sort by date descending
   return [...binPosts, ...albumPosts].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 }
 
+// Retrieve a post based on the slug from markdown or album posts.
 export function getPostBySlug(slug: string): Post | null {
-  // Updated to use postsDir instead of postsBinDir
   const fullPath = path.join(postsDir, `${slug}.md`);
   if (fs.existsSync(fullPath)) {
     const fileContents = fs.readFileSync(fullPath, 'utf8');
@@ -105,7 +103,6 @@ export function getPostBySlug(slug: string): Post | null {
       thumbnail: data.thumbnail || `${process.env.CDN_SITE}/thumbnails/${slug}.avif`
     };
   }
-  // Otherwise, look in albums/ by matching converted slug.
   const albumPosts = getAlbumPosts();
   const found = albumPosts.find(post => post.slug === slug);
   return found || null;

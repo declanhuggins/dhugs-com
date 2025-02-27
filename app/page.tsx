@@ -1,3 +1,4 @@
+// Home: Displays the latest posts (filtered by a specific tag) alongside a sidebar.
 import React from 'react';
 import Sidebar from './components/Sidebar';
 import PostGrid from './components/PostGrid';
@@ -13,7 +14,6 @@ export default function Home() {
     post => post.tags && post.tags.includes(latestTag)
   );
 
-  // Build archives
   const archivesMap = new Map<string, { year: string; month: string }>();
   posts.forEach(post => {
     const postDate = new Date(post.date);
@@ -29,7 +29,6 @@ export default function Home() {
     return b.year.localeCompare(a.year);
   });
 
-  // Build categories
   const categorySet = new Set<string>();
   posts.forEach(post => {
     if (post.tags && Array.isArray(post.tags)) {

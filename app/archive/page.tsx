@@ -1,3 +1,4 @@
+// ArchivesTimeline: Renders a horizontal timeline of archives grouped by year.
 import React from 'react';
 import Link from 'next/link';
 import { getAllPosts } from '../../lib/posts';
@@ -6,7 +7,6 @@ export default function ArchivesTimeline() {
   const posts = getAllPosts();
   const archiveMap: { [year: string]: Set<string> } = {};
 
-  // Group months by year
   posts.forEach(post => {
     const postDate = new Date(post.date);
     const year = postDate.getFullYear().toString();
@@ -17,7 +17,6 @@ export default function ArchivesTimeline() {
     archiveMap[year].add(month);
   });
 
-  // Sort years in ascending order for horizontal timeline
   const years = Object.keys(archiveMap).sort((a, b) => a.localeCompare(b));
 
   return (
