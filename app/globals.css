@@ -1,10 +1,8 @@
-/* Tailwind base, components, and utilities */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 @plugin "@tailwindcss/typography";
 
-/* CSS Variables for theming */
 :root {
   --background: #101010;
   --foreground: #ffffff;
@@ -28,7 +26,6 @@
   --text-light-muted: #9ca3af;
 }
 
-/* Global resets and typography */
 body {
   color: var(--foreground);
   background: var(--background);
@@ -44,7 +41,6 @@ a:hover {
   color: var(--link-hover-color);
 }
 
-/* Shared utility classes */
 .border-box {
   border: 2px solid var(--border-color);
 }
@@ -61,7 +57,6 @@ button {
   filter: none;
 }
 
-/* Prose adjustments for markdown content */
 .prose h1,
 .prose h2,
 .prose h3,
@@ -75,14 +70,12 @@ button {
   text-align: center;
 }
 
-/* Container utilities */
 .main-container {
   max-width: 100rem;
   margin: 0 auto;
   padding: 1rem;
 }
 
-/* Full width override for portfolio pages */
 .portfolio-container {
   max-width: 100% !important;
   margin: 0 !important;
