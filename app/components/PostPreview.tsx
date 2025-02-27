@@ -1,3 +1,4 @@
+// PostPreview: Renders a preview for a single post with its metadata and image.
 "use client";
 import Link from 'next/link';
 import Image from 'next/image';
@@ -7,14 +8,14 @@ import { PriorityImageContext } from './PriorityImageContext';
 
 interface PostPreviewProps {
   title: string;
-  author: string; // added author prop
+  author: string;
   date: string;
   imageSrc: string;
-  thumbnail?: string; // Optional thumbnail for album posts
+  thumbnail?: string;
   slug: string;
   altText?: string;
   tags?: string[];
-  priority?: boolean; // new prop for image priority
+  priority?: boolean;
 }
 
 export default function PostPreview({ title, author, date, imageSrc, thumbnail, slug, altText, tags, priority }: PostPreviewProps) {
@@ -35,7 +36,6 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
     year: 'numeric',
     timeZone: 'America/New_York'
   });
-  // Use album thumbnail if provided, otherwise fallback to imageSrc.
   const imgSrc = thumbnail || imageSrc;
 
   return (
@@ -82,7 +82,6 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
           {formattedDate}
         </span>
       </div>
-      {/* Wrap image in a Link */}
       <Link href={`/${year}/${month}/${slug}`} className={styles.link}>
         <div className={styles.imageWrapper}>
           <Image
@@ -92,8 +91,8 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
             width={700}
             height={475}
             className={styles.image}
-            priority={priority} // pass priority flag here
-            onLoad={priority ? () => markLoaded() : undefined} // replaced onLoadingComplete with onLoad
+            priority={priority}
+            onLoad={priority ? () => markLoaded() : undefined}
           />
         </div>
       </Link>

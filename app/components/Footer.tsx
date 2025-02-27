@@ -1,3 +1,4 @@
+// Footer: Displays copyright information and a theme toggle.
 import ThemeToggle from './ThemeToggle';
 import styles from './Footer.module.css';
 

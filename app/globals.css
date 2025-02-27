@@ -1,8 +1,10 @@
+/* Tailwind base, components, and utilities */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 @plugin "@tailwindcss/typography";
 
+/* CSS Variables for theming */
 :root {
   --background: #101010;
   --foreground: #ffffff;
@@ -26,6 +28,7 @@
   --text-light-muted: #9ca3af;
 }
 
+/* Global resets and typography */
 body {
   color: var(--foreground);
   background: var(--background);
@@ -34,12 +37,14 @@ body {
 
 a {
   color: var(--link-color);
+  text-decoration: none;
 }
 
 a:hover {
   color: var(--link-hover-color);
 }
 
+/* Shared utility classes */
 .border-box {
   border: 2px solid var(--border-color);
 }
@@ -56,21 +61,21 @@ button {
   filter: none;
 }
 
+/* Prose adjustments for markdown content */
 .prose h1,
 .prose h2,
 .prose h3,
 .prose h4,
 .prose h5,
 .prose h6,
-.prose strong{
+.prose strong {
   color: var(--foreground);
 }
-
 .prose h1 {
   text-align: center;
 }
 
-/* Default container from root layout */
+/* Container utilities */
 .main-container {
   max-width: 100rem;
   margin: 0 auto;

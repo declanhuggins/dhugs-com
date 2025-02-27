@@ -1,3 +1,4 @@
+// MinecraftPage: Renders markdown content as HTML.
 import React from 'react';
 import fs from 'fs';
 import path from 'path';

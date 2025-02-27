@@ -1,3 +1,4 @@
+// PortfolioPage: Displays portfolio images in a gallery.
 import React from 'react';
 import ImageGallery, { GalleryImage } from '../components/ImageGallery';
 import { getAlbumImages } from '../../lib/album';

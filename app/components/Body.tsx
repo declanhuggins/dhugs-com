@@ -1,3 +1,4 @@
+// Body: Wraps children in a container that adjusts based on the current route.
 "use client";
 import React from "react";
 import { usePathname } from "next/navigation";

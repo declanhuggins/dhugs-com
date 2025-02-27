@@ -1,3 +1,4 @@
+// RecentPage: Renders sorted recent posts with archives and categories.
 import React from 'react';
 import PostGrid from '../components/PostGrid';
 import Sidebar from '../components/Sidebar';
@@ -8,7 +9,7 @@ export default function RecentPage() {
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  // Build archives
+  // Construct archives map
   const archivesMap = new Map<string, { year: string; month: string }>();
   posts.forEach(post => {
     const postDate = new Date(post.date);
@@ -24,7 +25,7 @@ export default function RecentPage() {
     return b.year.localeCompare(a.year);
   });
   
-  // Build categories
+  // Get unique sorted categories from posts
   const categorySet = new Set<string>();
   posts.forEach(post => {
     if (post.tags && Array.isArray(post.tags)) {

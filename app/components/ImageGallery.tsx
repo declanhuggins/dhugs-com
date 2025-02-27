@@ -1,3 +1,4 @@
+// ImageGallery: Renders a gallery using PhotoSwipe for lightbox features.
 "use client";
 import React, { useEffect } from 'react';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
@@ -53,7 +54,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
               placeholder="blur"
               blurDataURL={TRANSPARENT_BLUR}
               className={styles.item}
-              priority={index < 2} // first two images are prioritized
+              priority={index < 2}
             />
           </a>
         ))}

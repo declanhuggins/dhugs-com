@@ -1,4 +1,4 @@
-// components/ClientTimestamp.tsx
+// ClientTimestamp: Computes and displays the current timestamp in a specific format.
 'use client';
 
 import { useEffect, useState } from 'react';
