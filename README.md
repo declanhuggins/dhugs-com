@@ -46,6 +46,17 @@ npm run generate-redirects
 
 This will create or update the `_redirects` file with the appropriate redirects. Make sure to commit and push the `_redirects` file to trigger a new build on Cloudflare Pages.
 
+## Generate Bulk Redirects
+
+The `generate-bulk-redirects` script dynamically generates bulk redirects on Cloudflare based on the contents of `links.md`.
+
+To run the script:
+```bash
+npm run generate-bulk-redirects
+```
+
+This will create or update the bulk redirects on Cloudflare. Ensure that your `.env.local` file contains the necessary environment variables (`AWS_REDIRECT_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `BASE_URL_1`, and `BASE_URL_2`).
+
 ## Setting Up Cloudflare Pages
 
 1. Log in to the Cloudflare dashboard and select your account.
