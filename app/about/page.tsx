@@ -13,7 +13,7 @@ export default function AboutPage() {
         <div className="w-full mx-auto md:w-[40%] md:float-left md:mr-4 md:mb-4">
           <Image
             unoptimized
-            src="https://cdn.dhugs.com/about/AboutOne.avif"
+            src={`${process.env.CDN_SITE}/about/AboutOne.avif`}
             alt="About photo one"
             width={500}
             height={500}
@@ -32,7 +32,7 @@ export default function AboutPage() {
         <div className="w-full mx-auto md:w-[30%] md:float-right md:ml-4 md:mb-4">
           <Image
             unoptimized
-            src="https://cdn.dhugs.com/about/AboutTwo.avif"
+            src={`${process.env.CDN_SITE}/about/AboutTwo.avif`}
             alt="About photo two"
             width={500}
             height={500}

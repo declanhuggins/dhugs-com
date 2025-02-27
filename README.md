@@ -37,6 +37,7 @@ AWS_REDIRECT_API_KEY=your_aws_redirect_api_key
 CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
 BASE_URL_1=your_base_url_1
 BASE_URL_2=your_base_url_2
+CDN_SITE=your_cdn_site
 ```
 
 ### links.md
@@ -102,11 +103,11 @@ To properly deploy and serve album images, set the following environment variabl
 
 Album images are served from the S3 bucket with the following URL structure:
 
-- Full-sized images: 
-  https://cdn.dhugs.com/albums/[year]/[month]/[slug]/images/[filename]
+- Full-sized images:  
+  CDN_SITE/albums/[year]/[month]/[slug]/images/[filename]
 
-- Thumbnails:
-  https://cdn.dhugs.com/albums/[year]/[month]/[slug]/thumbnail.avif
+- Thumbnails:  
+  CDN_SITE/albums/[year]/[month]/[slug]/thumbnail.avif
 
 ## Tools
 
