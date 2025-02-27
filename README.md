@@ -20,16 +20,46 @@ dhugs-com is a personal website showcasing photo albums, posts, and various proj
    ```bash
    npm install
    ```
-2. Generate redirects and build the project:
+
+2. Create the necessary boilerplate files:
+
+### .env.local
+
+Create a `.env.local` file in the root directory with the following content:
+
+```plaintext
+AWS_REGION=your_aws_region
+AWS_BUCKET_NAME=your_aws_bucket_name
+S3_ENDPOINT=your_s3_endpoint
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_REDIRECT_API_KEY=your_aws_redirect_api_key
+CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
+BASE_URL_1=your_base_url_1
+BASE_URL_2=your_base_url_2
+```
+
+### links.md
+
+Create a `links.md` file in the `links` directory with the following content:
+
+```markdown
+---
+example-key: https://example.com
+another-key: https://another-example.com
+---
+```
+
+3. Generate redirects and build the project:
    ```bash
    npm run dev-build
    ```
    This command performs the following steps:
-   - Runs the `generate-redirects` script to create or update the `_redirects` file based on the contents of `links.md`.
+   - Runs the `generate-redirects` script to create or update the bulk redirects on Cloudflare based on the contents of `links.md`.
    - Generates the file structure tree and saves it to `file-structure.txt`.
    - Builds the project for production.
 
-3. Run the development server:
+4. Run the development server:
    ```bash
    npm run dev
    ```
@@ -37,22 +67,11 @@ dhugs-com is a personal website showcasing photo albums, posts, and various proj
 
 ## Generate Redirects
 
-The `generate-redirects` script dynamically generates the `_redirects` file based on the contents of `links.md`.
+The `generate-redirects` script dynamically generates bulk redirects on Cloudflare based on the contents of `links.md`.
 
 To run the script:
 ```bash
 npm run generate-redirects
-```
-
-This will create or update the `_redirects` file with the appropriate redirects. Make sure to commit and push the `_redirects` file to trigger a new build on Cloudflare Pages.
-
-## Generate Bulk Redirects
-
-The `generate-bulk-redirects` script dynamically generates bulk redirects on Cloudflare based on the contents of `links.md`.
-
-To run the script:
-```bash
-npm run generate-bulk-redirects
 ```
 
 This will create or update the bulk redirects on Cloudflare. Ensure that your `.env.local` file contains the necessary environment variables (`AWS_REDIRECT_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `BASE_URL_1`, and `BASE_URL_2`).
@@ -73,11 +92,11 @@ After setting up the Pages project, go to the new Pages worker and add `nodejs_c
 
 To properly deploy and serve album images, set the following environment variables in your deployment environment:
 
-- AWS_REGION=
-- AWS_BUCKET_NAME=
-- S3_ENDPOINT=
-- AWS_ACCESS_KEY_ID=
-- AWS_SECRET_ACCESS_KEY=
+- AWS_REGION
+- AWS_BUCKET_NAME
+- S3_ENDPOINT
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
 
 ## Album Images
 
