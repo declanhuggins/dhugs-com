@@ -20,30 +20,43 @@ dhugs-com is a personal website showcasing photo albums, posts, and various proj
    ```bash
    npm install
    ```
-2. Run the development server:
+2. Generate redirects and build the project:
+   ```bash
+   npm run dev-build
+   ```
+   This command performs the following steps:
+   - Runs the `generate-redirects` script to create or update the `_redirects` file based on the contents of `links.md`.
+   - Generates the file structure tree and saves it to `file-structure.txt`.
+   - Builds the project for production.
+
+3. Run the development server:
    ```bash
    npm run dev
    ```
    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Cloning the Repository
+## Generate Redirects
 
-Clone the repository with:
-   ```bash
-   git clone https://github.com/declanhuggins/dhugs-com.git
-   cd dhugs-com
-   ```
+The `generate-redirects` script dynamically generates the `_redirects` file based on the contents of `links.md`.
 
-## Build & Deployment
+To run the script:
+```bash
+npm run generate-redirects
+```
 
-- To build:
-   ```bash
-   npm run build
-   ```
-- To start the production server:
-   ```bash
-   npm run start
-   ```
+This will create or update the `_redirects` file with the appropriate redirects. Make sure to commit and push the `_redirects` file to trigger a new build on Cloudflare Pages.
+
+## Setting Up Cloudflare Pages
+
+1. Log in to the Cloudflare dashboard and select your account.
+2. Go to **Workers & Pages** and click **Create**.
+3. Select the **Pages** tab.
+4. Connect to Git and select your GitHub account.
+5. Select the repository for this project.
+6. Select the **Next.js** framework preset.
+7. Add the necessary environment variables for your project.
+
+After setting up the Pages project, go to the new Pages worker and add `nodejs_compat` to the Compatibility flags.
 
 ## Environment Variables for S3 Bucket
 
@@ -70,6 +83,9 @@ Album images are served from the S3 bucket with the following URL structure:
 ### Avifier Script
 
 The avifier.sh script converts supported images (JPEG, PNG, CR2) to AVIF format using ImageMagick.
+
+Dependencies:
+- ImageMagick
 
 Usage:
 ```bash
