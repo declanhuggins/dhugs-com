@@ -57,15 +57,6 @@ button {
   filter: none;
 }
 
-.prose h1,
-.prose h2,
-.prose h3,
-.prose h4,
-.prose h5,
-.prose h6,
-.prose strong {
-  color: var(--foreground);
-}
 .prose h1 {
   text-align: center;
 }

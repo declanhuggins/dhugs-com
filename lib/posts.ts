@@ -2,6 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { toDate } from 'date-fns-tz';
 
 const postsDir = path.join(process.cwd(), 'posts');
 
@@ -57,11 +58,12 @@ function getAlbumPosts(): Post[] {
           const slug = fileName.replace(/\.json$/, '');
           const fileContents = fs.readFileSync(fullPath, 'utf8');
           const data = JSON.parse(fileContents);
+          const date = toDate(data.date, { timeZone: 'America/New_York' }).toISOString();
           const thumbnail = `${process.env.CDN_SITE}/albums/${year}/${month}/${slug}/thumbnail.avif`;
           results.push({
             slug,
             title: data.title,
-            date: data.date,
+            date,
             excerpt: data.excerpt || '',
             content: '',
             tags: data.tags,
