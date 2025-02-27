@@ -15,7 +15,7 @@ const bucket = process.env.AWS_BUCKET_NAME;
 // Configure S3 client for Cloudflare R2
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
-  endpoint: process.env.R2_ENDPOINT,
+  endpoint: process.env.S3_ENDPOINT,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
@@ -46,7 +46,7 @@ export async function getAlbumImages(albumName: string): Promise<AlbumImage[]> {
           const head = new HeadObjectCommand({ Bucket: bucket, Key: key });
           const headData = await s3.send(head);
           if (headData.Metadata) {
-            // Cloudflare R2 returns metadata keys in lowercase
+            // S3 returns metadata keys in lowercase
             if (headData.Metadata.width && headData.Metadata.height) {
               width = parseInt(headData.Metadata.width.trim(), 10);
               height = parseInt(headData.Metadata.height.trim(), 10);
