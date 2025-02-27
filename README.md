@@ -42,6 +42,8 @@ dhugs-com is a personal website showcasing photo albums, blog posts, and various
    S3_ENDPOINT=your_s3_endpoint
    AWS_ACCESS_KEY_ID=your_aws_access_key_id
    AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+   AWS_ACCESS_KEY_ID_WRITE=your_aws_access_key_id_write
+   AWS_SECRET_ACCESS_KEY_WRITE=your_aws_secret_access_key_write
    AWS_REDIRECT_API_KEY=your_aws_redirect_api_key
    CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
    BASE_URL_1=your_base_url_1
@@ -87,10 +89,6 @@ Ensure the following variables are correctly set in your deployment environment:
 - **S3_ENDPOINT**
 - **AWS_ACCESS_KEY_ID**
 - **AWS_SECRET_ACCESS_KEY**
-- **AWS_REDIRECT_API_KEY**
-- **CLOUDFLARE_ACCOUNT_ID**
-- **BASE_URL_1**
-- **BASE_URL_2**
 - **CDN_SITE** – Base URL for the Content Delivery Network (e.g., `https://cdn.example.com`).
 
 ---
@@ -104,6 +102,9 @@ Album images are retrieved from an S3 bucket and served via CDN. The URL structu
 
 - **Thumbnails:**  
   `${CDN_SITE}/albums/[year]/[month]/[slug]/thumbnail.avif`
+
+- **Part-sized images:**  
+  `${CDN_SITE}/[small || medium || large]/${imgPath}`
 
 ---
 
@@ -147,6 +148,38 @@ The `avifier.sh` script converts supported image formats (JPEG, PNG, CR2) to AVI
 - Checks required arguments and file extensions.
 - Retrieves image dimensions and file sizes.
 - Outputs conversion status for each file.
+
+### Generate Image Versions
+
+The `generate-image-versions.ts` script generates small, medium, and large versions of images in the specified directories.
+
+**Dependencies:** ImageMagick
+
+**Usage:**
+
+```bash
+npm run images
+```
+
+- Processes images in the `albums/`, `about/`, `portfolio/`, and `thumbnails/` directories.
+- Skips images that already have resized versions.
+- Uploads resized images to the S3 bucket.
+
+### Update Image Metadata
+
+The `update-image-metadata.ts` script updates the metadata of images in the S3 bucket with their dimensions.
+
+**Dependencies:** Sharp
+
+**Usage:**
+
+```bash
+npm run metadata
+```
+
+- Fetches images from the S3 bucket.
+- Retrieves image dimensions using Sharp.
+- Updates the metadata of the images with their dimensions.
 
 ---
 

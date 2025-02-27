@@ -37,27 +37,31 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
   return (
     <div>
       <div id={galleryID} className={`${styles.masonry} pswp-gallery`}>
-        {images.map((img, index) => (
-          <a
-            href={img.src}
-            data-pswp-width={img.width}
-            data-pswp-height={img.height}
-            key={`${galleryID}-${index}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Image 
-              src={img.src}
-              alt={img.alt}
-              width={img.width}
-              height={img.height}
-              placeholder="blur"
-              blurDataURL={TRANSPARENT_BLUR}
-              className={styles.item}
-              priority={index < 2}
-            />
-          </a>
-        ))}
+        {images.map((img, index) => {
+          const url = new URL(img.src);
+          const smallSrc = `${url.origin}/medium${url.pathname}`;
+          return (
+            <a
+              href={img.src}
+              data-pswp-width={img.width}
+              data-pswp-height={img.height}
+              key={`${galleryID}-${index}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Image 
+                src={smallSrc}
+                alt={img.alt}
+                width={img.width}
+                height={img.height}
+                placeholder="blur"
+                blurDataURL={TRANSPARENT_BLUR}
+                className={styles.item}
+                priority={index < 2}
+              />
+            </a>
+          );
+        })}
       </div>
     </div>
   );
