@@ -3,8 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './PostPreview.module.css';
-import React, { useContext, useEffect } from 'react';
-import { PriorityImageContext } from './PriorityImageContext';
+import React, { useEffect } from 'react';
 
 interface PostPreviewProps {
   title: string;
@@ -19,13 +18,12 @@ interface PostPreviewProps {
 }
 
 export default function PostPreview({ title, author, date, imageSrc, thumbnail, slug, altText, tags, priority }: PostPreviewProps) {
-  const { register, markLoaded } = useContext(PriorityImageContext);
 
   useEffect(() => {
     if (priority) {
-      register();
+      // register();
     }
-  }, [priority, register]);
+  }, [priority]);
 
   const postDate = new Date(date);
   const year = postDate.getFullYear().toString();
@@ -92,7 +90,6 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
             height={475}
             className={styles.image}
             priority={priority}
-            onLoad={priority ? () => markLoaded() : undefined}
           />
         </div>
       </Link>

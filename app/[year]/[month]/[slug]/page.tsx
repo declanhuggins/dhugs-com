@@ -8,6 +8,7 @@ import { getAllPosts, getPostBySlug } from '../../../../lib/posts';
 import { getAlbumImages } from '../../../../lib/album';
 import ImageGallery, { GalleryImage } from '../../../components/ImageGallery';
 import ProseContent from '../../../components/ProseContent';
+import Head from 'next/head';
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
@@ -60,18 +61,27 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
       timeZone: 'America/New_York', timeZoneName: 'short'
     });
     return (
-      <article className="mx-auto">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold">{post.title}</h1>
-          <div className="mt-4 space-y-2 text-sm text-[var(--text-muted)] mb-4">
-            <div>Posted on {formattedDateTime} by {post.author}</div>
-            {post.tags && post.tags.length > 0 && (
-              <div>Posted in {renderTagLinks(post.tags)}</div>
-            )}
+      <>
+        <Head>
+          <meta property="og:title" content={post.title} />
+          <meta property="og:type" content="article" />
+          <meta property="og:url" content={`${process.env.NEXT_PUBLIC_SITE_URL}/${year}/${month}/${slug}`} />
+          <meta property="og:image" content={images[0]?.src} />
+          <meta property="og:description" content={`An album by ${post.author}`} />
+        </Head>
+        <article className="mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold">{post.title}</h1>
+            <div className="mt-4 space-y-2 text-sm text-[var(--text-muted)] mb-4">
+              <div>Posted on {formattedDateTime} by {post.author}</div>
+              {post.tags && post.tags.length > 0 && (
+                <div>Posted in {renderTagLinks(post.tags)}</div>
+              )}
+            </div>
           </div>
-        </div>
-        <ImageGallery images={images} galleryID="album-gallery"/>
-      </article>
+          <ImageGallery images={images} galleryID="album-gallery"/>
+        </article>
+      </>
     );
   }
 
@@ -84,20 +94,29 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
   });
 
   return (
-    <article className="mx-auto">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold">{post.title}</h1>
-        <div className="mt-4 space-y-2 text-sm text-[var(--text-muted)]">
-          <div>Posted on {formattedDateTime} by {post.author}</div>
-          {post.tags && post.tags.length > 0 && (
-            <div>Posted in {renderTagLinks(post.tags)}</div>
-          )}
+    <>
+      <Head>
+        <meta property="og:title" content={post.title} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_SITE_URL}/${year}/${month}/${slug}`} />
+        <meta property="og:image" content={post.thumbnail} />
+        <meta property="og:description" content={post.excerpt} />
+      </Head>
+      <article className="mx-auto">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold">{post.title}</h1>
+          <div className="mt-4 space-y-2 text-sm text-[var(--text-muted)]">
+            <div>Posted on {formattedDateTime} by {post.author}</div>
+            {post.tags && post.tags.length > 0 && (
+              <div>Posted in {renderTagLinks(post.tags)}</div>
+            )}
+          </div>
         </div>
-      </div>
-      <ProseContent
-        contentHtml={contentHtml}
-        className="w-full mx-auto max-w-none py-8"
-      />
-    </article>
+        <ProseContent
+          contentHtml={contentHtml}
+          className="w-full mx-auto max-w-none py-8"
+        />
+      </article>
+    </>
   );
 }
