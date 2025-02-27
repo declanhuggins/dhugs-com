@@ -1,5 +1,4 @@
 .
-├── _redirects
 ├── albums
 │   ├── 2023
 │   │   ├── 09
@@ -112,4 +111,4 @@
 │   └── avifier.sh
 └── tsconfig.json
 
-37 directories, 76 files
+37 directories, 75 files
