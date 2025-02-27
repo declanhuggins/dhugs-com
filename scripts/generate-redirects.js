@@ -8,7 +8,7 @@ const redirectsFilePath = path.join(__dirname, '../_redirects');
 const fileContent = fs.readFileSync(linksFilePath, 'utf8');
 const { data } = matter(fileContent);
 
-const redirects = Object.entries(data).map(([key, url]) => `/${key} ${url} 302`).join('\n');
+const redirects = Object.entries(data).map(([key, url]) => `/${key}/ ${url} 302`).join('\n');
 
 fs.writeFileSync(redirectsFilePath, redirects);
 
