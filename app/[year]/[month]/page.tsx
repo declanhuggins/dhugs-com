@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getAllPosts } from '../../../lib/posts';
 import Link from 'next/link';
 
+// Generate parameters for year and month archives.
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   const paramsSet = new Set<string>();

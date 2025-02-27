@@ -1,3 +1,4 @@
+// Sidebar: Displays links for Recent Posts, Archives, and Categories.
 import React from 'react';
 import Link from 'next/link';
 import { Post } from '../../lib/posts';

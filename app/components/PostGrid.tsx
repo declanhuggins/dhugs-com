@@ -1,3 +1,4 @@
+// PostGrid: Arranges a collection of PostPreview components in a grid layout.
 import React from 'react';
 import PostPreview from './PostPreview';
 import { Post } from '../../lib/posts';
@@ -18,9 +19,9 @@ export default function PostGrid({ posts }: PostGridProps) {
           author={post.author}
           date={post.date}
           imageSrc={`/thumbnails/${post.slug}.avif`}
-          thumbnail={post.thumbnail}  // Pass thumbnail to use album CDN URL when available.
+          thumbnail={post.thumbnail}
           tags={post.tags}
-          priority={index < 4} // first 4 posts load with priority
+          priority={index < 4}
         />
       ))}
     </div>

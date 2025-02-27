@@ -1,3 +1,4 @@
+// CategoryPage: Displays posts for a given category/tag.
 import React from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -28,7 +29,6 @@ export default async function CategoryPage({ params }: PageProps) {
     notFound();
   }
   
-  // Capitalize tag for display (e.g., "Lifestyle")
   const displayTag = tag.charAt(0).toUpperCase() + tag.slice(1);
   
   return (
@@ -49,7 +49,9 @@ export default async function CategoryPage({ params }: PageProps) {
                 {post.title}
               </Link>
               <div className="text-sm text-[var(--text-muted)]">
-                Posted on {new Date(post.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                Posted on {new Date(post.date).toLocaleDateString('en-US', { 
+                  day: 'numeric', month: 'long', year: 'numeric' 
+                })}
                 {post.author && <> by {post.author}</>}
               </div>
             </li>

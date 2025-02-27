@@ -1,20 +1,17 @@
 .headerContainer {
   position: relative;
   height: var(--header-height);
-  overflow: visible;
 }
 
-/* This wrapper controls the main header width */
 .innerWrapper {
   width: 100%;
-  max-width: 75%; /* Default width on large screens */
-  min-width: 490px; /* Prevents the header from collapsing */
+  max-width: 75%;
+  min-width: 490px;
   margin: 0 auto;
   height: 100%;
   position: relative;
 }
 
-/* The outer border box should adjust buffer space first */
 .borderBox {
   position: absolute;
   top: 2.5rem;
@@ -25,7 +22,7 @@
   min-width: 390px;
 }
 
-/* Top & Bottom Rows positioned absolutely so their centers align with the border lines */
+/* Top and bottom rows for header layout */
 .headerTopRow,
 .headerBottomRow {
   position: absolute;
@@ -45,7 +42,6 @@
   transform: translateY(-50%);
 }
 
-/* Middle Row: branding centered vertically within the container */
 .middleRow {
   position: absolute;
   top: 47%;
@@ -55,7 +51,6 @@
   text-align: center;
 }
 
-/* Title & Tagline */
 .headerTitle {
   font-size: 45px;
   font-weight: bold;
@@ -65,30 +60,16 @@
   font-size: 16px;
 }
 
-/* Buttons & timestamp use a black background to hide the border behind them */
+/* Buttons and icons; duplicate borders removed (handled in globals.css) */
 .timestamp {
   font-size: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--background);
-  border: 2px solid var(--border-color);
   padding: 4px 8px;
-  text-decoration: none;
 }
 
-/* Social and search buttons: square containers */
 .socialButton,
 .searchButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--background);
-  border: 2px solid var(--border-color);
   width: 40px;
   height: 40px;
-  padding: 0;
-  text-decoration: none;
 }
 
 .socialIcon {
@@ -96,47 +77,33 @@
   height: 20px;
 }
 
-/* Navigation links: uppercase, bold, with extra padding for spacing */
 .navLink {
   font-size: 16px;
-  text-decoration: none;
-  color: inherit;
   text-transform: uppercase;
   font-weight: bold;
 }
 
 .buttonBorder {
-  background: var(--background);
-  border: 2px solid var(--border-color);
   padding: 6px 10px;
 }
 
 @media (max-width: 490px) {
   .headerTitle {
-    font-size: calc(35px + (10 * ((100vw - 390px) / 100))); /* Scales between 30px (390px width) and 45px (490px width) */
+    font-size: calc(35px + (10 * ((100vw - 390px) / 100)));
   }
-
   .tagline {
-    font-size: calc(12px + (4 * ((100vw - 390px) / 100))); /* Scales from 12px to 16px */
+    font-size: calc(12px + (4 * ((100vw - 390px) / 100)));
   }
-
-  /* Hide the standard nav links */
-  .navLink {
-    display: none;
-  }
-
-  /* Hide the social buttons */
+  .navLink,
   .socialButton {
     display: none;
   }
-
   .innerWrapper {
     min-width: 390px;
     max-width: 100%;
   }
-
   .borderBox {
-    min-width: 0px;
+    min-width: 0;
   }
 }
 
@@ -144,7 +111,6 @@
   .headerTitle {
     font-size: 35px;
   }
-
   .tagline {
     font-size: 12px;
   }

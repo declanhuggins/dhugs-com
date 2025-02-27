@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getAllPosts } from '../../lib/posts';
 import Link from 'next/link';
 
+// Generate unique year params based on post dates.
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   const yearSet = new Set<string>();
@@ -28,7 +29,7 @@ export default async function YearArchive({ params }: PageProps): Promise<JSX.El
     notFound();
   }
 
-  // Group posts by month
+  // Group posts by month.
   const monthMap = new Map<string, { month: string; posts: typeof yearPosts }>();
   yearPosts.forEach(post => {
     const d = new Date(post.date);

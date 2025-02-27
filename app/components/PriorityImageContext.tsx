@@ -1,3 +1,4 @@
+// PriorityImageContext: Provides functions to register and track the loading of priority images.
 "use client";
 import React, { createContext, useState, useCallback } from 'react';
 

@@ -1,3 +1,4 @@
+// AuthorPage: Displays posts for a specific author.
 import React, { JSX } from 'react';
 import { getAllPosts } from '../../../lib/posts';
 import PostPreview from '../../../app/components/PostPreview';
@@ -20,9 +21,7 @@ export async function generateStaticParams() {
 }
 
 interface PageProps {
-  params: Promise<{
-    author: string;
-  }>;
+  params: Promise<{ author: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
@@ -47,7 +46,7 @@ export default async function AuthorPage({ params }: PageProps): Promise<JSX.Ele
               author={post.author}
               date={post.date}
               imageSrc={`/thumbnails/${post.slug}.avif`}
-              thumbnail={post.thumbnail} // Pass thumbnail for album posts
+              thumbnail={post.thumbnail}
               tags={post.tags}
             />
           ))}
