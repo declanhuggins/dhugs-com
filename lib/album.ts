@@ -58,8 +58,8 @@ export async function getAlbumImages(albumName: string): Promise<AlbumImage[]> {
         const filename = key.replace(prefix, '');
         return {
           filename,
-          largeURL: `https://cdn.dhugs.com/${albumName}/${filename}`,
-          thumbnailURL: `https://cdn.dhugs.com/${albumName}/${filename}`,
+          largeURL: `${process.env.CDN_SITE}/${albumName}/${filename}`, // changed URL
+          thumbnailURL: `${process.env.CDN_SITE}/${albumName}/${filename}`, // changed URL
           width,
           height,
           alt: filename,

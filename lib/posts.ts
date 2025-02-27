@@ -32,7 +32,7 @@ export function getPostsFromBin(): Post[] {
       content,
       tags: data.tags,
       author: data.author || 'Unknown Author',
-      thumbnail: data.thumbnail || `https://cdn.dhugs.com/thumbnails/${slug}.avif`
+      thumbnail: data.thumbnail || `${process.env.CDN_SITE}/thumbnails/${slug}.avif`
     };
   });
 }
@@ -59,7 +59,7 @@ function getAlbumPosts(): Post[] {
           const fileContents = fs.readFileSync(fullPath, 'utf8');
           const data = JSON.parse(fileContents);
           // Always build the album thumbnail URL:
-          const thumbnail = `https://cdn.dhugs.com/albums/${year}/${month}/${slug}/thumbnail.avif`;
+          const thumbnail = `${process.env.CDN_SITE}/albums/${year}/${month}/${slug}/thumbnail.avif`;
           results.push({
             slug,
             title: data.title,
@@ -102,7 +102,7 @@ export function getPostBySlug(slug: string): Post | null {
       content,
       tags: data.tags,
       author: data.author || 'Unknown Author',
-      thumbnail: data.thumbnail || `https://cdn.dhugs.com/thumbnails/${slug}.avif`
+      thumbnail: data.thumbnail || `${process.env.CDN_SITE}/thumbnails/${slug}.avif`
     };
   }
   // Otherwise, look in albums/ by matching converted slug.
