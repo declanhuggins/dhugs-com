@@ -2,14 +2,17 @@
   "name": "dhugs-com",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "images": "node scripts/generate-image-versions.ts",
+    "metadata": "node scripts/update-image-metadata.ts",
     "dev-build": "npm run generate-redirects && npm run tree && npm run build",
     "tree": "bash -c 'pattern=\"$(( sed \"/^\\s*#/d;/^$/d\" .gitignore; echo .next; echo node_modules ) | tr \"\\n\" \"|\" | sed \"s/|$//\")\"; tree -I \"$pattern\" > file-structure.txt'",
-    "generate-redirects": "node scripts/generate-redirects.js"
+    "generate-redirects": "node scripts/generate-redirects.cjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
@@ -33,6 +36,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "postcss": "^8",
+    "sharp": "^0.33.5",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

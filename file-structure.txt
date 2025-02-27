@@ -105,11 +105,13 @@
 │       └── user.svg
 ├── README.md
 ├── scripts
-│   └── generate-redirects.js
+│   ├── generate-image-versions.ts
+│   ├── generate-redirects.cjs
+│   └── update-image-metadata.ts
 ├── SECURITY.md
 ├── tailwind.config.ts
 ├── tools
 │   └── avifier.sh
 └── tsconfig.json
 
-37 directories, 76 files
+37 directories, 78 files
