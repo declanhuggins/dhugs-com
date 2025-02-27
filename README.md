@@ -1,135 +1,160 @@
 # dhugs-com
 
-dhugs-com is a personal website showcasing photo albums, posts, and various projects. It is built with Next.js and powered by React, offering a modern and responsive design.
+dhugs-com is a personal website showcasing photo albums, blog posts, and various projects. Built with Next.js, React, and Tailwind CSS, it offers a modern, responsive design.
+
+---
 
 ## Features
+
 - **Photo Albums:** Browse albums sorted by year and month.
-- **Blog Posts:** Read and explore various posts.
-- **Dynamic Routing:** Experience a seamless navigation with Next.js' file system routing.
-- **Responsive Design:** Optimized for desktop and mobile devices.
+- **Blog Posts:** Read and explore written content.
+- **Dynamic Routing:** Enjoy seamless navigation with Next.js routing.
+- **Responsive Design:** Optimized for both desktop and mobile devices.
+
+---
 
 ## Technologies
-- [Next.js](https://nextjs.org) for the React framework
-- [React](https://reactjs.org) for building user interfaces
-- [Tailwind CSS](https://tailwindcss.com) for styling
-- Various npm libraries for enhanced functionality
+
+- [Next.js](https://nextjs.org): React framework for server-side rendering and static site generation.
+- [React](https://reactjs.org): Library for building user interfaces.
+- [Tailwind CSS](https://tailwindcss.com): Utility-first CSS framework for rapid UI development.
+- Various npm libraries for enhanced functionality.
+
+---
 
 ## Getting Started
 
-1. Install dependencies:
+1. **Install Dependencies:**
+
    ```bash
    npm install
    ```
 
-2. Create the necessary boilerplate files:
+2. **Create Boilerplate Files:**
 
-### .env.local
+   ### .env.local
 
-Create a `.env.local` file in the root directory with the following content:
+   Create a `.env.local` file in the root directory with the following:
 
-```plaintext
-AWS_REGION=your_aws_region
-AWS_BUCKET_NAME=your_aws_bucket_name
-S3_ENDPOINT=your_s3_endpoint
-AWS_ACCESS_KEY_ID=your_aws_access_key_id
-AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
-AWS_REDIRECT_API_KEY=your_aws_redirect_api_key
-CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
-BASE_URL_1=your_base_url_1
-BASE_URL_2=your_base_url_2
-CDN_SITE=your_cdn_site
-```
+   ```plaintext
+   AWS_REGION=your_aws_region
+   AWS_BUCKET_NAME=your_aws_bucket_name
+   S3_ENDPOINT=your_s3_endpoint
+   AWS_ACCESS_KEY_ID=your_aws_access_key_id
+   AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+   AWS_REDIRECT_API_KEY=your_aws_redirect_api_key
+   CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
+   BASE_URL_1=your_base_url_1
+   BASE_URL_2=your_base_url_2
+   CDN_SITE=your_cdn_site
+   ```
 
-### links.md
+   ### links.md
 
-Create a `links.md` file in the `links` directory with the following content:
+   Create a `links.md` file in the `links` directory with the following content:
 
-```markdown
----
-example-key: https://example.com
-another-key: https://another-example.com
----
-```
+   ```markdown
+   ---
+   example-key: https://example.com
+   another-key: https://another-example.com
+   ---
+   ```
 
-3. Generate redirects and build the project:
+3. **Build & Run:**
+
+   Generate redirects and build the project:
+
    ```bash
    npm run dev-build
    ```
-   This command performs the following steps:
-   - Runs the `generate-redirects` script to create or update the bulk redirects on Cloudflare based on the contents of `links.md`.
-   - Generates the file structure tree and saves it to `file-structure.txt`.
-   - Builds the project for production.
 
-4. Run the development server:
+   Then start the development server:
+
    ```bash
    npm run dev
    ```
+
    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Generate Redirects
+---
 
-The `generate-redirects` script dynamically generates bulk redirects on Cloudflare based on the contents of `links.md`.
+## Environment Variables
 
-To run the script:
+Ensure the following variables are correctly set in your deployment environment:
+
+- **AWS_REGION**
+- **AWS_BUCKET_NAME**
+- **S3_ENDPOINT**
+- **AWS_ACCESS_KEY_ID**
+- **AWS_SECRET_ACCESS_KEY**
+- **AWS_REDIRECT_API_KEY**
+- **CLOUDFLARE_ACCOUNT_ID**
+- **BASE_URL_1**
+- **BASE_URL_2**
+- **CDN_SITE** – Base URL for the Content Delivery Network (e.g., `https://cdn.example.com`).
+
+---
+
+## Album Images
+
+Album images are retrieved from an S3 bucket and served via CDN. The URL structure is:
+
+- **Full-sized images:**  
+  `${CDN_SITE}/albums/[year]/[month]/[slug]/images/[filename]`
+
+- **Thumbnails:**  
+  `${CDN_SITE}/albums/[year]/[month]/[slug]/thumbnail.avif`
+
+---
+
+## Redirects & Cloudflare Pages
+
+### Generate Redirects
+
+Run the following to generate/update bulk redirects on Cloudflare:
+
 ```bash
 npm run generate-redirects
 ```
 
-This will create or update the bulk redirects on Cloudflare. Ensure that your `.env.local` file contains the necessary environment variables (`AWS_REDIRECT_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `BASE_URL_1`, and `BASE_URL_2`).
+Ensure your `.env.local` includes `AWS_REDIRECT_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `BASE_URL_1`, and `BASE_URL_2`.
 
-## Setting Up Cloudflare Pages
+### Setting Up Cloudflare Pages
 
-1. Log in to the Cloudflare dashboard and select your account.
-2. Go to **Workers & Pages** and click **Create**.
-3. Select the **Pages** tab.
-4. Connect to Git and select your GitHub account.
-5. Select the repository for this project.
-6. Select the **Next.js** framework preset.
-7. Add the necessary environment variables for your project.
+1. Log in to the Cloudflare dashboard.
+2. Navigate to **Workers & Pages** and click **Create**.
+3. Select the **Pages** tab and connect to your GitHub repository.
+4. Choose the Next.js framework preset.
+5. Add the necessary environment variables.
+6. In the new Pages worker, add `nodejs_compat` to the Compatibility flags.
 
-After setting up the Pages project, go to the new Pages worker and add `nodejs_compat` to the Compatibility flags.
-
-## Environment Variables for S3 Bucket
-
-To properly deploy and serve album images, set the following environment variables in your deployment environment:
-
-- AWS_REGION
-- AWS_BUCKET_NAME
-- S3_ENDPOINT
-- AWS_ACCESS_KEY_ID
-- AWS_SECRET_ACCESS_KEY
-
-## Album Images
-
-Album images are served from the S3 bucket with the following URL structure:
-
-- Full-sized images:  
-  CDN_SITE/albums/[year]/[month]/[slug]/images/[filename]
-
-- Thumbnails:  
-  CDN_SITE/albums/[year]/[month]/[slug]/thumbnail.avif
+---
 
 ## Tools
 
 ### Avifier Script
 
-The avifier.sh script converts supported images (JPEG, PNG, CR2) to AVIF format using ImageMagick.
+The `avifier.sh` script converts supported image formats (JPEG, PNG, CR2) to AVIF using ImageMagick.
 
-Dependencies:
-- ImageMagick
+**Dependencies:** ImageMagick
 
-Usage:
+**Usage:**
+
 ```bash
 ./tools/avifier.sh /path/to/source /path/to/destination
 ```
 
-- Checks required arguments and supported file extensions.
-- Retrieves image dimensions and file size for metadata.
+- Checks required arguments and file extensions.
+- Retrieves image dimensions and file sizes.
 - Outputs conversion status for each file.
+
+---
 
 ## Contributing
 
-Feel free to submit issues or pull requests. Follow the standard GitHub workflow.
+Contributions are welcome! Please submit any issues or pull requests following the standard GitHub workflow.
+
+---
 
 ## License
 
