@@ -9,7 +9,13 @@ const cdnHost = new URL(process.env.CDN_SITE).hostname;
 const nextConfig: NextConfig = {
   trailingSlash: true,
   images: {
-    domains: [cdnHost],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: cdnHost,
+        pathname: '/**',
+      },
+    ],
   },
 };
 
