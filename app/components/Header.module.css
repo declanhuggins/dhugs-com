@@ -1,6 +1,7 @@
 .headerContainer {
   position: relative;
   height: var(--header-height);
+  overflow: visible;
 }
 
 .innerWrapper {
@@ -22,7 +23,6 @@
   min-width: 390px;
 }
 
-/* Top and bottom rows for header layout */
 .headerTopRow,
 .headerBottomRow {
   position: absolute;
@@ -60,16 +60,36 @@
   font-size: 16px;
 }
 
-/* Buttons and icons; duplicate borders removed (handled in globals.css) */
+.timestamp,
+.socialButton,
+.searchButton,
+.buttonBorder {
+  background: var(--background);
+  border: 2px solid var(--border-color);
+}
+
 .timestamp {
   font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 4px 8px;
+  text-decoration: none;
 }
 
 .socialButton,
 .searchButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 40px;
   height: 40px;
+  padding: 0;
+  text-decoration: none;
+}
+
+.buttonBorder {
+  padding: 6px 10px;
 }
 
 .socialIcon {
@@ -79,31 +99,36 @@
 
 .navLink {
   font-size: 16px;
+  text-decoration: none;
+  color: inherit;
   text-transform: uppercase;
   font-weight: bold;
-}
-
-.buttonBorder {
-  padding: 6px 10px;
 }
 
 @media (max-width: 490px) {
   .headerTitle {
     font-size: calc(35px + (10 * ((100vw - 390px) / 100)));
   }
+
   .tagline {
     font-size: calc(12px + (4 * ((100vw - 390px) / 100)));
   }
-  .navLink,
+
+  .navLink {
+    display: none;
+  }
+
   .socialButton {
     display: none;
   }
+
   .innerWrapper {
     min-width: 390px;
     max-width: 100%;
   }
+
   .borderBox {
-    min-width: 0;
+    min-width: 0px;
   }
 }
 
@@ -111,6 +136,7 @@
   .headerTitle {
     font-size: 35px;
   }
+
   .tagline {
     font-size: 12px;
   }
