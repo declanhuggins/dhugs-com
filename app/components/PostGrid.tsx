@@ -11,7 +11,7 @@ interface PostGridProps {
 export default function PostGrid({ posts }: PostGridProps) {
   return (
     <div className={styles.grid}>
-      {posts.map((post, index) => (
+      {posts.map((post) => (
         <PostPreview
           key={post.slug}
           slug={post.slug}
@@ -21,7 +21,6 @@ export default function PostGrid({ posts }: PostGridProps) {
           imageSrc={`/thumbnails/${post.slug}.avif`}
           thumbnail={post.thumbnail}
           tags={post.tags}
-          priority={index < 4}
         />
       ))}
     </div>
