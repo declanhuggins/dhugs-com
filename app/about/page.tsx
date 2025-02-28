@@ -8,7 +8,6 @@ export default function AboutPage() {
         <div className="w-full mx-auto md:w-[40%] md:float-left md:mr-4 md:mb-4">
           <Image
             src={`${process.env.CDN_SITE}/large/about/AboutOne.avif`}
-            sizes="(max-width: 768px) 100vw, 40vw"
             alt="About photo one"
             width={500}
             height={500}
@@ -24,7 +23,6 @@ export default function AboutPage() {
         <div className="w-full mx-auto md:w-[30%] md:float-right md:ml-4 md:mb-4">
           <Image
             src={`${process.env.CDN_SITE}/large/about/AboutTwo.avif`}
-            sizes="(max-width: 768px) 100vw, 30vw"
             alt="About photo two"
             width={500}
             height={500}
