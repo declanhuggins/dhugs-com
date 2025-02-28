@@ -1,10 +1,8 @@
 // PostPreview: Renders a preview for a single post with its metadata and image.
-"use client";
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './PostPreview.module.css';
-import React, { useContext, useEffect } from 'react';
-import { PriorityImageContext } from './PriorityImageContext';
+import React from 'react';
 
 interface PostPreviewProps {
   title: string;
@@ -15,18 +13,9 @@ interface PostPreviewProps {
   slug: string;
   altText?: string;
   tags?: string[];
-  priority?: boolean;
 }
 
-export default function PostPreview({ title, author, date, imageSrc, thumbnail, slug, altText, tags, priority }: PostPreviewProps) {
-  const { register, markLoaded } = useContext(PriorityImageContext);
-
-  useEffect(() => {
-    if (priority) {
-      register();
-    }
-  }, [priority, register]);
-
+export default function PostPreview({ title, author, date, imageSrc, thumbnail, slug, altText, tags }: PostPreviewProps) {
   const postDate = new Date(date);
   const year = postDate.getFullYear().toString();
   const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
@@ -91,8 +80,6 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
             width={700}
             height={475}
             className={styles.image}
-            priority={priority}
-            onLoad={priority ? () => markLoaded() : undefined}
           />
         </div>
       </Link>

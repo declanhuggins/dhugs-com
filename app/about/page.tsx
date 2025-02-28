@@ -1,24 +1,17 @@
-// AboutPage: Renders the biography with responsive images.
-"use client";
-import React, { useContext } from 'react';
 import Image from 'next/image';
-import { PriorityImageContext } from '../components/PriorityImageContext';
 
 export default function AboutPage() {
-  const { markLoaded } = useContext(PriorityImageContext);
   return (
     <div>
       <h1 className="text-3xl font-bold mb-8 text-center">About</h1>
       <article className="space-y-6">
         <div className="w-full mx-auto md:w-[40%] md:float-left md:mr-4 md:mb-4">
           <Image
-            unoptimized
-            src={`${process.env.CDN_SITE}/about/AboutOne.avif`}
+            src={`${process.env.CDN_SITE}/large/about/AboutOne.avif`}
             alt="About photo one"
             width={500}
             height={500}
             className="object-cover rounded w-full"
-            onLoad={() => markLoaded()}
           />
         </div>
         <p>
@@ -29,13 +22,11 @@ export default function AboutPage() {
         </p>
         <div className="w-full mx-auto md:w-[30%] md:float-right md:ml-4 md:mb-4">
           <Image
-            unoptimized
-            src={`${process.env.CDN_SITE}/about/AboutTwo.avif`}
+            src={`${process.env.CDN_SITE}/large/about/AboutTwo.avif`}
             alt="About photo two"
             width={500}
             height={500}
             className="object-cover rounded w-full"
-            onLoad={() => markLoaded()}
           />
         </div>
         <p>
