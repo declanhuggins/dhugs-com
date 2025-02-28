@@ -54,6 +54,7 @@
 │   │   ├── ClientTimestamp.tsx
 │   │   ├── Footer.module.css
 │   │   ├── Footer.tsx
+│   │   ├── HamburgerMenu.tsx
 │   │   ├── Header.module.css
 │   │   ├── Header.tsx
 │   │   ├── ImageGallery.module.css
@@ -77,6 +78,7 @@
 │   │   └── page.tsx
 │   └── recent
 │       └── page.tsx
+├── components
 ├── eslint.config.mjs
 ├── file-structure.txt
 ├── lib
@@ -113,4 +115,4 @@
 │   └── avifier.sh
 └── tsconfig.json
 
-37 directories, 77 files
+38 directories, 78 files

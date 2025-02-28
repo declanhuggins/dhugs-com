@@ -2,6 +2,7 @@
   position: relative;
   height: var(--header-height);
   overflow: visible;
+  z-index: 10000; /* Added z-index to bring header (and hamburger menu) in front */
 }
 
 .innerWrapper {
@@ -105,6 +106,10 @@
   font-weight: bold;
 }
 
+.hamburgerWrapper {
+  display: none;
+}
+
 @media (max-width: 490px) {
   .headerTitle {
     font-size: calc(35px + (10 * ((100vw - 390px) / 100)));
@@ -122,6 +127,10 @@
     display: none;
   }
 
+  .socialButton[href*="github.com"] {
+    display: inline-flex !important;
+  }
+
   .innerWrapper {
     min-width: 390px;
     max-width: 100%;
@@ -129,6 +138,66 @@
 
   .borderBox {
     min-width: 0px;
+  }
+
+  .hamburgerWrapper {
+    top: 1px;
+    display: flex; /* Changed from block to flex */
+    position: absolute;
+    bottom: 0;
+    left: 2rem;
+    align-items: center; /* Ensure vertical alignment */
+  }
+
+  .hamburgerMenuDropdown {
+    position: absolute;
+    background: var(--background);
+    border: 2px solid var(--border-color);
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 9999; /* raised z-index */
+  }
+
+  .hamburgerMenuDropdown.below {
+    top: 100%;
+    left: 0;
+  }
+
+  .hamburgerMenuDropdown.right {
+    top: 0;
+    left: calc(100% + 0.5rem); /* Add gap between menu and dropdown */
+  }
+
+  .hamburgerMenuDropdown.above {
+    bottom: 100%;
+    left: 0;
+  }
+
+  /* New style for horizontal dropdown variant */
+  .hamburgerMenuDropdown.horizontalDropdown {
+    border: none;
+    background: transparent;
+    padding: 0;
+    flex-direction: row;
+  }
+
+  /* Override navLink display inside hamburger dropdown */
+  .hamburgerMenuDropdown a {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 40px; /* Ensure proper width for icons */
+    height: 40px; /* Ensure proper height for icons */
+    max-width: 200%;
+  }
+
+  .hamburgerMenuDropdown a img {
+    width: 20px; /* Increase SVG icon size */
+    height: 20px; /* Increase SVG icon size */
+    max-width: 200%;
   }
 }
 
