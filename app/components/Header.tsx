@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './Header.module.css';
 import ClientTimestamp from './ClientTimestamp';
+import HamburgerMenu from './HamburgerMenu';
 
 export default function Header() {
   return (
@@ -30,11 +31,11 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link href="https://github.com/declanhuggins" target="_blank" className={styles.socialButton}>
-                <span className="sr-only">GitHub</span>
+              <Link href="https://linkedin.com/in/declanhuggins" target="_blank" className={styles.socialButton}>
+                <span className="sr-only">LinkedIn</span>
                 <Image
-                  src="/icons/github.svg"
-                  alt="GitHub"
+                  src="/icons/linkedin.svg"
+                  alt="LinkedIn"
                   width={20}
                   height={20}
                   className={`svg-foreground ${styles.socialIcon}`}
@@ -42,11 +43,11 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link href="https://linkedin.com/in/declanhuggins" target="_blank" className={styles.socialButton}>
-                <span className="sr-only">LinkedIn</span>
+              <Link href="https://github.com/declanhuggins" target="_blank" className={styles.socialButton}>
+                <span className="sr-only">GitHub</span>
                 <Image
-                  src="/icons/linkedin.svg"
-                  alt="LinkedIn"
+                  src="/icons/github.svg"
+                  alt="GitHub"
                   width={20}
                   height={20}
                   className={`svg-foreground ${styles.socialIcon}`}
@@ -81,6 +82,21 @@ export default function Header() {
               className={`svg-foreground ${styles.socialIcon}`}
             />
           </Link>
+          {/* Hamburger menu for mobile */}
+          <div className={`${styles.hamburgerWrapper} gap-2`}>
+            <HamburgerMenu 
+              menuItems={[
+                { title: 'About', href: '/about', icon: '/icons/user.svg' },
+                { title: 'Portfolio', href: '/portfolio', icon: '/icons/camera.svg' },
+                { title: 'Minecraft', href: '/minecraft', icon: '/icons/cube.svg' },
+                { title: 'Map', href: 'https://map.dhugs.com', icon: '/icons/map.svg' },
+                { title: 'Instagram', href: 'https://www.instagram.com/declanhuggins/', icon: '/icons/instagram.svg' },
+                { title: 'LinkedIn', href: 'https://linkedin.com/in/declanhuggins', icon: '/icons/linkedin.svg' }
+              ]}
+              orientation="horizontal"
+              position="right"
+            />
+          </div>
         </div>
       </div>
     </div>
