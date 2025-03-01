@@ -64,6 +64,7 @@
 │   │   ├── PostPreview.module.css
 │   │   ├── PostPreview.tsx
 │   │   ├── ProseContent.tsx
+│   │   ├── Search.tsx
 │   │   ├── Sidebar.module.css
 │   │   ├── Sidebar.tsx
 │   │   ├── ThemeToggle.module.css
@@ -76,7 +77,9 @@
 │   ├── page.tsx
 │   ├── portfolio
 │   │   └── page.tsx
-│   └── recent
+│   ├── recent
+│   │   └── page.tsx
+│   └── search
 │       └── page.tsx
 ├── components
 ├── eslint.config.mjs
@@ -89,6 +92,9 @@
 ├── next.config.ts
 ├── package-lock.json
 ├── package.json
+├── pages
+│   └── api
+│       └── posts.ts
 ├── postcss.config.mjs
 ├── posts
 │   └── resume.md
@@ -120,4 +126,4 @@
 │   └── avifier.sh
 └── tsconfig.json
 
-38 directories, 83 files
+41 directories, 86 files
