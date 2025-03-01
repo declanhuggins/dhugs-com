@@ -81,11 +81,10 @@ function getAlbumPosts(): Post[] {
 
 // Merge markdown and album posts, sorted by date (newest first).
 export function getAllPosts(): Post[] {
-  const binPosts = getPostsFromBin();
+  const markdownPosts = getPostsFromBin();
   const albumPosts = getAlbumPosts();
-  return [...binPosts, ...albumPosts].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const allPosts = [...markdownPosts, ...albumPosts];
+  return allPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 // Retrieve a post based on the slug from markdown or album posts.
@@ -95,7 +94,7 @@ export function getPostBySlug(slug: string): Post | null {
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const { data, content } = matter(fileContents);
     return {
-      slug,
+      slug: slug,
       title: data.title,
       date: data.date,
       excerpt: data.excerpt,

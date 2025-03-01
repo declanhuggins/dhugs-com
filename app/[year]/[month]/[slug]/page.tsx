@@ -16,7 +16,7 @@ export async function generateStaticParams() {
     return {
       year: postDate.getFullYear().toString(),
       month: ("0" + (postDate.getMonth() + 1)).slice(-2),
-      slug: post.slug,
+      ...post,
     };
   });
 }
