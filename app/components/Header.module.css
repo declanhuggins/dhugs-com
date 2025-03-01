@@ -89,6 +89,12 @@
   text-decoration: none;
 }
 
+.searchButtonExtra {
+  background: var(--background);
+  border: 2px solid var(--border-color);
+  border-left: none; /* Remove border between search box and button */
+}
+
 .buttonBorder {
   padding: 6px 10px;
 }
@@ -96,6 +102,11 @@
 .socialIcon {
   width: 20px;
   height: 20px;
+}
+
+.closeIcon {
+  width: 30px;
+  height: 30px;
 }
 
 .navLink {
@@ -108,6 +119,42 @@
 
 .hamburgerWrapper {
   display: none;
+}
+
+@media (max-width: 1020px) {
+  .hamburgerWrapper.visible {
+    display: flex;
+  }
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 10001; /* Ensure the search bar is on top of other elements */
+}
+
+.searchForm {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 10001; /* Ensure the search bar is on top of other elements */
+}
+
+.searchInput {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 0;
+  background: var(--background);
+  border: 2px solid var(--border-color);
+  color: var(--foreground);
+  width: 200px; /* Reduce the width of the search input */
+}
+
+.searchWrapper {
+  margin-left: auto;
 }
 
 @media (max-width: 490px) {
@@ -198,6 +245,9 @@
     width: 20px; /* Increase SVG icon size */
     height: 20px; /* Increase SVG icon size */
     max-width: 200%;
+  }
+  .searchForm {
+    position: relative; 
   }
 }
 

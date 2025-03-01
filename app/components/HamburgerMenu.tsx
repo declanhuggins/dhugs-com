@@ -40,6 +40,7 @@ export default function HamburgerMenu({ menuItems, orientation = 'vertical', pos
               href={item.href}
               className={`${styles.navLink} ${styles.buttonBorder}`}
               onClick={() => setOpen(false)}
+              target={item.href.includes('instagram.com') || item.href.includes('linkedin.com') ? '_blank' : '_self'}
             >
               <Image
                 src={item.icon}

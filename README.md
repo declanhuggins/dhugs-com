@@ -46,7 +46,7 @@ dhugs-com is a personal website showcasing photo albums, blog posts, and various
    AWS_SECRET_ACCESS_KEY_WRITE=your_aws_secret_access_key_write
    AWS_REDIRECT_API_KEY=your_aws_redirect_api_key
    CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
-   BASE_URL_1=your_base_url_1
+   BASE_URL=your_base_url
    BASE_URL_2=your_base_url_2
    CDN_SITE=your_cdn_site
    ```
@@ -118,7 +118,7 @@ Run the following to generate/update bulk redirects on Cloudflare:
 npm run generate-redirects
 ```
 
-Ensure your `.env.local` includes `AWS_REDIRECT_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `BASE_URL_1`, and `BASE_URL_2`.
+Ensure your `.env.local` includes `AWS_REDIRECT_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `BASE_URL`, and `BASE_URL_2`.
 
 ### Setting Up Cloudflare Pages
 

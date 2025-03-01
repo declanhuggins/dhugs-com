@@ -7,9 +7,9 @@ require('dotenv').config({ path: path.join(__dirname, '../.env.local') });
 
 const API_KEY = process.env.AWS_REDIRECT_API_KEY;
 const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-const BASE_URL_1 = process.env.BASE_URL_1;
+const BASE_URL = process.env.BASE_URL;
 const BASE_URL_2 = process.env.BASE_URL_2;
-if (!API_KEY || !ACCOUNT_ID || !BASE_URL_1 || !BASE_URL_2) {
+if (!API_KEY || !ACCOUNT_ID || !BASE_URL || !BASE_URL_2) {
   console.error("Missing required environment variables.");
   process.exit(1);
 }
@@ -67,7 +67,7 @@ async function main() {
   const items = Object.entries(data).flatMap(([key, url]) => [
     {
       redirect: {
-        source_url: `${BASE_URL_1}/${key}`,
+        source_url: `${BASE_URL}/${key}`,
         target_url: url.replace(/^“|”$/g, ''),
         status_code: 302
       }
