@@ -86,6 +86,7 @@
 ├── file-structure.txt
 ├── lib
 │   ├── album.ts
+│   ├── posts-node.ts
 │   └── posts.ts
 ├── links
 │   └── links.md
@@ -94,6 +95,7 @@
 ├── package.json
 ├── pages
 │   └── api
+│       ├── posts-node.ts
 │       └── posts.ts
 ├── postcss.config.mjs
 ├── posts
@@ -126,4 +128,4 @@
 │   └── avifier.sh
 └── tsconfig.json
 
-41 directories, 86 files
+41 directories, 88 files
