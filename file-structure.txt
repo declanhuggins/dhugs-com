@@ -71,9 +71,6 @@
 │   │   └── ThemeToggle.tsx
 │   ├── globals.css
 │   ├── layout.tsx
-│   ├── minecraft
-│   │   ├── minecraft.md
-│   │   └── page.tsx
 │   ├── page.tsx
 │   ├── portfolio
 │   │   └── page.tsx
@@ -81,12 +78,13 @@
 │   │   └── page.tsx
 │   └── search
 │       └── page.tsx
-├── components
+├── data
+│   └── posts.json
 ├── eslint.config.mjs
 ├── file-structure.txt
 ├── lib
 │   ├── album.ts
-│   ├── posts-node.ts
+│   ├── posts-edge.ts
 │   └── posts.ts
 ├── links
 │   └── links.md
@@ -95,10 +93,10 @@
 ├── package.json
 ├── pages
 │   └── api
-│       ├── posts-node.ts
 │       └── posts.ts
 ├── postcss.config.mjs
 ├── posts
+│   ├── minecraft.md
 │   └── resume.md
 ├── public
 │   ├── favicon.ico
@@ -114,6 +112,7 @@
 │       ├── magnifying.svg
 │       ├── map.svg
 │       ├── moon.svg
+│       ├── resume.svg
 │       ├── server.svg
 │       ├── sun.svg
 │       └── user.svg
@@ -121,6 +120,7 @@
 ├── scripts
 │   ├── generate-image-versions.ts
 │   ├── generate-redirects.cjs
+│   ├── precompile-posts.mjs
 │   └── update-image-metadata.ts
 ├── SECURITY.md
 ├── tailwind.config.ts
@@ -128,4 +128,4 @@
 │   └── avifier.sh
 └── tsconfig.json
 
-41 directories, 88 files
+40 directories, 89 files

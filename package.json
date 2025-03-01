@@ -9,9 +9,10 @@
     "lint": "next lint",
     "images": "node scripts/generate-image-versions.ts",
     "metadata": "node scripts/update-image-metadata.ts",
-    "dev-build": "npm run generate-redirects && npm run tree && npm run build",
+    "dev-build": "npm run precompile-posts && npm run generate-redirects && npm run tree && npm run build",
     "tree": "bash -c 'pattern=\"$(( sed \"/^\\s*#/d;/^$/d\" .gitignore; echo .next; echo node_modules ) | tr \"\\n\" \"|\" | sed \"s/|$//\")\"; tree -I \"$pattern\" > file-structure.txt'",
-    "generate-redirects": "node scripts/generate-redirects.cjs"
+    "generate-redirects": "node scripts/generate-redirects.cjs",
+    "precompile-posts": "node scripts/precompile-posts.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
