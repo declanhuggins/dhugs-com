@@ -100,26 +100,28 @@
 │   └── resume.md
 ├── public
 │   ├── favicon.ico
-│   └── icons
-│       ├── burger.svg
-│       ├── calendar.svg
-│       ├── camera.svg
-│       ├── cross.svg
-│       ├── cube.svg
-│       ├── github.svg
-│       ├── instagram.svg
-│       ├── linkedin.svg
-│       ├── magnifying.svg
-│       ├── map.svg
-│       ├── moon.svg
-│       ├── resume.svg
-│       ├── server.svg
-│       ├── sun.svg
-│       └── user.svg
+│   ├── icons
+│   │   ├── burger.svg
+│   │   ├── calendar.svg
+│   │   ├── camera.svg
+│   │   ├── cross.svg
+│   │   ├── cube.svg
+│   │   ├── github.svg
+│   │   ├── instagram.svg
+│   │   ├── linkedin.svg
+│   │   ├── magnifying.svg
+│   │   ├── map.svg
+│   │   ├── moon.svg
+│   │   ├── resume.svg
+│   │   ├── server.svg
+│   │   ├── sun.svg
+│   │   └── user.svg
+│   └── sitemap.xml
 ├── README.md
 ├── scripts
 │   ├── generate-image-versions.ts
 │   ├── generate-redirects.cjs
+│   ├── generate-sitemap.mjs
 │   ├── precompile-posts.mjs
 │   └── update-image-metadata.ts
 ├── SECURITY.md
@@ -128,4 +130,4 @@
 │   └── avifier.sh
 └── tsconfig.json
 
-40 directories, 89 files
+40 directories, 91 files
