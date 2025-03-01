@@ -9,10 +9,11 @@
     "lint": "next lint",
     "images": "node scripts/generate-image-versions.ts",
     "metadata": "node scripts/update-image-metadata.ts",
-    "dev-build": "npm run precompile-posts && npm run generate-redirects && npm run tree && npm run build",
+    "dev-build": "npm run precompile-posts && npm run generate-redirects && npm run generate-sitemap && npm run tree && npm run build",
     "tree": "bash -c 'pattern=\"$(( sed \"/^\\s*#/d;/^$/d\" .gitignore; echo .next; echo node_modules ) | tr \"\\n\" \"|\" | sed \"s/|$//\")\"; tree -I \"$pattern\" > file-structure.txt'",
     "generate-redirects": "node scripts/generate-redirects.cjs",
-    "precompile-posts": "node scripts/precompile-posts.mjs"
+    "precompile-posts": "node scripts/precompile-posts.mjs",
+    "generate-sitemap": "node scripts/generate-sitemap.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
@@ -25,7 +26,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "remark": "^15.0.1",
-    "remark-html": "^16.0.1"
+    "remark-html": "^16.0.1",
+    "sitemap": "^7.1.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
