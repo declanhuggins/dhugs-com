@@ -71,7 +71,7 @@ export default function Header() {
           <nav className="flex gap-2">
             <Link href="/about" className={`${styles.navLink} ${styles.buttonBorder}`}>About</Link>
             <Link href="/portfolio" className={`${styles.navLink} ${styles.buttonBorder}`}>Portfolio</Link>
-            <Link href="https://map.dhugs.com" className={`${styles.navLink} ${styles.buttonBorder}`}>Map</Link>
+            <Link href="/resume" className={`${styles.navLink} ${styles.buttonBorder}`}>Resume</Link>
           </nav>
           <Search />
           {/* Hamburger menu for mobile */}
@@ -80,9 +80,10 @@ export default function Header() {
               menuItems={[
                 { title: 'About', href: '/about', icon: '/icons/user.svg' },
                 { title: 'Portfolio', href: '/portfolio', icon: '/icons/camera.svg' },
-                { title: 'Map', href: 'https://map.dhugs.com', icon: '/icons/map.svg' },
+                { title: 'Resume', href: '/resume', icon: '/icons/resume.svg' },
                 { title: 'Instagram', href: 'https://www.instagram.com/declanhuggins/', icon: '/icons/instagram.svg' },
-                { title: 'LinkedIn', href: 'https://linkedin.com/in/declanhuggins', icon: '/icons/linkedin.svg' }
+                { title: 'LinkedIn', href: 'https://linkedin.com/in/declanhuggins', icon: '/icons/linkedin.svg' },
+                { title: 'Github', href: 'https://github.com/declanhuggins', icon: '/icons/github.svg' }
               ]}
               orientation="horizontal"
               position="right"

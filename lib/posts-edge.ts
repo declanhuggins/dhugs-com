@@ -1,5 +1,7 @@
 // Posts module: Handles retrieval and merging of markdown and album posts using Edge-compatible APIs.
 
+import posts from '../data/posts.json';
+
 export interface Post {
   slug: string;
   title: string;
@@ -9,30 +11,21 @@ export interface Post {
   author: string;
   tags?: string[];
   thumbnail?: string;
+  width?: 'small' | 'medium' | 'large';
 }
-
-// Mock data for posts
-const posts: Post[] = [
-  {
-    slug: 'example-post',
-    title: 'Example Post',
-    date: '2023-01-01',
-    excerpt: 'This is an example post.',
-    content: 'This is the content of the example post.',
-    author: 'Author Name',
-    tags: ['example', 'post'],
-    thumbnail: 'https://example.com/thumbnail.jpg',
-  },
-  // Add more mock posts as needed
-];
 
 // Retrieve all posts
 export async function getAllPosts(): Promise<Post[]> {
-  return posts;
+  console.log('Fetching all posts');
+  return posts.map(post => ({
+    ...post,
+    width: post.width as 'small' | 'medium' | 'large' | undefined
+  }));
 }
 
 // Retrieve a post based on the slug
 export async function getPostBySlug(slug: string): Promise<Post | null> {
+  console.log(`Fetching post with slug: ${slug}`);
   const post = posts.find((post) => post.slug === slug);
-  return post || null;
+  return post ? { ...post, width: post.width as 'small' | 'medium' | 'large' | undefined } : null;
 }

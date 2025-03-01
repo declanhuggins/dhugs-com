@@ -1,0 +1,233 @@
+[
+  {
+    "slug": "minecraft",
+    "title": "<article title=\"mc.dhugs.com\">",
+    "date": "2025-01-01T05:00:00.000Z",
+    "excerpt": "Personalized Minecraft Hosting: A cost-efficient, secure solution blending Oracle Cloud’s reliable web hosting and the Pyrodactyl panel for streamlined Minecraft server management.",
+    "content": "## Personalized Minecraft Hosting\n\nAfter several years of experimenting with hosting Minecraft servers and diving into the fundamentals of web hosting, I’ve finally created an experience I’m proud of. The best part? The only recurring cost is the domain name, which is about $1 a month.\n\nWith dhugs.com, I’ve combined a reliable web hosting setup on Oracle Cloud servers with the innovative Pyrodactyl panel for Minecraft server management. Let’s dive into the details.\n\n---\n\n## Hosting Infrastructure\n\nI’m hosting dhugs.com on a pair of Ubuntu 24.04 LTS servers with the following specs:\n\n- 24 GB RAM\n- 4 CPU cores\n- 200 GB storage\n- ARM-based architecture\n\n### Server 1: Website Hosting\n\nThe first machine runs an Apache2 webserver with:\n\n- **WordPress**: Fully managed with SSL/TLS encryption.\n- **Optimized Media**: Featured images use the AVIF format for fast loading.\n- **Google Photos API Integration**: High-quality photos are served directly from Google Photos albums, reducing bandwidth costs and taking advantage of Google’s lightning-fast servers.\n\n### Server 2: Game Server Hosting\n\nThe second machine powers:\n\n- **Pyrodactyl Panel**: A modern game server management panel based on Pterodactyl, optimized for performance and usability. It runs on Caddy, a fast and secure web server.\n- **Minecraft Server**: Managed as a Docker container with preloaded Java 21. This setup allows easy backups, server resets, and custom server environments.\n- **Additional Features:**\n  - Reverse-proxied BlueMap mod for real-time server maps with player locations.\n  - Full TLS/SSL encryption using Caddy for all subdomains.\n\n---\n\n## Cloudflare DNS and Networking Setup\n\nI’ve configured Cloudflare DNS to streamline my hosting setup, as shown in the attached image. Here’s how it all works:\n\n### Website and Email\n\n- **A Records & CNAMEs**: dhugs.com and www.dhugs.com point to the WordPress site.\n- **Vanity Email**: MX and TXT records allow a custom email without the hassle of running my own mail server.\n\n### Minecraft and Panel\n\n- **panel.dhugs.com**: Hosts the Pyrodactyl management panel, allowing web-based server management.\n- **mc.dhugs.com**: Connects players directly to the Minecraft server. This subdomain is unproxied since Cloudflare’s free proxy only supports ports 80 and 443, while Minecraft’s default port (25565) requires direct access.\n- **map.dhugs.com**: Displays a live, interactive map of the Minecraft world using BlueMap.\n\n### Why These Choices?\n\n- **Unproxied SSH Access**: Some subdomains remain unproxied to allow straightforward SSH connections.\n- **TLS/SSL for Secure Connections**: Cloudflare’s HTTPS encryption ensures all communication between the panel and its nodes is secure.\n- **Cost Efficiency**: Using Cloudflare’s free plan avoids extra costs for forwarding Minecraft traffic while still ensuring protection of web servers.\n\n---\n\n## The Minecraft Experience\n\n### Seamless Modpack and Compatibility\n\n- Structure and Terrain Enhancements: Elevates the exploration and gameplay experience.\n- Server-Side Optimizations: Ensures blazing-fast performance with minimal lag.\n- Voice Chat Support: The server includes a voice chat mod for enhanced communication and teamwork.\n\n### Real-Time Map Viewer\n\n- Real-time updates\n- Player locations\n- Full SSL/TLS encryption for a seamless browsing experience\n\n---\n\n## A Professional Setup for Everyone\n\nThe Pyrodactyl panel makes it easy to manage servers with a polished interface and advanced features. I’ve even set up a similar system for a friend, allowing them to manage their server with separate credentials on the same panel. It’s a professional, scalable solution that showcases the flexibility of this setup.\n\nI’m also open to a bring-your-own-server setup. This means you can:\n\n- Utilize dhugs.com subdomains for Minecraft server joining.\n- Manage your server effortlessly through panel.dhugs.com without worrying about the technical setup—I’ll handle everything for you.\n\nJoin the dhugs.com Minecraft server today and experience a blend of cutting-edge hosting, exciting gameplay, and thoughtful optimization. Whether you’re here to explore, build, or just hang out, this server has something for everyone!\n\n&lt;/article&gt;\n",
+    "tags": [
+      "Article"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/thumbnails/minecraft.avif",
+    "width": "medium"
+  },
+  {
+    "slug": "resume",
+    "title": "Resume",
+    "date": "2025-01-01T05:00:00.000Z",
+    "excerpt": "Updated resume highlighting technical expertise in IT and audiovisual support, academic achievements in Computer Science, and dynamic leadership in extracurricular activities.",
+    "content": "\n**Email:** [declan@dhugs.com](mailto:declan@dhugs.com) | **LinkedIn:** [linkedin.com/in/DeclanHuggins](https://linkedin.com/in/DeclanHuggins)\n\n---\n\n## Education\n\n**University of Notre Dame** – Notre Dame, IN  \n*Bachelor of Science in Computer Science*  \n**Graduation:** May 2028  \n**GPA:** 3.6+\n\n---\n\n## Experience\n\n### IT Technician  \n**Fenwick High School** – Oak Park, IL  \n*June 2024 – August 2024*  \n- Identified and reported network vulnerabilities, enhancing cybersecurity measures for the school’s IT infrastructure.  \n- Provided technical support for hardware and software issues, ensuring minimal disruption to daily operations.  \n- Assisted in deploying and configuring new devices, including workstations, 30+ projectors, and network equipment.\n\n### Audio/Visual Technician  \n**West Suburban Temple Har Zion** – River Forest, IL  \n*June 2021 – August 2024*  \n- Managed professional sound systems for live events, ensuring high-quality audio for in-person and remote attendees.  \n- Live-streamed multi-angle video feeds on platforms including Zoom, YouTube, and Facebook.  \n- Troubleshot and resolved technical issues during live events to maintain uninterrupted A/V experiences.\n\n---\n\n## Leadership and Activities\n\n### Bravo Flight PA/PO Officer  \n**Air Force ROTC Detachment 225** – Notre Dame, IN  \n*August 2024 – Present*  \n- Captured and organized high-quality photographs from flight activities, including Morale, Welfare, and Recreation (MWR) and service events for social media.  \n- Coordinated with cadre and cadets to ensure timely and accurate event coverage.  \n- Orchestrated cadet photo sessions for detachment records and media.\n\n### Photographer  \n**The Observer** – Notre Dame, IN  \n*September 2024 – Present*  \n- Captured high-quality photographs for news stories covering campus events, student life, and community issues.  \n- Collaborated with journalists and editors to visually enhance stories for print and online publication.  \n- Delivered photos on tight deadlines, contributing to the newspaper’s timely and professional reporting.\n\n---\n\n## Related Coursework or Projects\n\n### Engineering Design  \n**University of Notre Dame**  \n*August 2024 – December 2024*  \n- Designed and prototyped a sensor housing system to monitor outdoor air quality, addressing environmental challenges such as air pollution.  \n- Utilized SolidWorks for 3D modeling and collaborated in a team of four to iteratively develop a sensor housing with an actuated opening for air sample collection using an Arduino-based microcontroller.\n\n### Candidate  \n**Arnold Air Society - Benjamin Foulois Squadron** – Notre Dame, IN  \n*September 2024 – Present*  \n- Collaborated on planning and executing the Arnold Air Society Service Event at Dismas House, fostering community engagement and supporting individuals transitioning from incarceration.  \n- Facilitated logistics for the event, including volunteer recruitment, transportation arrangements, and supply management.\n\n---\n\n## Technical and Language Skills\n\n- Developed personal AI projects using tools like Stable Diffusion and Jupyter Notebooks; created workflows involving image generation and voice synthesis.  \n- Proficient in **Python, Java, Lua, and C++**.  \n- Experienced with **AWS, Linode, DigitalOcean, and Oracle Cloud**.  \n- Proficient with **Windows, Mac OS, and Linux (Arch and Ubuntu)** environments.",
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/thumbnails/resume.avif",
+    "width": "medium"
+  },
+  {
+    "slug": "dec-20",
+    "title": "Dec 20",
+    "date": "2024-12-21T04:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/12/dec-20/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "nov-17",
+    "title": "Nov 17",
+    "date": "2024-11-18T04:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/11/nov-17/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "oct-20",
+    "title": "Oct 20",
+    "date": "2024-10-21T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/10/oct-20/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "sep-28",
+    "title": "Sep 28",
+    "date": "2024-09-29T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/09/sep-28/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "sep-20",
+    "title": "Sep 20",
+    "date": "2024-09-21T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/09/sep-20/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "sep-10",
+    "title": "Sep 10",
+    "date": "2024-09-11T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/09/sep-10/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "aug-31",
+    "title": "Aug 31",
+    "date": "2024-09-01T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/08/aug-31/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "aug-29",
+    "title": "Aug 29",
+    "date": "2024-08-30T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/08/aug-29/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "jul-17",
+    "title": "Jul 17",
+    "date": "2024-07-18T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/07/jul-17/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "may-10",
+    "title": "May 10",
+    "date": "2024-05-11T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/05/may-10/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "apr-19",
+    "title": "Apr 19",
+    "date": "2024-04-20T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/04/apr-19/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "apr-16",
+    "title": "Apr 16",
+    "date": "2024-04-17T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/04/apr-16/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "mar-27",
+    "title": "Mar 27",
+    "date": "2024-03-28T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/03/mar-27/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "mar-16",
+    "title": "Mar 16",
+    "date": "2024-03-17T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2024/03/mar-16/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "nov-18",
+    "title": "Nov 18",
+    "date": "2023-11-19T04:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2023/11/nov-18/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "sep-21",
+    "title": "Sep 21",
+    "date": "2023-09-22T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2023/09/sep-21/thumbnail.avif",
+    "width": "large"
+  }
+]

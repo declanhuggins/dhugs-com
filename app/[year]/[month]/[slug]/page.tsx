@@ -60,7 +60,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
       timeZone: 'America/New_York', timeZoneName: 'short'
     });
     return (
-      <article className="mx-auto">
+      <article className={`mx-auto ${post.width === 'large' ? 'w-full' : post.width === 'small' ? 'max-w-md' : 'max-w-3xl'}`}>
         <div className="text-center">
           <h1 className="text-4xl font-bold">{post.title}</h1>
           <div className="mt-4 space-y-2 text-sm text-[var(--text-muted)] mb-4">
@@ -84,7 +84,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
   });
 
   return (
-    <article className="mx-auto">
+    <article className={`mx-auto ${post.width === 'large' ? 'w-full' : post.width === 'small' ? 'max-w-md' : 'max-w-3xl'}`}>
       <div className="text-center">
         <h1 className="text-4xl font-bold">{post.title}</h1>
         <div className="mt-4 space-y-2 text-sm text-[var(--text-muted)]">

@@ -1,12 +1,11 @@
 ---
 title: "Resume"
-date: "2025-01-01T00:00:00-05:00"
-tags: ["Resume"]
+date: "2025-01-01T00:00:00 America/New_York"
 author: "Declan Huggins"
 excerpt: "Updated resume highlighting technical expertise in IT and audiovisual support, academic achievements in Computer Science, and dynamic leadership in extracurricular activities."
 ---
 
-**Phone:** Hidden for Privacy | **Email:** [declan@dhugs.com](mailto:declan@dhugs.com) | **LinkedIn:** [linkedin.com/in/DeclanHuggins](https://linkedin.com/in/DeclanHuggins)
+**Email:** [declan@dhugs.com](mailto:declan@dhugs.com) | **LinkedIn:** [linkedin.com/in/DeclanHuggins](https://linkedin.com/in/DeclanHuggins)
 
 ---
 
