@@ -64,55 +64,65 @@
 │   │   ├── PostPreview.module.css
 │   │   ├── PostPreview.tsx
 │   │   ├── ProseContent.tsx
+│   │   ├── Search.tsx
 │   │   ├── Sidebar.module.css
 │   │   ├── Sidebar.tsx
 │   │   ├── ThemeToggle.module.css
 │   │   └── ThemeToggle.tsx
 │   ├── globals.css
 │   ├── layout.tsx
-│   ├── minecraft
-│   │   ├── minecraft.md
-│   │   └── page.tsx
 │   ├── page.tsx
 │   ├── portfolio
 │   │   └── page.tsx
-│   └── recent
+│   ├── recent
+│   │   └── page.tsx
+│   └── search
 │       └── page.tsx
-├── components
+├── data
+│   └── posts.json
 ├── eslint.config.mjs
 ├── file-structure.txt
 ├── lib
 │   ├── album.ts
+│   ├── posts-edge.ts
 │   └── posts.ts
 ├── links
 │   └── links.md
 ├── next.config.ts
 ├── package-lock.json
 ├── package.json
+├── pages
+│   └── api
+│       └── posts.ts
 ├── postcss.config.mjs
 ├── posts
+│   ├── minecraft.md
 │   └── resume.md
 ├── public
 │   ├── favicon.ico
-│   └── icons
-│       ├── burger.svg
-│       ├── calendar.svg
-│       ├── camera.svg
-│       ├── cross.svg
-│       ├── cube.svg
-│       ├── github.svg
-│       ├── instagram.svg
-│       ├── linkedin.svg
-│       ├── magnifying.svg
-│       ├── map.svg
-│       ├── moon.svg
-│       ├── server.svg
-│       ├── sun.svg
-│       └── user.svg
+│   ├── icons
+│   │   ├── burger.svg
+│   │   ├── calendar.svg
+│   │   ├── camera.svg
+│   │   ├── cross.svg
+│   │   ├── cube.svg
+│   │   ├── github.svg
+│   │   ├── instagram.svg
+│   │   ├── linkedin.svg
+│   │   ├── magnifying.svg
+│   │   ├── map.svg
+│   │   ├── moon.svg
+│   │   ├── resume.svg
+│   │   ├── server.svg
+│   │   ├── sun.svg
+│   │   └── user.svg
+│   └── sitemap.xml
 ├── README.md
 ├── scripts
 │   ├── generate-image-versions.ts
 │   ├── generate-redirects.cjs
+│   ├── generate-sitemap.mjs
+│   ├── precompile-posts.mjs
 │   └── update-image-metadata.ts
 ├── SECURITY.md
 ├── tailwind.config.ts
@@ -120,4 +130,4 @@
 │   └── avifier.sh
 └── tsconfig.json
 
-38 directories, 83 files
+40 directories, 91 files

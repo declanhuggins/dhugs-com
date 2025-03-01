@@ -1,5 +1,10 @@
-# &lt;article title="mc.dhugs.com"&gt;
-
+---
+title: '<article title="mc.dhugs.com">'
+date: "2025-01-01T00:00:00 America/New_York"
+tags: ["Article"]
+author: "Declan Huggins"
+excerpt: "Personalized Minecraft Hosting: A cost-efficient, secure solution blending Oracle Cloud’s reliable web hosting and the Pyrodactyl panel for streamlined Minecraft server management."
+---
 ## Personalized Minecraft Hosting
 
 After several years of experimenting with hosting Minecraft servers and diving into the fundamentals of web hosting, I’ve finally created an experience I’m proud of. The best part? The only recurring cost is the domain name, which is about $1 a month.
