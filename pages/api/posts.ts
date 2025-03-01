@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { getAllPosts } from '../../lib/posts-edge';
 
 export const runtime = 'edge';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts-node`);
-  const posts = await response.json();
+  const posts = await getAllPosts();
   res.status(200).json(posts);
 }
