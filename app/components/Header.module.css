@@ -174,7 +174,7 @@
     display: none;
   }
 
-  .socialButton[href*="github.com"] {
+  .socialButton[href*="instagram.com"] {
     display: inline-flex !important;
   }
 
