@@ -54,6 +54,15 @@ async function generateSitemap() {
   const sitemapData = await streamToPromise(sitemap).then(sm => sm.toString());
   fs.writeFileSync(sitemapPath, sitemapData);
   console.log(`Sitemap written to ${sitemapPath}`);
+
+  // New: generate robots.txt using BASE_URL from .env.local
+  const robotsTxtContent = `User-agent: *
+Disallow:
+
+Sitemap: ${baseUrl}/sitemap.xml`;
+  const robotsTxtPath = path.join(process.cwd(), 'public', 'robots.txt');
+  fs.writeFileSync(robotsTxtPath, robotsTxtContent);
+  console.log(`robots.txt written to ${robotsTxtPath}`);
 }
 
 generateSitemap().catch(error => {
