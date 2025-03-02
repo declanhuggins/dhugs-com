@@ -13,7 +13,7 @@ export default async function PortfolioPage() {
   }));
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8 p-4 text-center">Portfolio</h1>
+      <h1 className="text-4xl font-bold mb-8 p-4 text-center">Portfolio</h1>
       <ImageGallery images={images} galleryID="portfolio-gallery"/>
     </div>
   );
