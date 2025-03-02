@@ -21,12 +21,12 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/resume',
-        destination: '/2025/01/resume', // Update this to the correct year/month/slug of the post
+        destination: '/2025/01/resume',
         permanent: true,
       },
       {
         source: '/minecraft',
-        destination: '/2025/01/minecraft', // Update this to the correct year/month/slug of the post
+        destination: '/2025/01/minecraft',
         permanent: true,
       },
     ];
