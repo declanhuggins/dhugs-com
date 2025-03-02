@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Post } from '../../lib/posts';
 import styles from './Sidebar.module.css';
 import { tagToSlug } from '../../lib/tagUtils';
+import { sanitizePathSegment } from '../../lib/sanitizeUrl';
 
 interface Archive {
   year: string;
@@ -30,7 +31,9 @@ export default function Sidebar({ posts, archives, categories }: SidebarProps) {
             const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
             return (
               <li key={post.slug} className={styles.listItem}>
-                <a href={`/${year}/${month}/${post.slug}`}>{post.title}</a>
+                <a href={`/${sanitizePathSegment(year)}/${sanitizePathSegment(month)}/${sanitizePathSegment(post.slug)}`}>
+                  {post.title}
+                </a>
               </li>
             );
           })}
