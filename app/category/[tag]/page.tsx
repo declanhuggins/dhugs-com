@@ -1,8 +1,9 @@
 // CategoryPage: Displays posts for a given category/tag.
-import React from 'react';
+import React, { JSX } from 'react';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { getAllPosts } from '../../../lib/posts';
+import PostGrid from '../../components/PostGrid';
+import { slugToTag, formatTag, tagToSlug } from '../../../lib/tagUtils';
 
 export async function generateStaticParams() {
   const posts = getAllPosts();
@@ -12,52 +13,33 @@ export async function generateStaticParams() {
       post.tags.forEach(tag => tagSet.add(tag.toLowerCase()));
     }
   });
-  return Array.from(tagSet).map(tag => ({ tag }));
+  // Use helper to generate route-ready slugs
+  return Array.from(tagSet).map(tag => ({ tag: tagToSlug(tag) }));
 }
 
 interface PageProps {
   params: Promise<{ tag: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function CategoryPage({ params }: PageProps) {
+export default async function CategoryPage({ params }: PageProps): Promise<JSX.Element> {
   const { tag } = await params;
-  const posts = getAllPosts().filter(post => 
-    post.tags && post.tags.map(t => t.toLowerCase()).includes(tag)
+  const decodedTag = decodeURIComponent(tag);
+  // Convert slug back to normal tag and format for display
+  const normalizedTag = slugToTag(decodedTag);
+  const displayTag = formatTag(normalizedTag);
+  const posts = (await getAllPosts()).filter(
+    post => post.tags && post.tags.some(t => t.toLowerCase() === normalizedTag.toLowerCase())
   );
-  
+
   if (posts.length === 0) {
     notFound();
   }
-  
-  const displayTag = tag.charAt(0).toUpperCase() + tag.slice(1);
-  
+
   return (
-    <div className="max-w-screen-xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">
-        <Link href="/category" className="hover:underline">
-          Category:
-        </Link> {displayTag}
-      </h1>
-      <ul className="space-y-4">
-        {posts.map(post => {
-          const postDate = new Date(post.date);
-          const year = postDate.getFullYear().toString();
-          const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
-          return (
-            <li key={post.slug}>
-              <Link href={`/${year}/${month}/${post.slug}`} className="text-xl --link-color hover:underline">
-                {post.title}
-              </Link>
-              <div className="text-sm text-[var(--text-muted)]">
-                Posted on {new Date(post.date).toLocaleDateString('en-US', { 
-                  day: 'numeric', month: 'long', year: 'numeric' 
-                })}
-                {post.author && <> by {post.author}</>}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+    <div className="main-container">
+      <h1 className="text-3xl font-bold mb-4">Posts in {displayTag}</h1>
+      <PostGrid posts={posts} />
     </div>
   );
 }

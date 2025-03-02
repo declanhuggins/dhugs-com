@@ -20,7 +20,7 @@ export default function ArchivesTimeline() {
   const years = Object.keys(archiveMap).sort((a, b) => a.localeCompare(b));
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-4">
       <h1 className="text-3xl font-bold mb-6">Archives Timeline</h1>
       <div className="overflow-x-auto">
         <div className="flex space-x-8">
@@ -28,7 +28,11 @@ export default function ArchivesTimeline() {
             const months = Array.from(archiveMap[year]).sort((a, b) => a.localeCompare(b));
             return (
               <div key={year} className="min-w-max">
-                <h2 className="text-xl font-semibold mb-2">{year}</h2>
+                <h2 className="text-xl font-semibold mb-2">
+                  <Link href={`/${year}/`} className="hover:underline">
+                    {year}
+                  </Link>
+                </h2>
                 <div className="flex space-x-4">
                   {months.map(month => (
                     <Link

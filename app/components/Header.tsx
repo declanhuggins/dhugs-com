@@ -20,18 +20,6 @@ export default function Header() {
           </div>
           <ul className="flex gap-2">
             <li>
-              <Link href="https://www.instagram.com/declanhuggins/" target="_blank" className={styles.socialButton}>
-                <span className="sr-only">Instagram</span>
-                <Image
-                  src="/icons/instagram.svg"
-                  alt="Instagram"
-                  width={20}
-                  height={20}
-                  className={`svg-foreground ${styles.socialIcon}`}
-                />
-              </Link>
-            </li>
-            <li>
               <Link href="https://linkedin.com/in/declanhuggins" target="_blank" className={styles.socialButton}>
                 <span className="sr-only">LinkedIn</span>
                 <Image
@@ -49,6 +37,18 @@ export default function Header() {
                 <Image
                   src="/icons/github.svg"
                   alt="GitHub"
+                  width={20}
+                  height={20}
+                  className={`svg-foreground ${styles.socialIcon}`}
+                />
+              </Link>
+            </li>
+            <li>
+              <Link href="https://www.instagram.com/declanhuggins/" target="_blank" className={styles.socialButton}>
+                <span className="sr-only">Instagram</span>
+                <Image
+                  src="/icons/instagram.svg"
+                  alt="Instagram"
                   width={20}
                   height={20}
                   className={`svg-foreground ${styles.socialIcon}`}
@@ -81,9 +81,9 @@ export default function Header() {
                 { title: 'About', href: '/about', icon: '/icons/user.svg' },
                 { title: 'Portfolio', href: '/portfolio', icon: '/icons/camera.svg' },
                 { title: 'Resume', href: '/resume', icon: '/icons/resume.svg' },
-                { title: 'Instagram', href: 'https://www.instagram.com/declanhuggins/', icon: '/icons/instagram.svg' },
                 { title: 'LinkedIn', href: 'https://linkedin.com/in/declanhuggins', icon: '/icons/linkedin.svg' },
-                { title: 'Github', href: 'https://github.com/declanhuggins', icon: '/icons/github.svg' }
+                { title: 'Github', href: 'https://github.com/declanhuggins', icon: '/icons/github.svg' },
+                { title: 'Instagram', href: 'https://www.instagram.com/declanhuggins/', icon: '/icons/instagram.svg' }
               ]}
               orientation="horizontal"
               position="right"
