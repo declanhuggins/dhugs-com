@@ -4,6 +4,7 @@ import Image from 'next/image';
 import styles from './PostPreview.module.css';
 import React from 'react';
 import { tagToSlug } from '../../lib/tagUtils';
+import { sanitizePathSegment } from '../../lib/sanitizeUrl';
 
 interface PostPreviewProps {
   title: string;
@@ -32,7 +33,7 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
     <article className={styles.wrapper}>
       <div className={styles.header}>
         <h2 className={styles.title}>
-          <Link href={`/${year}/${month}/${slug}`} className={styles.link}>
+          <Link href={`/${sanitizePathSegment(year)}/${sanitizePathSegment(month)}/${sanitizePathSegment(slug)}`} className={styles.link}>
             {title}
           </Link>
         </h2>
@@ -72,7 +73,7 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
           {formattedDate}
         </span>
       </div>
-      <Link href={`/${year}/${month}/${slug}`} className={styles.link}>
+      <Link href={`/${sanitizePathSegment(year)}/${sanitizePathSegment(month)}/${sanitizePathSegment(slug)}`} className={styles.link}>
         <div className={styles.imageWrapper}>
           <Image
             unoptimized={!!thumbnail}
