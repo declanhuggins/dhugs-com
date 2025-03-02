@@ -2,6 +2,7 @@ import React, { JSX } from 'react';
 import { notFound } from 'next/navigation';
 import { getAllPosts } from '../../../lib/posts';
 import Link from 'next/link';
+import { sanitizePathSegment } from '../../../lib/sanitizeUrl';
 
 // Generate parameters for year and month archives.
 export async function generateStaticParams() {
@@ -62,7 +63,7 @@ export default async function MonthArchive({ params }: PageProps): Promise<JSX.E
         {posts.map(post => {
           return (
             <li key={post.slug}>
-              <Link href={`/${year}/${month}/${post.slug}`} className="text-xl --link-color hover:underline">
+              <Link href={`/${sanitizePathSegment(year)}/${sanitizePathSegment(month)}/${sanitizePathSegment(post.slug)}`} className="text-xl --link-color hover:underline">
                 {post.title}
               </Link>
               {/* Combined metadata line */}

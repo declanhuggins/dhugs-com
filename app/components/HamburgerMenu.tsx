@@ -18,7 +18,17 @@ interface HamburgerMenuProps {
 
 export default function HamburgerMenu({ menuItems, orientation = 'vertical', position = 'below' }: HamburgerMenuProps) {
   const [open, setOpen] = useState(false);
+
+  const allowedDomains = ['instagram.com', 'linkedin.com'];
+  function shouldOpenInNewTab(href: string): boolean {
+    const url = new URL(href, window.location.origin);
+    return allowedDomains.some(domain =>
+      url.hostname === domain || url.hostname.endsWith(`.${domain}`)
+    );
+  }
+
   const dropdownClass = `${styles.hamburgerMenuDropdown} ${styles[position]} ${orientation === 'horizontal' ? styles.horizontalDropdown : ''}`;
+  
   return (
     <div className="hamburgerContainer" style={{ position: 'relative' }}>
       <button onClick={() => setOpen(!open)} className={styles.searchButton}>
@@ -40,7 +50,7 @@ export default function HamburgerMenu({ menuItems, orientation = 'vertical', pos
               href={item.href}
               className={`${styles.navLink} ${styles.buttonBorder}`}
               onClick={() => setOpen(false)}
-              target={item.href.includes('instagram.com') || item.href.includes('linkedin.com') ? '_blank' : '_self'}
+              target={shouldOpenInNewTab(item.href) ? '_blank' : '_self'}
             >
               <Image
                 src={item.icon}
