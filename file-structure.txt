@@ -74,6 +74,9 @@
 │   ├── page.tsx
 │   ├── portfolio
 │   │   └── page.tsx
+│   ├── privacy-policy
+│   │   ├── page.tsx
+│   │   └── privacy-policy.md
 │   ├── recent
 │   │   └── page.tsx
 │   └── search
@@ -88,6 +91,7 @@
 │   ├── posts.ts
 │   ├── sanitizeUrl.ts
 │   └── tagUtils.ts
+├── LICENSE
 ├── links
 │   └── links.md
 ├── next.config.ts
@@ -132,4 +136,4 @@
 │   └── avifier.sh
 └── tsconfig.json
 
-40 directories, 93 files
+41 directories, 96 files
