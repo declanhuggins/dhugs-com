@@ -43,7 +43,11 @@ export default async function YearArchive({ params }: PageProps): Promise<JSX.El
 
   return (
     <div className="max-w-screen-xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Archive for {year}</h1>
+      <h1 className="text-3xl font-bold mb-4">
+        <Link href="/archive" className="hover:underline">
+          Archive
+        </Link>{" "}for {year}
+      </h1>
       <ul className="space-y-4">
         {months.map(({ month, posts }) => (
           <li key={month} className="flex items-center space-x-2">

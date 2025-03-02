@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Post } from '../../lib/posts';
 import styles from './Sidebar.module.css';
+import { tagToSlug } from '../../lib/tagUtils';
 
 interface Archive {
   year: string;
@@ -60,7 +61,7 @@ export default function Sidebar({ posts, archives, categories }: SidebarProps) {
           <ul className={styles.list}>
             {categories.map(tag => (
               <li key={tag} className={styles.listItem}>
-                <Link href={`/category/${tag.toLowerCase()}`} className={styles.link}>
+                <Link href={`/category/${tagToSlug(tag)}/`} className={styles.link}>
                   {tag}
                 </Link>
               </li>

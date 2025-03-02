@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './PostPreview.module.css';
 import React from 'react';
+import { tagToSlug } from '../../lib/tagUtils';
 
 interface PostPreviewProps {
   title: string;
@@ -40,7 +41,7 @@ export default function PostPreview({ title, author, date, imageSrc, thumbnail, 
             {tags.map((tag, index) => (
               <Link 
                 key={index} 
-                href={`/category/${tag.toLowerCase()}`} 
+                href={`/category/${tagToSlug(tag)}/`} 
                 className={styles.tag}
               >
                 {tag}
