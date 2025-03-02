@@ -64,7 +64,7 @@ dhugs-com is a personal website showcasing photo albums, blog posts, and various
 
 3. **Build & Run:**
 
-   Generate redirects and build the project:
+   Run helper scripts and build the project:
 
    ```bash
    npm run dev-build
@@ -108,17 +108,7 @@ Album images are retrieved from an S3 bucket and served via CDN. The URL structu
 
 ---
 
-## Redirects & Cloudflare Pages
-
-### Generate Redirects
-
-Run the following to generate/update bulk redirects on Cloudflare:
-
-```bash
-npm run generate-redirects
-```
-
-Ensure your `.env.local` includes `AWS_REDIRECT_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `BASE_URL`, and `BASE_URL_2`.
+##  Cloudflare Pages
 
 ### Setting Up Cloudflare Pages
 
@@ -129,47 +119,11 @@ Ensure your `.env.local` includes `AWS_REDIRECT_API_KEY`, `CLOUDFLARE_ACCOUNT_ID
 5. Add the necessary environment variables.
 6. In the new Pages worker, add `nodejs_compat` to the Compatibility flags.
 
----
-
-## Tools
-
-### Avifier Script
-
-The `avifier.sh` script converts supported image formats (JPEG, PNG, CR2) to AVIF using ImageMagick.
-
-**Dependencies:** ImageMagick
-
-**Usage:**
-
-```bash
-./tools/avifier.sh /path/to/source /path/to/destination
-```
-
-- Checks required arguments and file extensions.
-- Retrieves image dimensions and file sizes.
-- Outputs conversion status for each file.
-
-### Generate Image Versions
-
-The `generate-image-versions.ts` script generates small, medium, and large versions of images in the specified directories.
-
-**Dependencies:** ImageMagick
-
-**Usage:**
-
-```bash
-npm run images
-```
-
-- Processes images in the `albums/`, `about/`, `portfolio/`, and `thumbnails/` directories.
-- Skips images that already have resized versions.
-- Uploads resized images to the S3 bucket.
+## Scripts & Tools
 
 ### Update Image Metadata
 
-The `update-image-metadata.ts` script updates the metadata of images in the S3 bucket with their dimensions.
-
-**Dependencies:** Sharp
+The `scripts/update-image-metadata.ts` script updates image metadata in the S3 bucket with dimensions using Sharp.
 
 **Usage:**
 
@@ -177,9 +131,51 @@ The `update-image-metadata.ts` script updates the metadata of images in the S3 b
 npm run metadata
 ```
 
-- Fetches images from the S3 bucket.
-- Retrieves image dimensions using Sharp.
-- Updates the metadata of the images with their dimensions.
+### Generate Image Versions
+
+The `scripts/generate-image-versions.ts` script creates small, medium, and large versions of images. It processes images in `albums/`, `about/`, `portfolio/`, and `thumbnails/` directories, skipping images that already have resized versions.
+
+**Usage:**
+
+```bash
+npm run images
+```
+
+### Precompile Posts
+
+The `scripts/precompile-posts.mjs` script compiles markdown posts and album JSON data into a single JSON file (`data/posts.json`).
+
+*(Run via Node directly as needed.)*
+
+### Generate Sitemap
+
+The `scripts/generate-sitemap.mjs` script dynamically creates a sitemap that includes static pages and posts. The sitemap is written to `public/sitemap.xml`.
+
+**Usage:**
+
+```bash
+npm run generate-sitemap
+```
+
+### Bulk Redirects
+
+The `scripts/generate-redirects.cjs` script sets up bulk redirects on Cloudflare using data from `links/links.md`.
+
+**Usage:**
+
+```bash
+npm run generate-redirects
+```
+
+### Avifier Script
+
+The `tools/avifier.sh` script converts supported image formats (JPEG, PNG, CR2) to AVIF using ImageMagick.
+
+**Usage:**
+
+```bash
+./tools/avifier.sh /path/to/source /path/to/destination
+```
 
 ---
 
