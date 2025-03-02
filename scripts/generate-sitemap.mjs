@@ -12,18 +12,40 @@ async function generateSitemap() {
   const posts = await getAllPosts();
   const sitemap = new SitemapStream({ hostname: baseUrl });
 
-  // Add static pages
+  // Add static pages with balanced priorities
   sitemap.write({ url: '/', changefreq: 'daily', priority: 1.0 });
-  sitemap.write({ url: '/about', changefreq: 'monthly', priority: 0.8 });
-  sitemap.write({ url: '/portfolio', changefreq: 'monthly', priority: 0.8 });
-  sitemap.write({ url: '/resume', changefreq: 'monthly', priority: 0.8 });
+  sitemap.write({ url: '/about', changefreq: 'monthly', priority: 0.9 });
+  sitemap.write({ url: '/portfolio', changefreq: 'monthly', priority: 0.9 });
+  sitemap.write({ url: '/privacy-policy', changefreq: 'monthly', priority: 0.5 });
 
-  // Add dynamic posts
+  // New: Additional static pages balanced for SEO
+  sitemap.write({ url: '/archive', changefreq: 'weekly', priority: 0.7 });
+  sitemap.write({ url: '/author', changefreq: 'weekly', priority: 0.6 });
+  sitemap.write({ url: '/category', changefreq: 'weekly', priority: 0.6 });
+  sitemap.write({ url: '/recent', changefreq: 'weekly', priority: 0.7 });
+
+  // Add dynamic posts with balanced priority
   posts.forEach(post => {
     const postDate = new Date(post.date);
     const year = postDate.getFullYear();
     const month = String(postDate.getMonth() + 1).padStart(2, '0');
-    sitemap.write({ url: `/${year}/${month}/${post.slug}`, changefreq: 'weekly', priority: 0.9 });
+    sitemap.write({ url: `/${year}/${month}/${post.slug}`, changefreq: 'weekly', priority: 0.8 });
+  });
+
+  // New: Dynamic author and category pages with balanced priority
+  const authors = new Set();
+  const categories = new Set();
+  posts.forEach(post => {
+    if (post.author) authors.add(post.author);
+    if (post.categories && Array.isArray(post.categories)) {
+      post.categories.forEach(cat => categories.add(cat));
+    }
+  });
+  authors.forEach(author => {
+    sitemap.write({ url: `/author/${encodeURIComponent(author)}`, changefreq: 'weekly', priority: 0.7 });
+  });
+  categories.forEach(category => {
+    sitemap.write({ url: `/category/${encodeURIComponent(category)}`, changefreq: 'weekly', priority: 0.7 });
   });
 
   sitemap.end();
