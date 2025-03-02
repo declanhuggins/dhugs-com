@@ -122,6 +122,7 @@
 │   │   ├── server.svg
 │   │   ├── sun.svg
 │   │   └── user.svg
+│   ├── robots.txt
 │   └── sitemap.xml
 ├── README.md
 ├── scripts
@@ -136,4 +137,4 @@
 │   └── avifier.sh
 └── tsconfig.json
 
-41 directories, 96 files
+41 directories, 97 files
