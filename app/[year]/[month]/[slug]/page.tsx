@@ -8,6 +8,7 @@ import { getAllPosts, getPostBySlug } from '../../../../lib/posts';
 import { getAlbumImages } from '../../../../lib/album';
 import ImageGallery, { GalleryImage } from '../../../components/ImageGallery';
 import ProseContent from '../../../components/ProseContent';
+import { tagToSlug } from '../../../../lib/tagUtils';
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
@@ -37,7 +38,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
   const renderTagLinks = (tags: string[]) =>
     tags.map((tag, index) => (
       <React.Fragment key={tag}>
-        <Link href={`/category/${tag.toLowerCase()}`} className="underline">
+        <Link href={`/category/${tagToSlug(tag)}`} className="underline">
           {tag}
         </Link>
         {index < tags.length - 2 ? ", " : ""}
