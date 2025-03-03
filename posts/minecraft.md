@@ -35,7 +35,7 @@ Both machines run:
 
 - **Minecraft Server**: Managed as a Docker container (Pterodactyl wing) preloaded with Java 21. This setup allows easy backups, server resets, and custom server environments.
 - **Additional Features:**
-  - Reverse-proxied [BlueMap](map.dhugs.com) mod for real-time server maps with player locations for mc.dhugs.com.
+  - Reverse-proxied [BlueMap](https://map.dhugs.com) mod for real-time server maps with player locations for mc.dhugs.com.
   - Full TLS/SSL encryption using Caddy for all subdomains.
   - Weekly auto-restarting of the server.
 
