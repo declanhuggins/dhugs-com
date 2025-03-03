@@ -3,42 +3,41 @@ title: '<article title="mc.dhugs.com">'
 date: "2025-01-01T00:00:00 America/New_York"
 tags: ["Article"]
 author: "Declan Huggins"
-excerpt: "Personalized Minecraft Hosting: A cost-efficient, secure solution blending Oracle Cloud’s reliable web hosting and the Pyrodactyl panel for streamlined Minecraft server management."
+excerpt: "Personalized Minecraft Hosting: A cost-efficient, secure solution blending Cloudflare's reliable web hosting and the Pyrodactyl panel for streamlined Minecraft server management."
 ---
 ## Personalized Minecraft Hosting
 
 After several years of experimenting with hosting Minecraft servers and diving into the fundamentals of web hosting, I’ve finally created an experience I’m proud of. The best part? The only recurring cost is the domain name, which is about $1 a month.
 
-With dhugs.com, I’ve combined a reliable web hosting setup on Oracle Cloud servers with the innovative Pyrodactyl panel for Minecraft server management. Let’s dive into the details.
+With dhugs.com, I’ve combined a reliable web hosting setup using Cloudflare Pages with the innovative Pyrodactyl panel for Minecraft server management. Let’s dive into the details.
 
 ---
 
 ## Hosting Infrastructure
 
-I’m hosting dhugs.com on a pair of Ubuntu 24.04 LTS servers with the following specs:
+I’m hosting dhugs.com on Cloudflare Pages, details of which you can find on [dhugs-com](https://github.com/declanhuggins/dhugs-com).
+The minecraft servers run on a pair of Ubuntu 24.04 LTS servers with the following specs:
 
 - 24 GB RAM
 - 4 CPU cores
 - 200 GB storage
 - ARM-based architecture
 
-### Server 1: Website Hosting
+### Server 1: panel.dhugs.com
 
-The first machine runs an Apache2 webserver with:
-
-- **WordPress**: Fully managed with SSL/TLS encryption.
-- **Optimized Media**: Featured images use the AVIF format for fast loading.
-- **Google Photos API Integration**: High-quality photos are served directly from Google Photos albums, reducing bandwidth costs and taking advantage of Google’s lightning-fast servers.
-
-### Server 2: Game Server Hosting
-
-The second machine powers:
+The first machine runs:
 
 - **Pyrodactyl Panel**: A modern game server management panel based on Pterodactyl, optimized for performance and usability. It runs on Caddy, a fast and secure web server.
-- **Minecraft Server**: Managed as a Docker container with preloaded Java 21. This setup allows easy backups, server resets, and custom server environments.
+
+### Server 1+2: Game Server Hosting (mc.dhugs.com + mc.afrotc.com)
+
+Both machines run:
+
+- **Minecraft Server**: Managed as a Docker container (Pterodactyl wing) preloaded with Java 21. This setup allows easy backups, server resets, and custom server environments.
 - **Additional Features:**
-  - Reverse-proxied BlueMap mod for real-time server maps with player locations.
+  - Reverse-proxied [BlueMap](map.dhugs.com) mod for real-time server maps with player locations for mc.dhugs.com.
   - Full TLS/SSL encryption using Caddy for all subdomains.
+  - Weekly auto-restarting of the server.
 
 ---
 
@@ -48,7 +47,8 @@ I’ve configured Cloudflare DNS to streamline my hosting setup, as shown in the
 
 ### Website and Email
 
-- **A Records & CNAMEs**: dhugs.com and www.dhugs.com point to the WordPress site.
+- **A Records & CNAMEs**: dhugs.com and www.dhugs.com point to the Cloudflare Pages site.
+- **Development Site** dev.dhugs.com builds commits from the `dev` branch of the repository.
 - **Vanity Email**: MX and TXT records allow a custom email without the hassle of running my own mail server.
 
 ### Minecraft and Panel
