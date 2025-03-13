@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { getAllPosts } from '../../../lib/posts';
 import Link from 'next/link';
 import { sanitizePathSegment } from '../../../lib/sanitizeUrl';
+import { tagToSlug } from '../../../lib/tagUtils';
+import { toDate } from 'date-fns-tz';
 
 // Generate parameters for year and month archives.
 export async function generateStaticParams() {
@@ -11,7 +13,7 @@ export async function generateStaticParams() {
   const params: { year: string; month: string }[] = [];
 
   posts.forEach(post => {
-    const postDate = new Date(post.date);
+    const postDate = toDate(post.date, { timeZone: 'America/New_York' });
     const year = postDate.getFullYear().toString();
     const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
     const key = `${year}-${month}`;
@@ -36,7 +38,7 @@ export default async function MonthArchive({ params }: PageProps): Promise<JSX.E
   const { year, month } = await params;
   
   const posts = (await getAllPosts()).filter(post => {
-    const postDate = new Date(post.date);
+    const postDate = toDate(post.date, { timeZone: 'America/New_York' });
     const postYear = postDate.getFullYear().toString();
     const postMonth = ("0" + (postDate.getMonth() + 1)).slice(-2);
     return postYear === year && postMonth === month;
@@ -77,7 +79,7 @@ export default async function MonthArchive({ params }: PageProps): Promise<JSX.E
                   if (tags.length > 0) {
                     tagLinks = tags.map((tag, index) => (
                       <React.Fragment key={tag}>
-                        <Link href={`/category/${tag.toLowerCase()}`} className="underline">
+                        <Link href={`/category/${tagToSlug(tag)}`} className="underline">
                           {tag}
                         </Link>
                         {index < tags.length - 2 ? ", " : ""}
