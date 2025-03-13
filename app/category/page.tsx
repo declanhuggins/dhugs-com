@@ -2,6 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { getAllPosts } from '../../lib/posts';
+import { tagToSlug } from '../../lib/tagUtils';
 
 export default function CategoryIndex() {
   const posts = getAllPosts();
@@ -22,7 +23,7 @@ export default function CategoryIndex() {
         <ul className="space-y-2">
           {tags.map(tag => (
             <li key={tag}>
-              <Link href={`/category/${tag.toLowerCase()}`} className="text-xl --link-color hover:underline">
+              <Link href={`/category/${tagToSlug(tag)}`} className="text-xl --link-color hover:underline">
                 {tag}
               </Link>
             </li>
