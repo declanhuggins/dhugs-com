@@ -1,15 +1,7 @@
 // AuthorIndex: Lists all unique authors from posts.
 import React from 'react';
 import Link from 'next/link';
-import { getAllPosts } from '../../lib/posts';
-
-function getAuthorSlug(author: string): string {
-  return author.toLowerCase().replace(/\s+/g, '-');
-}
-
-function getProperAuthorName(slug: string): string {
-  return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-}
+import { getAllPosts, getAuthorSlug, getProperAuthorName } from '../../lib/posts';
 
 export default function AuthorIndex() {
   const posts = getAllPosts();

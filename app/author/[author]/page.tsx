@@ -3,14 +3,7 @@ import React, { JSX } from 'react';
 import { getAllPosts } from '../../../lib/posts';
 import PostPreview from '../../../app/components/PostPreview';
 import Link from 'next/link';
-
-function getAuthorSlug(author: string): string {
-  return author.toLowerCase().replace(/\s+/g, '-');
-}
-
-function getProperAuthorName(slug: string): string {
-  return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-}
+import { getAuthorSlug, getProperAuthorName } from '../../../lib/posts';
 
 export const dynamic = 'force-static';
 

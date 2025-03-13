@@ -4,6 +4,14 @@ import path from 'path';
 import matter from 'gray-matter';
 import { toDate } from 'date-fns-tz';
 
+export function getAuthorSlug(author: string): string {
+  return author.toLowerCase().replace(/\s+/g, '-');
+}
+
+export function getProperAuthorName(slug: string): string {
+  return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
 const postsDir = path.join(process.cwd(), 'posts');
 
 export interface Post {
