@@ -3,7 +3,7 @@ title: 'China’s Climate Action'
 date: "2025-04-01T00:00:00 America/New_York"
 tags: ["Article"]
 author: "Declan Huggins"
-excerpt: "China’s Climate Action: Coal Paradox, Clean Energy Surge, and Global Implications"
+excerpt: "China’s Climate Action - Coal Paradox, Clean Energy Surge, and Global Implications"
 ---
 ## Introduction
 
