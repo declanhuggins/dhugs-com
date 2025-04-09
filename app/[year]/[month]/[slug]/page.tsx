@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { remark } from 'remark';
 import html from 'remark-html';
+import remarkGfm from 'remark-gfm';
 import { getAllPosts, getPostBySlug } from '../../../../lib/posts';
 import { getAlbumImages } from '../../../../lib/album';
 import ImageGallery, { GalleryImage } from '../../../components/ImageGallery';
@@ -76,7 +77,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
     );
   }
 
-  const processedContent = await remark().use(html).process(post.content);
+  const processedContent = await remark().use(remarkGfm).use(html).process(post.content);
   const contentHtml = processedContent.toString();
   const formattedDateTime = postDate.toLocaleString('en-US', {
     day: 'numeric', month: 'long', year: 'numeric',
