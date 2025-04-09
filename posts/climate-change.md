@@ -15,7 +15,7 @@ China’s top-level climate goals are clear: _peak_ carbon emissions by 2030 and
 
 Indeed, Chinese authorities permitted **a record 106 GW of new coal power capacity in 2022**, roughly equivalent to two large coal plants per week ([4]). This was a fourfold jump from the prior year’s permits and the highest level since 2015. The surge continued into 2023, with another wave of project approvals and construction starts. By the first half of 2024, coal plant proposals began to ease (only ~9 GW permitted in H1 2024, an 83% drop year-on-year) ([5]) ([3]), but overall 2024 still saw **66.7 GW of new coal capacity approved and a staggering 94.5 GW start construction**, the most new builds in a year since 2015 ([3]) ([6]).
 
-![[ChinaGraph.png]]
+![ChinaGraph.png](/ChinaGraph.png)
 
 ([7]) _Figure: Progress of new coal power projects and retirements in China (2015–2024). Bars show half-yearly changes in coal plant status: **Permitted** (red), **Construction started/restarted** (orange), **Commissioned** (black), and **Retired** (blue). Coal project permits spiked dramatically in 2022–2023, reaching levels not seen since the mid-2010s, before slowing in 2024 ([8])._
 
