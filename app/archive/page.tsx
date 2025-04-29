@@ -10,7 +10,10 @@ export default function ArchivesTimeline() {
   posts.forEach(post => {
     const postDate = new Date(post.date);
     const year = postDate.getFullYear().toString();
-    const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
+    const month = postDate.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      month: '2-digit'
+    });
     if (!archiveMap[year]) {
       archiveMap[year] = new Set();
     }

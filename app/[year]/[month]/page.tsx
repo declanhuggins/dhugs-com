@@ -15,7 +15,10 @@ export async function generateStaticParams() {
   posts.forEach(post => {
     const postDate = toDate(post.date, { timeZone: 'America/New_York' });
     const year = postDate.getFullYear().toString();
-    const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
+    const month = postDate.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      month: '2-digit'
+    });
     const key = `${year}-${month}`;
     if (!paramsSet.has(key)) {
       paramsSet.add(key);
@@ -40,7 +43,10 @@ export default async function MonthArchive({ params }: PageProps): Promise<JSX.E
   const posts = (await getAllPosts()).filter(post => {
     const postDate = toDate(post.date, { timeZone: 'America/New_York' });
     const postYear = postDate.getFullYear().toString();
-    const postMonth = ("0" + (postDate.getMonth() + 1)).slice(-2);
+    const postMonth = postDate.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      month: '2-digit'
+    });
     return postYear === year && postMonth === month;
   });
 
