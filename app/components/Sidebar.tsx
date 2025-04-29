@@ -28,7 +28,10 @@ export default function Sidebar({ posts, archives, categories }: SidebarProps) {
           {posts.slice(0, 5).map(post => {
             const postDate = new Date(post.date);
             const year = postDate.getFullYear().toString();
-            const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
+            const month = postDate.toLocaleString('en-US', {
+              timeZone: 'America/New_York',
+              month: '2-digit'
+            });
             return (
               <li key={post.slug} className={styles.listItem}>
                 <a href={`/${sanitizePathSegment(year)}/${sanitizePathSegment(month)}/${sanitizePathSegment(post.slug)}`}>

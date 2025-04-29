@@ -33,7 +33,10 @@ async function generateSitemap() {
   posts.forEach(post => {
     const postDate = new Date(post.date);
     const year = postDate.getFullYear();
-    const month = String(postDate.getMonth() + 1).padStart(2, '0');
+    const month = postDate.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      month: '2-digit'
+    });
     
     // Add full post URL with trailing slash
     sitemap.write({ 
