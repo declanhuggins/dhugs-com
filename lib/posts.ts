@@ -34,7 +34,8 @@ export function getPostsFromBin(): Post[] {
     const fullPath = path.join(postsDir, fileName);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const { data, content } = matter(fileContents);
-    const date = toDate(data.date, { timeZone: 'America/New_York' }).toISOString();
+    const timeZone = process.env.Tz;
+    const date = toDate(data.date, { timeZone }).toISOString();
     return {
       slug,
       title: data.title,
