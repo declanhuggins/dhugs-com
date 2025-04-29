@@ -15,9 +15,17 @@ export async function generateStaticParams() {
   const posts = await getAllPosts();
   return posts.map(post => {
     const postDate = new Date(post.date);
+    const year = postDate.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric'
+    });
+    const month = postDate.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      month: '2-digit'
+    });
     return {
-      year: postDate.getFullYear().toString(),
-      month: ("0" + (postDate.getMonth() + 1)).slice(-2),
+      year,
+      month,
       ...post,
     };
   });
