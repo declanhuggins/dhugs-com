@@ -20,7 +20,10 @@ interface PostPreviewProps {
 export default function PostPreview({ title, author, date, imageSrc, thumbnail, slug, altText, tags }: PostPreviewProps) {
   const postDate = new Date(date);
   const year = postDate.getFullYear().toString();
-  const month = ("0" + (postDate.getMonth() + 1)).slice(-2);
+  const month = postDate.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    month: '2-digit'
+  });
   const formattedDate = postDate.toLocaleDateString('en-US', { 
     day: 'numeric', 
     month: 'long', 

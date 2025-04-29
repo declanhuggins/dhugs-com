@@ -33,7 +33,10 @@ export default async function YearArchive({ params }: PageProps): Promise<JSX.El
   const monthMap = new Map<string, { month: string; posts: typeof yearPosts }>();
   yearPosts.forEach(post => {
     const d = new Date(post.date);
-    const month = ("0" + (d.getMonth() + 1)).slice(-2);
+    const month = d.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      month: '2-digit'
+    });
     if (!monthMap.has(month)) {
       monthMap.set(month, { month, posts: [] });
     }
