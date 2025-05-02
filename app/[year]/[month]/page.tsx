@@ -77,7 +77,13 @@ export default async function MonthArchive({ params }: PageProps): Promise<JSX.E
               {/* Combined metadata line */}
               <div className="text-sm text-[var(--text-muted)]">
                 {(() => {
-                  const dateString = new Date(post.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+                  const postDate = toDate(post.date, { timeZone: 'America/New_York' });
+                  const dateString = postDate.toLocaleDateString('en-US', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    timeZone: 'America/New_York',
+                  });
                   const authorText = post.author ? ` by ${post.author}` : "";
                   // Define a local variable for tags to guarantee an array for mapping.
                   const tags = post.tags ?? [];

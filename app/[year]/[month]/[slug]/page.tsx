@@ -14,18 +14,19 @@ import { tagToSlug } from '../../../../lib/tagUtils';
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   return posts.map(post => {
-    const datePart = post.date.split('T')[0];
-    const postDate = new Date(datePart);
+    const postDate = new Date(post.date);
+    const year = postDate.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric'
+    });
+    const month = postDate.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      month: '2-digit'
+    });
     return {
-      year: postDate.toLocaleString('en-US', {
-        timeZone: 'America/New_York',
-        year: 'numeric'
-      }),
-      month: postDate.toLocaleString('en-US', {
-        timeZone: 'America/New_York',
-        month: '2-digit'
-      }),
-      ...post,
+      year,
+      month,
+      slug: post.slug,
     };
   });
 }
