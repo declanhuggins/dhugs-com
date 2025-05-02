@@ -59,6 +59,24 @@ async function getRulesetIdByPhase(phase) {
   return ruleset ? ruleset.id : null;
 }
 
+async function deleteLinkShortenerRule(rulesetId) {
+  const rulesetUrl = `${CF_BASE_URL}/rulesets/${rulesetId}`;
+  // Fetch current ruleset including its rules array
+  const rulesetData = await cfRequest(rulesetUrl, 'GET');
+  // Remove only the rule with description "link shortener"
+  const filteredRules = rulesetData.rules.filter(rule => rule.description !== 'link shortener');
+  if (filteredRules.length < rulesetData.rules.length) {
+    // Update the ruleset with only allowed top-level fields
+    await cfRequest(rulesetUrl, 'PUT', {
+      name: rulesetData.name,
+      kind: rulesetData.kind,
+      phase: rulesetData.phase,
+      rules: filteredRules
+    });
+    console.log("Deleted existing link shortener rule only.");
+  }
+}
+
 async function main() {
   const linksFilePath = path.join(__dirname, '../links/links.md');
   const fileContent = fs.readFileSync(linksFilePath, 'utf8');
@@ -131,10 +149,37 @@ async function main() {
     rulesetId = rulesetResult.id;
     console.log("Bulk Redirect Rule created with ID:", rulesetId);
   } else {
-    const updateRulesetUrl = `${CF_BASE_URL}/rulesets/${rulesetId}`;
-    console.log("Updating Bulk Redirect Rule...");
-    await cfRequest(updateRulesetUrl, 'PUT', rulesetPayload);
-    console.log("Bulk Redirect Rule updated with ID:", rulesetId);
+    console.log("Removing existing link shortener rule...");
+    await deleteLinkShortenerRule(rulesetId);
+
+    // Fetch the latest ruleset to preserve any other rules
+    const rulesetUrl = `${CF_BASE_URL}/rulesets/${rulesetId}`;
+    const existingRuleset = await cfRequest(rulesetUrl, 'GET');
+
+    // Append the refreshed link shortener rule
+    const updatedRules = [
+      ...existingRuleset.rules,
+      {
+        expression: `http.request.full_uri in $${LIST_NAME}`,
+        description: "link shortener",
+        action: "redirect",
+        action_parameters: {
+          from_list: {
+            name: LIST_NAME,
+            key: "http.request.full_uri"
+          }
+        }
+      }
+    ];
+
+    // Update ruleset with both preserved rules and the new link shortener rule
+    await cfRequest(rulesetUrl, 'PUT', {
+      name: existingRuleset.name,
+      kind: existingRuleset.kind,
+      phase: existingRuleset.phase,
+      rules: updatedRules
+    });
+    console.log("Link shortener rule updated with ID:", rulesetId);
   }
   
   console.log("Bulk redirects have been set up successfully.");
