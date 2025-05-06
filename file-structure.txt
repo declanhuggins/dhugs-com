@@ -30,6 +30,11 @@
 │   │   └── 12
 │   │       └── dec-20.json
 │   └── 2025
+│       ├── 04
+│       │   ├── apr-25.json
+│       │   └── apr-29.json
+│       └── 05
+│           └── may-01.json
 ├── app
 │   ├── [year]
 │   │   ├── [month]
@@ -138,4 +143,4 @@
 │   └── avifier.sh
 └── tsconfig.json
 
-41 directories, 98 files
+43 directories, 101 files
