@@ -1,5 +1,48 @@
 [
   {
+    "slug": "may-01",
+    "title": "May 1",
+    "date": "2025-05-02T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography",
+      "AFROTC"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/05/may-01/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "apr-29",
+    "title": "Apr 29",
+    "date": "2025-04-30T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography",
+      "Notre Dame",
+      "AFROTC"
+    ],
+    "author": "Declan Huggins",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/04/apr-29/thumbnail.avif",
+    "width": "large"
+  },
+  {
+    "slug": "apr-25",
+    "title": "Apr 25",
+    "date": "2025-04-26T03:59:00.000Z",
+    "excerpt": "",
+    "content": "",
+    "tags": [
+      "Photography",
+      "AFROTC"
+    ],
+    "author": "Tech. Sgt. David Sherman",
+    "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/04/apr-25/thumbnail.avif",
+    "width": "large"
+  },
+  {
     "slug": "climate-change",
     "title": "China’s Climate Action",
     "date": "2025-04-01T04:00:00.000Z",
