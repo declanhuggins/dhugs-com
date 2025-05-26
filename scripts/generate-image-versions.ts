@@ -126,10 +126,12 @@ async function processAlbum(albumName: string) {
 
       // Process and upload thumbnail for each size.
       if (filename === "thumbnail.avif") {
+        // Remove any leading 'albums/' or 'images/albums/' from folder for correct path
+        let albumFolder = folder.replace(/^images\//, '').replace(/^albums\//, '');
         for (const [sizeName, width] of Object.entries(sizes)) {
           try {
             const resizedBuffer = await resizeImage(buffer, width);
-            const newKey = `${sizeName}/albums/${folder.replace('images/', '')}/thumbnail.avif`;
+            const newKey = `${sizeName}/albums/${albumFolder}/thumbnail.avif`;
             const putCommand = new PutObjectCommand({
               Bucket: bucket,
               Key: newKey,
@@ -158,9 +160,22 @@ async function processAllAlbums() {
   }
 }
 
-processAllAlbums()
-  .then(() => console.log("Done processing all albums."))
-  .catch(err => {
-    console.error("Error:", err);
-    process.exit(1);
-  });
+// Accept an album name as an argument and process only that album
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const albumArg = process.argv[2];
+  if (albumArg) {
+    processAlbum(albumArg)
+      .then(() => console.log(`Done processing album: ${albumArg}`))
+      .catch(err => {
+        console.error("Error:", err);
+        process.exit(1);
+      });
+  } else {
+    processAllAlbums()
+      .then(() => console.log("Done processing all albums."))
+      .catch(err => {
+        console.error("Error:", err);
+        process.exit(1);
+      });
+  }
+}
