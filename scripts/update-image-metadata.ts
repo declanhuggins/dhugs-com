@@ -14,9 +14,10 @@ const s3 = new S3Client({
   }
 });
 
-async function updateImageMetadata() {
+async function updateImageMetadata(albumPrefix?: string) {
   const listCommand = new ListObjectsV2Command({
-    Bucket: bucketName
+    Bucket: bucketName,
+    Prefix: albumPrefix ? (albumPrefix.endsWith('/') ? albumPrefix : albumPrefix + '/') : undefined
   });
   const listResponse = await s3.send(listCommand);
   const objects = listResponse.Contents || [];
@@ -72,9 +73,13 @@ async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
   });
 }
 
-updateImageMetadata()
-  .then(() => console.log("Done updating image metadata."))
-  .catch(err => {
-    console.error("Error:", err);
-    process.exit(1);
-  });
+// Accept an album name as an argument and process only that album
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const albumArg = process.argv[2];
+  updateImageMetadata(albumArg)
+    .then(() => console.log("Done updating image metadata."))
+    .catch(err => {
+      console.error("Error:", err);
+      process.exit(1);
+    });
+}
