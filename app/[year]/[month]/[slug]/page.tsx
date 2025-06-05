@@ -16,11 +16,11 @@ export async function generateStaticParams() {
   return posts.map(post => {
     const postDate = new Date(post.date);
     const year = postDate.toLocaleString('en-US', {
-      timeZone: 'America/New_York',
+      timeZone: post.timezone,
       year: 'numeric'
     });
     const month = postDate.toLocaleString('en-US', {
-      timeZone: 'America/New_York',
+      timeZone: post.timezone,
       month: '2-digit'
     });
     return {
@@ -67,7 +67,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
     const formattedDateTime = postDate.toLocaleString('en-US', {
       day: 'numeric', month: 'long', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
-      timeZone: 'America/New_York', timeZoneName: 'short'
+      timeZone: post.timezone, timeZoneName: 'short'
     });
     return (
       <article className={`mx-auto ${post.width === 'large' ? 'w-full' : post.width === 'small' ? 'max-w-md' : 'max-w-3xl'}`}>
@@ -90,7 +90,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
   const formattedDateTime = postDate.toLocaleString('en-US', {
     day: 'numeric', month: 'long', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
-    timeZone: 'America/New_York', timeZoneName: 'short'
+    timeZone: post.timezone, timeZoneName: 'short'
   });
 
   return (

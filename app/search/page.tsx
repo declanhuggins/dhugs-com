@@ -9,6 +9,7 @@ interface Post {
   content: string;
   slug: string;
   date: string;
+  timezone: string;
   author: string;
 }
 

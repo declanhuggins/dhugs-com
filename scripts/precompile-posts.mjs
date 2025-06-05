@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { toDate } from 'date-fns-tz';
+import { fromZonedTime } from 'date-fns-tz';
 import dotenv from "dotenv";
 
 dotenv.config({ path: '.env.local' });
@@ -10,6 +10,12 @@ const postsDir = path.join(process.cwd(), 'posts');
 const albumsDir = path.join(process.cwd(), 'albums');
 const outputDir = path.join(process.cwd(), 'data');
 const outputFile = path.join(outputDir, 'posts.json');
+
+function parseDateWithTimezone(dateStr) {
+  const [datePart, tz] = dateStr.split(' ');
+  const utc = fromZonedTime(datePart, tz);
+  return { iso: utc.toISOString(), timezone: tz };
+}
 
 const cdnSite = process.env.CDN_SITE;
 
@@ -30,11 +36,12 @@ function getPostsFromBin() {
     const fullPath = path.join(postsDir, fileName);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const { data, content } = matter(fileContents);
-    const date = toDate(data.date, { timeZone: 'America/New_York' }).toISOString();
+    const { iso, timezone } = parseDateWithTimezone(data.date);
     return {
       slug,
       title: data.title,
-      date,
+      date: iso,
+      timezone,
       excerpt: data.excerpt,
       content,
       tags: data.tags,
@@ -64,12 +71,13 @@ function getAlbumPosts() {
           const slug = fileName.replace(/\.json$/, '');
           const fileContents = fs.readFileSync(fullPath, 'utf8');
           const data = JSON.parse(fileContents);
-          const date = toDate(data.date, { timeZone: 'America/New_York' }).toISOString();
+          const { iso, timezone } = parseDateWithTimezone(data.date);
           const thumbnail = `${cdnSite}/medium/albums/${year}/${month}/${slug}/thumbnail.avif`;
           results.push({
             slug,
             title: data.title,
-            date,
+            date: iso,
+            timezone,
             excerpt: data.excerpt || '',
             content: '',
             tags: data.tags,

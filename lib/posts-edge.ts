@@ -6,6 +6,7 @@ export interface Post {
   slug: string;
   title: string;
   date: string;
+  timezone: string;
   excerpt?: string;
   content: string;
   author: string;
