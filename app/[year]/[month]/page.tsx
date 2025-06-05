@@ -13,10 +13,10 @@ export async function generateStaticParams() {
   const params: { year: string; month: string }[] = [];
 
   posts.forEach(post => {
-    const postDate = toDate(post.date, { timeZone: 'America/New_York' });
+    const postDate = toDate(post.date, { timeZone: post.timezone });
     const year = postDate.getFullYear().toString();
     const month = postDate.toLocaleString('en-US', {
-      timeZone: 'America/New_York',
+      timeZone: post.timezone,
       month: '2-digit'
     });
     const key = `${year}-${month}`;
@@ -41,10 +41,10 @@ export default async function MonthArchive({ params }: PageProps): Promise<JSX.E
   const { year, month } = await params;
   
   const posts = (await getAllPosts()).filter(post => {
-    const postDate = toDate(post.date, { timeZone: 'America/New_York' });
+    const postDate = toDate(post.date, { timeZone: post.timezone });
     const postYear = postDate.getFullYear().toString();
     const postMonth = postDate.toLocaleString('en-US', {
-      timeZone: 'America/New_York',
+      timeZone: post.timezone,
       month: '2-digit'
     });
     return postYear === year && postMonth === month;
@@ -77,12 +77,12 @@ export default async function MonthArchive({ params }: PageProps): Promise<JSX.E
               {/* Combined metadata line */}
               <div className="text-sm text-[var(--text-muted)]">
                 {(() => {
-                  const postDate = toDate(post.date, { timeZone: 'America/New_York' });
+                  const postDate = toDate(post.date, { timeZone: post.timezone });
                   const dateString = postDate.toLocaleDateString('en-US', {
                     day: 'numeric',
                     month: 'long',
                     year: 'numeric',
-                    timeZone: 'America/New_York',
+                    timeZone: post.timezone,
                   });
                   const authorText = post.author ? ` by ${post.author}` : "";
                   // Define a local variable for tags to guarantee an array for mapping.
