@@ -11,7 +11,7 @@ export default function ArchivesTimeline() {
     const postDate = new Date(post.date);
     const year = postDate.getFullYear().toString();
     const month = postDate.toLocaleString('en-US', {
-      timeZone: 'America/New_York',
+      timeZone: post.timezone,
       month: '2-digit'
     });
     if (!archiveMap[year]) {

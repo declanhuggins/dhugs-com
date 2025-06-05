@@ -18,6 +18,7 @@ export default function PostGrid({ posts }: PostGridProps) {
           title={post.title}
           author={post.author}
           date={post.date}
+          timezone={post.timezone}
           imageSrc={`/thumbnails/${post.slug}.avif`}
           thumbnail={post.thumbnail}
           tags={post.tags}
