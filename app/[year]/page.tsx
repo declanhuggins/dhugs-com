@@ -34,7 +34,7 @@ export default async function YearArchive({ params }: PageProps): Promise<JSX.El
   yearPosts.forEach(post => {
     const d = new Date(post.date);
     const month = d.toLocaleString('en-US', {
-      timeZone: 'America/New_York',
+      timeZone: post.timezone,
       month: '2-digit'
     });
     if (!monthMap.has(month)) {
