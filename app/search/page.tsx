@@ -2,7 +2,7 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import PostGrid from '../components/PostGrid';
-import type { Post } from '../../lib/posts-edge';
+import type { Post } from '../../lib/posts';
 
 function SearchResultsContent() {
   const searchParams = useSearchParams();
