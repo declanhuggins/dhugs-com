@@ -93,6 +93,7 @@
 │       └── page.tsx
 ├── data
 │   └── posts.json
+├── env.d.ts
 ├── eslint.config.mjs
 ├── file-structure.txt
 ├── lib
@@ -146,6 +147,7 @@
 ├── tailwind.config.ts
 ├── tools
 │   └── avifier.sh
-└── tsconfig.json
+├── tsconfig.json
+└── wrangler.jsonc
 
-43 directories, 106 files
+43 directories, 108 files

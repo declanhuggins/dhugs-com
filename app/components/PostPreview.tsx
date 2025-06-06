@@ -10,6 +10,7 @@ interface PostPreviewProps {
   title: string;
   author: string;
   date: string;
+  timezone: string;
   imageSrc: string;
   thumbnail?: string;
   slug: string;
@@ -17,18 +18,18 @@ interface PostPreviewProps {
   tags?: string[];
 }
 
-export default function PostPreview({ title, author, date, imageSrc, thumbnail, slug, altText, tags }: PostPreviewProps) {
+export default function PostPreview({ title, author, date, timezone, imageSrc, thumbnail, slug, altText, tags }: PostPreviewProps) {
   const postDate = new Date(date);
   const year = postDate.getFullYear().toString();
   const month = postDate.toLocaleString('en-US', {
-    timeZone: 'America/New_York',
+    timeZone: timezone,
     month: '2-digit'
   });
-  const formattedDate = postDate.toLocaleDateString('en-US', { 
-    day: 'numeric', 
-    month: 'long', 
+  const formattedDate = postDate.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'long',
     year: 'numeric',
-    timeZone: 'America/New_York'
+    timeZone: timezone
   });
   const imgSrc = thumbnail || imageSrc;
 

@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { toDate } from 'date-fns-tz';
+import { fromZonedTime } from 'date-fns-tz';
 
 export function getAuthorSlug(author: string): string {
   return author.toLowerCase().replace(/\s+/g, '-');
@@ -14,10 +14,17 @@ export function getProperAuthorName(slug: string): string {
 
 const postsDir = path.join(process.cwd(), 'posts');
 
+function parseDateWithTimezone(dateStr: string): { iso: string; timezone: string } {
+  const [datePart, tz] = dateStr.split(' ');
+  const utc = fromZonedTime(datePart, tz);
+  return { iso: utc.toISOString(), timezone: tz };
+}
+
 export interface Post {
   slug: string;
   title: string;
   date: string;
+  timezone: string;
   excerpt?: string;
   content: string;
   author: string;
@@ -34,11 +41,12 @@ export function getPostsFromBin(): Post[] {
     const fullPath = path.join(postsDir, fileName);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const { data, content } = matter(fileContents);
-    const date = toDate(data.date, { timeZone: 'America/New_York' }).toISOString();
+    const { iso, timezone } = parseDateWithTimezone(data.date);
     return {
       slug,
       title: data.title,
-      date,
+      date: iso,
+      timezone,
       excerpt: data.excerpt,
       content,
       tags: data.tags,
@@ -69,12 +77,13 @@ function getAlbumPosts(): Post[] {
           const slug = fileName.replace(/\.json$/, '');
           const fileContents = fs.readFileSync(fullPath, 'utf8');
           const data = JSON.parse(fileContents);
-          const date = toDate(data.date, { timeZone: 'America/New_York' }).toISOString();
+          const { iso, timezone } = parseDateWithTimezone(data.date);
           const thumbnail = `${process.env.CDN_SITE}/medium/albums/${year}/${month}/${slug}/thumbnail.avif`;
           results.push({
             slug,
             title: data.title,
-            date,
+            date: iso,
+            timezone,
             excerpt: data.excerpt || '',
             content: '',
             tags: data.tags,
@@ -105,11 +114,12 @@ export function getPostBySlug(slug: string): Post | null {
   if (fs.existsSync(fullPath)) {
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const { data, content } = matter(fileContents);
-    const date = toDate(data.date, { timeZone: 'America/New_York' }).toISOString();
+    const { iso, timezone } = parseDateWithTimezone(data.date);
     return {
       slug: slug,
       title: data.title,
-      date: date,
+      date: iso,
+      timezone,
       excerpt: data.excerpt,
       content,
       tags: data.tags,
