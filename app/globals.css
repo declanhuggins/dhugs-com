@@ -42,13 +42,15 @@ body {
   font-family: var(--font-mono), monospace;
 }
 
-a {
-  color: var(--link-color);
-  text-decoration: none;
-}
+@layer base { 
+  a {
+    color: var(--link-color);
+    text-decoration: none;
+  } 
 
-a:hover {
-  color: var(--link-hover-color);
+  a:hover {
+    color: var(--link-hover-color);
+  }
 }
 
 .border-box {
