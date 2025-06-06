@@ -9,7 +9,7 @@ dotenv.config({ path: '.env.local' });
 const postsDir = path.join(process.cwd(), 'posts');
 const albumsDir = path.join(process.cwd(), 'albums');
 const outputDir = path.join(process.cwd(), 'data');
-const outputFile = path.join(outputDir, 'posts.json');
+const outputFile = path.join(outputDir, 'search-data.json');
 
 function parseDateWithTimezone(dateStr) {
   const [datePart, tz] = dateStr.split(' ');
@@ -102,7 +102,26 @@ function getAllPosts() {
   return allPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-// Write the pre-compiled data to a JSON file
+// Gather all posts and build search data
 const posts = getAllPosts();
-fs.writeFileSync(outputFile, JSON.stringify(posts, null, 2));
-console.log(`Pre-compiled posts data written to ${outputFile}`);
+
+// Build a simple inverted search index
+function buildSearchIndex(posts) {
+  const index = {};
+  for (const post of posts) {
+    const text = `${post.title} ${post.content}`.toLowerCase();
+    const tokens = text.match(/[a-z0-9']+/g) || [];
+    const unique = [...new Set(tokens.filter(t => t.length > 2 && !/^\d+$/.test(t)))];
+    for (const token of unique) {
+      if (!index[token]) index[token] = [];
+      index[token].push(post.slug);
+    }
+  }
+  return index;
+}
+
+const searchIndex = buildSearchIndex(posts);
+const postsMeta = posts.map(({ content, ...rest }) => rest);
+const searchData = { posts: postsMeta, index: searchIndex };
+fs.writeFileSync(outputFile, JSON.stringify(searchData, null, 2));
+console.log(`Pre-compiled search data written to ${outputFile}`);
