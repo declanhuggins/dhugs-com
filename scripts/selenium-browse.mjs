@@ -22,7 +22,8 @@ async function main() {
     await pause(1000);
 
     console.log('Navigating to About');
-    await driver.findElement(By.linkText('About')).click();
+    await driver.wait(until.elementLocated(By.css('a[href="/about/"]')), 5000);
+    await driver.findElement(By.css('a[href="/about/"]')).click();
     await driver.wait(until.urlContains('/about'), 5000);
     await pause(1000);
 
@@ -31,7 +32,8 @@ async function main() {
     await pause(1000);
 
     console.log('Navigating to Portfolio');
-    await driver.findElement(By.linkText('Portfolio')).click();
+    await driver.wait(until.elementLocated(By.css('a[href="/portfolio/"]')), 5000);
+    await driver.findElement(By.css('a[href="/portfolio/"]')).click();
     await driver.wait(until.urlContains('/portfolio'), 5000);
     await pause(1000);
     await driver.findElement(By.css('a[href="/"]')).click();
@@ -52,7 +54,8 @@ async function main() {
     await pause(1000);
 
     console.log('Navigating to Archive');
-    await driver.findElement(By.partialLinkText('Archive')).click();
+    await driver.wait(until.elementLocated(By.css('a[href="/archive/"]')), 5000);
+    await driver.findElement(By.css('a[href="/archive/"]')).click();
     await driver.wait(until.urlContains('/archive'), 5000);
     await pause(1000);
 
