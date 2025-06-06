@@ -21,7 +21,7 @@ function SearchResultsContent() {
   useEffect(() => {
     async function fetchPosts() {
       const res = await fetch('/api/posts');
-      const data = await res.json();
+      const data = (await res.json()) as Post[];
 
       const filteredPosts: Post[] = data.filter((post: Post) =>
         post.title.toLowerCase().includes(query.toLowerCase()) ||
