@@ -1,3 +1,7 @@
+import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev';
+
+setupDevPlatform().catch(console.error);
+
 import type { NextConfig } from "next";
 
 if (!process.env.CDN_SITE) {

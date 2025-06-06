@@ -1,0 +1,15 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "dhugs-com",
+	"compatibility_date": "2025-06-06",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"vars": {
+		"NODE_VERSION": "24.1.0"
+	},
+	"pages_build_output_dir": ".vercel/output/static",
+	"observability": {
+		"enabled": true
+	}
+}
