@@ -92,7 +92,7 @@
 │   └── search
 │       └── page.tsx
 ├── data
-│   └── posts.json
+│   └── search-data.json
 ├── env.d.ts
 ├── eslint.config.mjs
 ├── file-structure.txt

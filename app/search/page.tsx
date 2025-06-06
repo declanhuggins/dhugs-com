@@ -2,16 +2,7 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import PostGrid from '../components/PostGrid';
-
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  slug: string;
-  date: string;
-  timezone: string;
-  author: string;
-}
+import type { Post } from '../../lib/posts-edge';
 
 function SearchResultsContent() {
   const searchParams = useSearchParams();
@@ -20,14 +11,9 @@ function SearchResultsContent() {
 
   useEffect(() => {
     async function fetchPosts() {
-      const res = await fetch('/api/posts');
+      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
       const data = (await res.json()) as Post[];
-
-      const filteredPosts: Post[] = data.filter((post: Post) =>
-        post.title.toLowerCase().includes(query.toLowerCase()) ||
-        post.content.toLowerCase().includes(query.toLowerCase())
-      );
-      setPosts(filteredPosts);
+      setPosts(data);
     }
     fetchPosts();
   }, [query]);

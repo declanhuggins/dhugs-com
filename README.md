@@ -143,7 +143,7 @@ npm run images
 
 ### Precompile Posts
 
-The `scripts/precompile-posts.mjs` script compiles markdown posts and album JSON data into a single JSON file (`data/posts.json`).
+The `scripts/precompile-posts.mjs` script compiles markdown posts and album JSON data into a unified search data file (`data/search-data.json`).
 
 *(Run via Node directly as needed.)*
 
