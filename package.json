@@ -17,9 +17,9 @@
 		"tree": "bash -c 'pattern=\"$(( sed \"/^\\s*#/d;/^$/d\" .gitignore; echo .next; echo node_modules ) | tr \"\\n\" \"|\" | sed \"s/|$//\")\"; tree -I \"$pattern\" > file-structure.txt'",
 		"generate-redirects": "node scripts/generate-redirects.cjs",
 		"precompile-posts": "node scripts/precompile-posts.mjs",
-    "generate-sitemap": "node scripts/generate-sitemap.mjs"
-    ,"selenium:browse": "node scripts/selenium-browse.mjs"
-  },
+		"generate-sitemap": "node scripts/generate-sitemap.mjs",
+		"browse": "node scripts/selenium-browse.mjs"
+	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.825.0",
 		"date-fns-tz": "^3.2.0",
@@ -30,6 +30,7 @@
 		"photoswipe": "^5.4.4",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
+		"react-masonry-css": "^1.0.16",
 		"remark": "^15.0.1",
 		"remark-gfm": "^4.0.1",
 		"remark-html": "^16.0.1",

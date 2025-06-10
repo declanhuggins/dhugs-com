@@ -110,7 +110,8 @@
 ├── package.json
 ├── pages
 │   └── api
-│       └── posts.ts
+│       ├── posts.ts
+│       └── search.ts
 ├── postcss.config.mjs
 ├── posts
 │   ├── climate-change.md
@@ -142,6 +143,7 @@
 │   ├── generate-redirects.cjs
 │   ├── generate-sitemap.mjs
 │   ├── precompile-posts.mjs
+│   ├── selenium-browse.mjs
 │   └── update-image-metadata.ts
 ├── SECURITY.md
 ├── tailwind.config.ts
@@ -150,4 +152,4 @@
 ├── tsconfig.json
 └── wrangler.jsonc
 
-43 directories, 108 files
+43 directories, 110 files

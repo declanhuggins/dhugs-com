@@ -1,12 +1,15 @@
 .masonry {
-  column-count: 3;
-  column-gap: 0.25rem;
+  display: flex;
+  margin-left: -0.25rem; /* gutter size offset */
+  width: auto;
 }
 
-@media (max-width: 768px) {
-  .masonry {
-    column-count: 1;
-  }
+.masonryColumn {
+  flex: 1 1 0;
+  padding-left: 0.25rem; /* gutter size */
+  background-clip: padding-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .item {
@@ -17,4 +20,10 @@
   cursor: pointer;
   transition: transform 0.2s ease;
   overflow: hidden;
+}
+
+.img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
