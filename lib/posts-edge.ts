@@ -1,6 +1,6 @@
 // Posts module: Handles retrieval and merging of markdown and album posts using Edge-compatible APIs.
 
-import posts from '../data/posts.json';
+import data from '../data/search-data.json';
 
 export interface Post {
   slug: string;
@@ -8,12 +8,14 @@ export interface Post {
   date: string;
   timezone: string;
   excerpt?: string;
-  content: string;
   author: string;
   tags?: string[];
   thumbnail?: string;
   width?: 'small' | 'medium' | 'large';
+  content?: string;
 }
+
+const posts: Post[] = (data as unknown as { posts: Post[] }).posts;
 
 // Retrieve all posts
 export async function getAllPosts(): Promise<Post[]> {
