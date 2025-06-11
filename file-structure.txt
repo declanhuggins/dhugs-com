@@ -33,13 +33,15 @@
 │       ├── 04
 │       │   ├── apr-25.json
 │       │   └── apr-29.json
-│       └── 05
-│           ├── may-01.json
-│           ├── may-19.json
-│           ├── may-20.json
-│           ├── may-21.json
-│           ├── may-22.json
-│           └── may-28.json
+│       ├── 05
+│       │   ├── may-01.json
+│       │   ├── may-19.json
+│       │   ├── may-20.json
+│       │   ├── may-21.json
+│       │   ├── may-22.json
+│       │   └── may-28.json
+│       └── 06
+│           └── jun-07.json
 ├── app
 │   ├── [year]
 │   │   ├── [month]
@@ -92,7 +94,7 @@
 │   └── search
 │       └── page.tsx
 ├── data
-│   └── posts.json
+│   └── search-data.json
 ├── env.d.ts
 ├── eslint.config.mjs
 ├── file-structure.txt
@@ -110,7 +112,8 @@
 ├── package.json
 ├── pages
 │   └── api
-│       └── posts.ts
+│       ├── posts.ts
+│       └── search.ts
 ├── postcss.config.mjs
 ├── posts
 │   ├── climate-change.md
@@ -142,6 +145,7 @@
 │   ├── generate-redirects.cjs
 │   ├── generate-sitemap.mjs
 │   ├── precompile-posts.mjs
+│   ├── selenium-browse.mjs
 │   └── update-image-metadata.ts
 ├── SECURITY.md
 ├── tailwind.config.ts
@@ -150,4 +154,4 @@
 ├── tsconfig.json
 └── wrangler.jsonc
 
-43 directories, 108 files
+44 directories, 111 files

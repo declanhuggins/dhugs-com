@@ -12,6 +12,7 @@ const cdnHost = new URL(process.env.CDN_SITE).hostname;
 
 const nextConfig: NextConfig = {
   trailingSlash: true,
+  devIndicators: false,
   images: {
     remotePatterns: [
       {
