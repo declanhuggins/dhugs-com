@@ -1,6 +1,20 @@
 {
   "posts": [
     {
+      "slug": "jun-07",
+      "title": "June 7",
+      "date": "2025-06-07T22:59:00.000Z",
+      "timezone": "Europe/Dublin",
+      "excerpt": "",
+      "tags": [
+        "Photography",
+        "Notre Dame"
+      ],
+      "author": "Declan Huggins",
+      "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/06/jun-07/thumbnail.avif",
+      "width": "large"
+    },
+    {
       "slug": "may-28",
       "title": "May 28",
       "date": "2025-05-28T22:59:00.000Z",
@@ -389,6 +403,10 @@
     }
   ],
   "index": {
+    "june": [
+      "jun-07",
+      "resume"
+    ],
     "may": [
       "may-28",
       "may-22",
@@ -9652,9 +9670,6 @@
       "resume"
     ],
     "park": [
-      "resume"
-    ],
-    "june": [
       "resume"
     ],
     "identified": [
