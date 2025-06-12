@@ -13,6 +13,10 @@ export interface GalleryImage {
   height: number;
 }
 
+interface IndexedImage extends GalleryImage {
+  index: number;
+}
+
 interface ImageGalleryProps {
   images: GalleryImage[];
   galleryID: string;
@@ -22,7 +26,12 @@ const TRANSPARENT_BLUR =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4////fwAJ/wP+T24/AAAAAElFTkSuQmCC';
 
 export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
-  const [columns, setColumns] = React.useState<GalleryImage[][]>([]);
+  const [columns, setColumns] = React.useState<IndexedImage[][]>([]);
+
+  const imagesWithIndex = React.useMemo<IndexedImage[]>(
+    () => images.map((img, index) => ({ ...img, index })),
+    [images]
+  );
 
   const getColumnCount = React.useCallback(() => {
     if (typeof window === 'undefined') return 3;
@@ -34,9 +43,9 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
   React.useEffect(() => {
     function distribute() {
       const colCount = getColumnCount();
-      const cols: GalleryImage[][] = Array.from({ length: colCount }, () => []);
+      const cols: IndexedImage[][] = Array.from({ length: colCount }, () => []);
       const heights = new Array(colCount).fill(0);
-      images.forEach((img) => {
+      imagesWithIndex.forEach((img) => {
         const ratio = img.height / img.width;
         const col = heights.indexOf(Math.min(...heights));
         cols[col].push(img);
@@ -48,7 +57,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
     distribute();
     window.addEventListener('resize', distribute);
     return () => window.removeEventListener('resize', distribute);
-  }, [images, getColumnCount]);
+  }, [imagesWithIndex, getColumnCount]);
 
   React.useEffect(() => {
     if (columns.length === 0) return;
@@ -56,7 +65,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
       gallery: '#' + galleryID,
       children: 'a',
       pswpModule: () => import('photoswipe'),
-      dataSource: images,
+      dataSource: imagesWithIndex,
       getClickedIndexFn: (e) => {
         const anchor = (e.target as HTMLElement).closest('a');
         return anchor ? parseInt(anchor.getAttribute('data-index') || '0', 10) : -1;
@@ -67,19 +76,19 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
     return () => {
       lightbox.destroy();
     };
-  }, [galleryID, images, columns]);
+  }, [galleryID, imagesWithIndex, columns]);
 
   return (
     <div id={galleryID} className={`${styles.masonry} pswp-gallery`}>
       {columns.map((col, colIdx) => (
         <div className={styles.column} key={colIdx}>
-          {col.map((img, index) => {
+          {col.map((img) => {
             const url = new URL(img.src);
             const smallSrc = `${url.origin}/medium${url.pathname}`;
-            const globalIndex = images.indexOf(img);
+            const globalIndex = img.index;
             return (
               <a
-                key={`${galleryID}-${colIdx}-${index}`}
+                key={`${galleryID}-${globalIndex}`}
                 className={styles.item}
                 href={img.src}
                 data-pswp-width={img.width}
