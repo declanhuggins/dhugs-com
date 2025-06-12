@@ -54,26 +54,19 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
     if (columns.length === 0) return;
     const lightbox = new PhotoSwipeLightbox({
       gallery: '#' + galleryID,
+      children: 'a',
       pswpModule: () => import('photoswipe'),
       dataSource: images,
+      getClickedIndexFn: (e) => {
+        const anchor = (e.target as HTMLElement).closest('a');
+        return anchor ? parseInt(anchor.getAttribute('data-index') || '0', 10) : -1;
+      },
     });
 
-    const container = document.getElementById(galleryID);
-    if (container) {
-      const anchors = Array.from(container.querySelectorAll('a'));
-      const onClick = (e: Event) => {
-        e.preventDefault();
-        const target = e.currentTarget as HTMLElement;
-        const idx = parseInt(target.getAttribute('data-index') || '0', 10);
-        lightbox.loadAndOpen(idx);
-      };
-      anchors.forEach((a) => a.addEventListener('click', onClick));
-      lightbox.init();
-      return () => {
-        anchors.forEach((a) => a.removeEventListener('click', onClick));
-        lightbox.destroy();
-      };
-    }
+    lightbox.init();
+    return () => {
+      lightbox.destroy();
+    };
   }, [galleryID, images, columns]);
 
   return (
