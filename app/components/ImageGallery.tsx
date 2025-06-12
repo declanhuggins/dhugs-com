@@ -3,7 +3,7 @@
 import React from 'react';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
-import MasonryPhotoAlbum, { ClickHandler } from 'react-photo-album';
+import MasonryPhotoAlbum, { ClickHandler, RenderLinkContext } from 'react-photo-album';
 import 'react-photo-album/masonry.css';
 import Image from 'next/image';
 import styles from './ImageGallery.module.css';
@@ -18,6 +18,8 @@ export interface GalleryImage {
 interface IndexedImage extends GalleryImage {
   index: number;
   href: string;
+  element?: HTMLElement;
+  mediumSrc: string;
 }
 
 interface ImageGalleryProps {
@@ -30,7 +32,17 @@ const TRANSPARENT_BLUR =
 
 export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
   const imagesWithIndex = React.useMemo<IndexedImage[]>(
-    () => images.map((img, index) => ({ ...img, index, href: img.src })),
+    () => images.map((img, index) => {
+      const url = new URL(img.src);
+      return {
+        ...img,
+        index,
+        href: img.src,
+        mediumSrc: `${url.origin}/medium${url.pathname}`,
+        // Remove largeSrc and set src to the original (true) source
+        src: img.src,
+      };
+    }),
     [images]
   );
 
@@ -41,6 +53,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
       pswpModule: () => import('photoswipe'),
       dataSource: imagesWithIndex,
     });
+    // Remove the itemData override for largeSrc
     lb.init();
     lightbox.current = lb;
     return () => {
@@ -52,9 +65,16 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
   const handleClick = React.useCallback<ClickHandler<IndexedImage>>(
     ({ index, event }) => {
       event.preventDefault();
+      // Set the element property to the actual <img> for PhotoSwipe animation
+      const img = (event.currentTarget as HTMLElement).querySelector('img');
+      if (img) {
+        imagesWithIndex[index].element = img as HTMLElement;
+      } else {
+        imagesWithIndex[index].element = event.currentTarget as HTMLElement;
+      }
       lightbox.current?.loadAndOpen(index);
     },
-    []
+    [imagesWithIndex]
   );
 
   const columnCounts = React.useCallback((containerWidth: number) => {
@@ -73,13 +93,16 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
       onClick={handleClick}
       componentsProps={{
         container: { id: galleryID, className: `${styles.gallery} pswp-gallery` },
-        link: {
+        link: ({ index, ...props }: RenderLinkContext<IndexedImage>) => ({
+          ...props,
           className: styles.item,
           target: '_blank',
           rel: 'noreferrer',
-        },
+          'data-pswp-index': index,
+        }),
         image: ({ index }) => ({
           as: Image,
+          src: imagesWithIndex[index].mediumSrc,
           placeholder: 'blur',
           blurDataURL: TRANSPARENT_BLUR,
           className: styles.img,
