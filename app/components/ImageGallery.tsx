@@ -1,8 +1,10 @@
-// ImageGallery: Renders a gallery using PhotoSwipe for lightbox features.
 "use client";
+// ImageGallery: Masonry photo gallery with PhotoSwipe lightbox.
 import React from 'react';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
+import MasonryPhotoAlbum, { ClickHandler, RenderLinkContext } from 'react-photo-album';
+import 'react-photo-album/masonry.css';
 import Image from 'next/image';
 import styles from './ImageGallery.module.css';
 
@@ -13,132 +15,100 @@ export interface GalleryImage {
   height: number;
 }
 
+interface IndexedImage extends GalleryImage {
+  index: number;
+  href: string;
+  element?: HTMLElement;
+  mediumSrc: string;
+}
+
 interface ImageGalleryProps {
   images: GalleryImage[];
   galleryID: string;
 }
 
 const TRANSPARENT_BLUR =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4////fwAJ/wP+T24/AAAAAElFTkSuQmCC";
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4////fwAJ/wP+T24/AAAAAElFTkSuQmCC';
 
 export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
-  // Number of columns based on window width
-  const getColumnCount = () => {
-    if (typeof window === 'undefined') return 3;
-    if (window.innerWidth < 700) return 1;
-    if (window.innerWidth < 1100) return 2;
-    return 3;
-  };
+  const imagesWithIndex = React.useMemo<IndexedImage[]>(
+    () => images.map((img, index) => {
+      const url = new URL(img.src);
+      return {
+        ...img,
+        index,
+        href: img.src,
+        mediumSrc: `${url.origin}/medium${url.pathname}`,
+        // Remove largeSrc and set src to the original (true) source
+        src: img.src,
+      };
+    }),
+    [images]
+  );
 
-  const [columns, setColumns] = React.useState<Array<GalleryImage[]> | null>(null);
-
-  React.useEffect(() => {
-    function handleResize() {
-      const colCount = getColumnCount();
-      // Distribute images to columns by balancing total height
-      const cols: GalleryImage[][] = Array.from({ length: colCount }, () => []);
-      const colHeights = Array(colCount).fill(0);
-      images.forEach(img => {
-        // Find the column with the smallest total height
-        const minCol = colHeights.indexOf(Math.min(...colHeights));
-        cols[minCol].push(img);
-        colHeights[minCol] += img.height / img.width; // Use aspect ratio as proxy for height
-      });
-      setColumns(cols);
-    }
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [images]);
+  const lightbox = React.useRef<PhotoSwipeLightbox | undefined>(undefined);
 
   React.useEffect(() => {
-    // Re-initialize PhotoSwipeLightbox on galleryID or columns change
-    const lightbox = new PhotoSwipeLightbox({
-      gallery: '#' + galleryID,
-      children: 'a',
+    const lb = new PhotoSwipeLightbox({
       pswpModule: () => import('photoswipe'),
+      dataSource: imagesWithIndex,
     });
-    // Remap the order by intercepting the 'itemData' filter
-    lightbox.addFilter('itemData', (itemData, index) => {
-      // Map the index in the lightbox to the original images array
-      const img = images[index as number];
-      if (img) {
-        // Find the anchor with the correct data-pswp-index
-        const anchor = document.querySelector(
-          `#${galleryID} a[data-pswp-index='${index}']`
-        ) as HTMLElement || undefined;
-        return {
-          ...itemData,
-          src: img.src,
-          w: img.width,
-          h: img.height,
-          element: anchor
-        };
-      }
-      return itemData;
-    });
-    // Fix: ensure clicking a thumbnail opens the correct image in the lightbox
-    lightbox.on('beforeOpen', () => {
-      // Find all anchors in DOM order
-      const anchors = Array.from(document.querySelectorAll(`#${galleryID} a[data-pswp-src]`));
-      // Map src to index in the original images array
-      const srcToIndex = new Map(images.map((img, i) => [img.src, i]));
-      // Patch the click event to open the correct index
-      anchors.forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
-          const src = anchor.getAttribute('data-pswp-src');
-          const idx = srcToIndex.get(src || '');
-          if (typeof idx === 'number') {
-            lightbox.loadAndOpen(idx);
-          }
-        });
-      });
-    });
-    lightbox.init();
+    // Remove the itemData override for largeSrc
+    lb.init();
+    lightbox.current = lb;
     return () => {
-      lightbox.destroy();
+      lb.destroy();
+      lightbox.current = undefined;
     };
-  }, [galleryID, columns, images]);
+  }, [imagesWithIndex]);
 
-  if (!columns) return null;
+  const handleClick = React.useCallback<ClickHandler<IndexedImage>>(
+    ({ index, event }) => {
+      event.preventDefault();
+      // Set the element property to the actual <img> for PhotoSwipe animation
+      const img = (event.currentTarget as HTMLElement).querySelector('img');
+      if (img) {
+        imagesWithIndex[index].element = img as HTMLElement;
+      } else {
+        imagesWithIndex[index].element = event.currentTarget as HTMLElement;
+      }
+      lightbox.current?.loadAndOpen(index);
+    },
+    [imagesWithIndex]
+  );
+
+  const columnCounts = React.useCallback((containerWidth: number) => {
+    if (containerWidth < 700) return 1;
+    if (containerWidth < 1100) return 2;
+    return 3;
+  }, []);
 
   return (
-    <div id={galleryID} className={`${styles.masonry} pswp-gallery`}>
-      {columns.map((col, colIdx) => (
-        <div className={styles.masonryColumn} key={colIdx}>
-          {col.map((img, index) => {
-            const url = new URL(img.src);
-            const smallSrc = `${url.origin}/medium${url.pathname}`;
-            // Find the index in the original images array
-            const globalIndex = images.findIndex(i => i.src === img.src && i.width === img.width && i.height === img.height);
-            return (
-              <a
-                className={styles.item}
-                href={img.src}
-                data-pswp-width={img.width}
-                data-pswp-height={img.height}
-                data-pswp-src={img.src}
-                data-pswp-index={globalIndex}
-                key={`${galleryID}-${colIdx}-${index}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Image
-                  src={smallSrc}
-                  alt={img.alt}
-                  width={img.width}
-                  height={img.height}
-                  placeholder="blur"
-                  blurDataURL={TRANSPARENT_BLUR}
-                  className={styles.img}
-                  priority={colIdx === 0 && index < 2}
-                />
-              </a>
-            );
-          })}
-        </div>
-      ))}
-    </div>
+    <MasonryPhotoAlbum
+      layout="masonry"
+      photos={imagesWithIndex}
+      columns={columnCounts}
+      spacing={4}
+      padding={0}
+      onClick={handleClick}
+      componentsProps={{
+        container: { id: galleryID, className: `${styles.gallery} pswp-gallery` },
+        link: ({ index, ...props }: RenderLinkContext<IndexedImage>) => ({
+          ...props,
+          className: styles.item,
+          target: '_blank',
+          rel: 'noreferrer',
+          'data-pswp-index': index,
+        }),
+        image: ({ index }) => ({
+          as: Image,
+          src: imagesWithIndex[index].mediumSrc,
+          placeholder: 'blur',
+          blurDataURL: TRANSPARENT_BLUR,
+          className: styles.img,
+          priority: index < 2,
+        }),
+      }}
+    />
   );
 }
