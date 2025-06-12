@@ -34,7 +34,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
     [images]
   );
 
-  const lightbox = React.useRef<PhotoSwipeLightbox>();
+  const lightbox = React.useRef<PhotoSwipeLightbox | undefined>(undefined);
 
   React.useEffect(() => {
     const lb = new PhotoSwipeLightbox({
@@ -65,15 +65,14 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
 
   return (
     <MasonryPhotoAlbum
-      id={galleryID}
       layout="masonry"
       photos={imagesWithIndex}
       columns={columnCounts}
       spacing={4}
       padding={0}
       onClick={handleClick}
-      className={`${styles.gallery} pswp-gallery`}
       componentsProps={{
+        container: { id: galleryID, className: `${styles.gallery} pswp-gallery` },
         link: {
           className: styles.item,
           target: '_blank',
