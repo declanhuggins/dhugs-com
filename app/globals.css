@@ -84,9 +84,3 @@ button {
   margin: 0 !important;
   padding: 0 !important;
 }
-
-:root,
-body,
-html {
-  --yarl__portal_zindex: 100001 !important;
-}

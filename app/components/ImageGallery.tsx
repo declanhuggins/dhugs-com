@@ -7,8 +7,8 @@ import Image from 'next/image';
 import styles from './ImageGallery.module.css';
 import Lightbox from 'yet-another-react-lightbox';
 import Counter from 'yet-another-react-lightbox/plugins/counter';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import 'yet-another-react-lightbox/styles.css';
-import 'yet-another-react-lightbox/plugins/counter.css';
 
 export interface GalleryImage {
   src: string;
@@ -48,6 +48,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const zoomRef = React.useRef<any>(null);
 
   const handleClick = React.useCallback<ClickHandler<IndexedImage>>(
     ({ index, event }) => {
@@ -98,7 +99,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
       <Lightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
-        slides={imagesWithIndex.map(img => ({ src: img.src }))}
+        slides={imagesWithIndex.map(img => ({ src: img.src, alt: img.alt }))}
         index={currentIndex}
         on={{
           view: ({ index }) => setCurrentIndex(index),
@@ -110,15 +111,34 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
           iconPrev: undefined,
           iconNext: undefined,
           iconClose: undefined,
-          slide: undefined,
         }}
         carousel={{ finite: false, preload: 2, padding: 0 }}
-        animation={{ swipe: 0 }}
-        controller={{ closeOnBackdropClick: true }}
-        styles={{
-          container: { background: 'rgba(0,0,0,0.5)', zIndex: 100001 },
+        animation={{
+          swipe: 250,
+          navigation: 0,
+          fade: 250,
+          zoom: 250,
+          easing: {
+            fade: 'ease',
+            swipe: 'ease-out',
+            navigation: 'ease-in-out',
+          },
         }}
-        plugins={[Counter]}
+        controller={{
+          closeOnBackdropClick: true,
+          closeOnPullDown: true,
+          closeOnPullUp: true,
+        }}
+        styles={{
+          root: { zIndex: 100001 },
+          container: { background: 'rgba(0,0,0,0.5)' },
+        }}
+        plugins={[Counter, Zoom]}
+        zoom={{
+          ref: zoomRef,
+          wheelZoomDistanceFactor: 133,
+          pinchZoomDistanceFactor: 133,
+        }}
         counter={{
           separator: ' / ',
           container: {
