@@ -1,12 +1,14 @@
 "use client";
-// ImageGallery: Masonry photo gallery with PhotoSwipe lightbox.
-import React from 'react';
-import PhotoSwipeLightbox from 'photoswipe/lightbox';
-import 'photoswipe/style.css';
+// ImageGallery: Masonry photo gallery with yet-another-react-lightbox.
+import React, { useState } from 'react';
 import MasonryPhotoAlbum, { ClickHandler, RenderLinkContext } from 'react-photo-album';
 import 'react-photo-album/masonry.css';
 import Image from 'next/image';
 import styles from './ImageGallery.module.css';
+import Lightbox from 'yet-another-react-lightbox';
+import Counter from 'yet-another-react-lightbox/plugins/counter';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import 'yet-another-react-lightbox/styles.css';
 
 export interface GalleryImage {
   src: string;
@@ -18,13 +20,23 @@ export interface GalleryImage {
 interface IndexedImage extends GalleryImage {
   index: number;
   href: string;
-  element?: HTMLElement;
   mediumSrc: string;
 }
 
 interface ImageGalleryProps {
   images: GalleryImage[];
   galleryID: string;
+}
+
+interface ZoomRef {
+  zoom: number;
+  maxZoom: number;
+  offsetX: number;
+  offsetY: number;
+  disabled: boolean;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  changeZoom: (targetZoom: number, rapid?: boolean, dx?: number, dy?: number) => void;
 }
 
 const TRANSPARENT_BLUR =
@@ -39,42 +51,23 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
         index,
         href: img.src,
         mediumSrc: `${url.origin}/medium${url.pathname}`,
-        // Remove largeSrc and set src to the original (true) source
         src: img.src,
       };
     }),
     [images]
   );
 
-  const lightbox = React.useRef<PhotoSwipeLightbox | undefined>(undefined);
-
-  React.useEffect(() => {
-    const lb = new PhotoSwipeLightbox({
-      pswpModule: () => import('photoswipe'),
-      dataSource: imagesWithIndex,
-    });
-    // Remove the itemData override for largeSrc
-    lb.init();
-    lightbox.current = lb;
-    return () => {
-      lb.destroy();
-      lightbox.current = undefined;
-    };
-  }, [imagesWithIndex]);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const zoomRef = React.useRef<ZoomRef | null>(null);
 
   const handleClick = React.useCallback<ClickHandler<IndexedImage>>(
     ({ index, event }) => {
       event.preventDefault();
-      // Set the element property to the actual <img> for PhotoSwipe animation
-      const img = (event.currentTarget as HTMLElement).querySelector('img');
-      if (img) {
-        imagesWithIndex[index].element = img as HTMLElement;
-      } else {
-        imagesWithIndex[index].element = event.currentTarget as HTMLElement;
-      }
-      lightbox.current?.loadAndOpen(index);
+      setCurrentIndex(index);
+      setLightboxOpen(true);
     },
-    [imagesWithIndex]
+    []
   );
 
   const columnCounts = React.useCallback((containerWidth: number) => {
@@ -84,31 +77,96 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
   }, []);
 
   return (
-    <MasonryPhotoAlbum
-      layout="masonry"
-      photos={imagesWithIndex}
-      columns={columnCounts}
-      spacing={4}
-      padding={0}
-      onClick={handleClick}
-      componentsProps={{
-        container: { id: galleryID, className: `${styles.gallery} pswp-gallery` },
-        link: ({ index, ...props }: RenderLinkContext<IndexedImage>) => ({
-          ...props,
-          className: styles.item,
-          target: '_blank',
-          rel: 'noreferrer',
-          'data-pswp-index': index,
-        }),
-        image: ({ index }) => ({
-          as: Image,
-          src: imagesWithIndex[index].mediumSrc,
-          placeholder: 'blur',
-          blurDataURL: TRANSPARENT_BLUR,
-          className: styles.img,
-          priority: index < 2,
-        }),
-      }}
-    />
+    <>
+      <MasonryPhotoAlbum
+        layout="masonry"
+        photos={imagesWithIndex}
+        columns={columnCounts}
+        spacing={4}
+        padding={0}
+        onClick={handleClick}
+        componentsProps={{
+          container: { id: galleryID, className: `${styles.gallery}` },
+          link: ({ index, ...props }: RenderLinkContext<IndexedImage>) => ({
+            ...props,
+            className: styles.item,
+            target: '_blank',
+            rel: 'noreferrer',
+            'data-pswp-index': index,
+          }),
+          image: ({ index }) => ({
+            as: Image,
+            src: imagesWithIndex[index].mediumSrc,
+            width: imagesWithIndex[index].width,
+            height: imagesWithIndex[index].height,
+            placeholder: 'blur',
+            blurDataURL: TRANSPARENT_BLUR,
+            className: styles.img,
+            priority: index < 5,
+            loading: index < 5 ? undefined : 'lazy',
+          }),
+        }}
+      />
+      <Lightbox
+        open={lightboxOpen}
+        close={() => setLightboxOpen(false)}
+        slides={imagesWithIndex.map(img => ({ src: img.src, alt: img.alt }))}
+        index={currentIndex}
+        on={{
+          view: ({ index }) => setCurrentIndex(index),
+        }}
+        render={{
+          buttonPrev: undefined,
+          buttonNext: undefined,
+          buttonClose: undefined,
+          iconPrev: undefined,
+          iconNext: undefined,
+          iconClose: undefined,
+        }}
+        carousel={{ finite: false, preload: 2, padding: 0 }}
+        animation={{
+          swipe: 250,
+          navigation: 0,
+          fade: 250,
+          zoom: 250,
+          easing: {
+            fade: 'ease',
+            swipe: 'ease-out',
+            navigation: 'ease-in-out',
+          },
+        }}
+        controller={{
+          closeOnBackdropClick: true,
+          closeOnPullDown: true,
+          closeOnPullUp: true,
+        }}
+        styles={{
+          root: { zIndex: 100001 },
+          container: { background: 'rgba(0,0,0,0.5)' },
+        }}
+        plugins={[Counter, Zoom]}
+        zoom={{
+          ref: zoomRef,
+          wheelZoomDistanceFactor: 133,
+          pinchZoomDistanceFactor: 133,
+        }}
+        counter={{
+          separator: ' / ',
+          container: {
+            style: {
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              padding: '16px',
+              color: '#fff',
+              fontSize: '1.1rem',
+              fontWeight: 500,
+              zIndex: 100002,
+              textShadow: '0 1px 4px rgba(0,0,0,0.7)'
+            }
+          }
+        }}
+      />
+    </>
   );
 }
