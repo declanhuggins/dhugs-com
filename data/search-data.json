@@ -1,6 +1,34 @@
 {
   "posts": [
     {
+      "slug": "jun-14",
+      "title": "June 14",
+      "date": "2025-06-14T22:59:00.000Z",
+      "timezone": "Europe/Dublin",
+      "excerpt": "",
+      "tags": [
+        "Photography",
+        "Notre Dame"
+      ],
+      "author": "Declan Huggins",
+      "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/06/jun-14/thumbnail.avif",
+      "width": "large"
+    },
+    {
+      "slug": "jun-16",
+      "title": "June 14",
+      "date": "2025-06-14T22:59:00.000Z",
+      "timezone": "Europe/Dublin",
+      "excerpt": "",
+      "tags": [
+        "Photography",
+        "Notre Dame"
+      ],
+      "author": "Declan Huggins",
+      "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/06/jun-16/thumbnail.avif",
+      "width": "large"
+    },
+    {
       "slug": "jun-07",
       "title": "June 7",
       "date": "2025-06-07T22:59:00.000Z",
@@ -404,6 +432,8 @@
   ],
   "index": {
     "june": [
+      "jun-14",
+      "jun-16",
       "jun-07",
       "resume"
     ],
