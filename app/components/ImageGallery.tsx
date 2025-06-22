@@ -142,7 +142,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
         }}
         styles={{
           root: { zIndex: 100001 },
-          container: { background: 'rgba(0,0,0,0.5)' },
+          container: { background: 'rgba(0,0,0,0.8)' },
         }}
         plugins={[Counter, Zoom]}
         zoom={{
