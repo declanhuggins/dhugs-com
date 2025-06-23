@@ -8,6 +8,7 @@ import styles from './ImageGallery.module.css';
 import Lightbox from 'yet-another-react-lightbox';
 import Counter from 'yet-another-react-lightbox/plugins/counter';
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import Download from 'yet-another-react-lightbox/plugins/download';
 import 'yet-another-react-lightbox/styles.css';
 
 export interface GalleryImage {
@@ -15,6 +16,7 @@ export interface GalleryImage {
   alt: string;
   width: number;
   height: number;
+  downloadUrl?: string; // Optional download URL for each image
 }
 
 interface IndexedImage extends GalleryImage {
@@ -110,7 +112,11 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
       <Lightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
-        slides={imagesWithIndex.map(img => ({ src: img.src, alt: img.alt }))}
+        slides={imagesWithIndex.map(img => ({
+          src: img.src,
+          alt: img.alt,
+          ...(img.downloadUrl ? { download: img.downloadUrl } : {})
+        }))}
         index={currentIndex}
         on={{
           view: ({ index }) => setCurrentIndex(index),
@@ -144,7 +150,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
           root: { zIndex: 100001 },
           container: { background: 'rgba(0,0,0,0.8)' },
         }}
-        plugins={[Counter, Zoom]}
+        plugins={[Counter, Zoom, Download]}
         zoom={{
           ref: zoomRef,
           wheelZoomDistanceFactor: 133,
