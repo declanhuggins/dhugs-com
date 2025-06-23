@@ -31,6 +31,7 @@ export interface Post {
   tags?: string[];
   thumbnail?: string;
   width?: 'small' | 'medium' | 'large';
+  downloadUrl?: string;
 }
 
 // Read posts from the posts directory.
@@ -90,6 +91,7 @@ function getAlbumPosts(): Post[] {
             author: data.author,
             thumbnail,
             width: data.width || 'large', // Default to 'large' if not specified
+            ...(data.downloadUrl ? { downloadUrl: data.downloadUrl } : {})
           });
         }
       }

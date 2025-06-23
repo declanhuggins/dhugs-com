@@ -63,6 +63,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
       alt: img.alt,
       width: img.width,
       height: img.height,
+      ...(post.downloadUrl ? { downloadUrl: post.downloadUrl } : {})
     }));
     const formattedDateTime = postDate.toLocaleString('en-US', {
       day: 'numeric', month: 'long', year: 'numeric',
