@@ -8,7 +8,8 @@
       "excerpt": "",
       "tags": [
         "Photography",
-        "Notre Dame"
+        "Notre Dame",
+        "Ireland"
       ],
       "author": "Declan Huggins",
       "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/06/jun-16/thumbnail.avif",
@@ -22,7 +23,8 @@
       "excerpt": "",
       "tags": [
         "Photography",
-        "Notre Dame"
+        "Notre Dame",
+        "Ireland"
       ],
       "author": "Declan Huggins",
       "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/06/jun-14/thumbnail.avif",
@@ -36,7 +38,8 @@
       "excerpt": "",
       "tags": [
         "Photography",
-        "Notre Dame"
+        "Notre Dame",
+        "Ireland"
       ],
       "author": "Declan Huggins",
       "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/06/jun-11/thumbnail.avif",
@@ -50,7 +53,8 @@
       "excerpt": "",
       "tags": [
         "Photography",
-        "Notre Dame"
+        "Notre Dame",
+        "Ireland"
       ],
       "author": "Declan Huggins",
       "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/06/jun-07/thumbnail.avif",
@@ -64,10 +68,26 @@
       "excerpt": "",
       "tags": [
         "Photography",
-        "Notre Dame"
+        "Notre Dame",
+        "Ireland"
       ],
       "author": "Declan Huggins",
       "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/05/may-28/thumbnail.avif",
+      "width": "large"
+    },
+    {
+      "slug": "may-24",
+      "title": "May 24",
+      "date": "2025-05-24T22:59:00.000Z",
+      "timezone": "Europe/Dublin",
+      "excerpt": "",
+      "tags": [
+        "Photography",
+        "Notre Dame",
+        "Ireland"
+      ],
+      "author": "Declan Huggins",
+      "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/05/may-24/thumbnail.avif",
       "width": "large"
     },
     {
@@ -78,7 +98,8 @@
       "excerpt": "",
       "tags": [
         "Photography",
-        "Notre Dame"
+        "Notre Dame",
+        "Ireland"
       ],
       "author": "Declan Huggins",
       "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/05/may-22/thumbnail.avif",
@@ -92,7 +113,8 @@
       "excerpt": "",
       "tags": [
         "Photography",
-        "Notre Dame"
+        "Notre Dame",
+        "Ireland"
       ],
       "author": "Declan Huggins",
       "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/05/may-21/thumbnail.avif",
@@ -106,7 +128,8 @@
       "excerpt": "",
       "tags": [
         "Photography",
-        "Notre Dame"
+        "Notre Dame",
+        "Ireland"
       ],
       "author": "Declan Huggins",
       "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/05/may-20/thumbnail.avif",
@@ -120,7 +143,8 @@
       "excerpt": "",
       "tags": [
         "Photography",
-        "Notre Dame"
+        "Notre Dame",
+        "Ireland"
       ],
       "author": "Declan Huggins",
       "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/05/may-19/thumbnail.avif",
@@ -454,6 +478,7 @@
     ],
     "may": [
       "may-28",
+      "may-24",
       "may-22",
       "may-21",
       "may-20",
