@@ -29,6 +29,20 @@
       "width": "large"
     },
     {
+      "slug": "jun-11",
+      "title": "June 11",
+      "date": "2025-06-11T22:59:00.000Z",
+      "timezone": "Europe/Dublin",
+      "excerpt": "",
+      "tags": [
+        "Photography",
+        "Notre Dame"
+      ],
+      "author": "Declan Huggins",
+      "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/06/jun-11/thumbnail.avif",
+      "width": "large"
+    },
+    {
       "slug": "jun-07",
       "title": "June 7",
       "date": "2025-06-07T22:59:00.000Z",
@@ -434,6 +448,7 @@
     "june": [
       "jun-16",
       "jun-14",
+      "jun-11",
       "jun-07",
       "resume"
     ],
