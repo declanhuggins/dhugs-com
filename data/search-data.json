@@ -1,6 +1,21 @@
 {
   "posts": [
     {
+      "slug": "jun-21",
+      "title": "June 21",
+      "date": "2025-06-21T22:59:00.000Z",
+      "timezone": "Europe/Dublin",
+      "excerpt": "",
+      "tags": [
+        "Photography",
+        "Notre Dame",
+        "Ireland"
+      ],
+      "author": "Declan Huggins",
+      "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/06/jun-21/thumbnail.avif",
+      "width": "large"
+    },
+    {
       "slug": "jun-16",
       "title": "June 16",
       "date": "2025-06-16T22:59:00.000Z",
@@ -470,6 +485,7 @@
   ],
   "index": {
     "june": [
+      "jun-21",
       "jun-16",
       "jun-14",
       "jun-11",
