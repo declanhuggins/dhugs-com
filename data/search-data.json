@@ -1,6 +1,36 @@
 {
   "posts": [
     {
+      "slug": "jun-26",
+      "title": "June 26",
+      "date": "2025-06-26T22:59:00.000Z",
+      "timezone": "Europe/Dublin",
+      "excerpt": "",
+      "tags": [
+        "Photography",
+        "Notre Dame",
+        "Ireland"
+      ],
+      "author": "Declan Huggins",
+      "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/06/jun-26/thumbnail.avif",
+      "width": "large"
+    },
+    {
+      "slug": "jun-25",
+      "title": "June 25",
+      "date": "2025-06-25T22:59:00.000Z",
+      "timezone": "Europe/Dublin",
+      "excerpt": "",
+      "tags": [
+        "Photography",
+        "Notre Dame",
+        "Ireland"
+      ],
+      "author": "Declan Huggins",
+      "thumbnail": "https://cdn.dhugs.com/medium/albums/2025/06/jun-25/thumbnail.avif",
+      "width": "large"
+    },
+    {
       "slug": "jun-24",
       "title": "June 24",
       "date": "2025-06-24T22:59:00.000Z",
@@ -500,6 +530,8 @@
   ],
   "index": {
     "june": [
+      "jun-26",
+      "jun-25",
       "jun-24",
       "jun-21",
       "jun-16",
