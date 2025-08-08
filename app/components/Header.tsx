@@ -20,7 +20,7 @@ export default function Header() {
           </div>
           <ul className="flex gap-2">
             <li>
-              <Link href="https://linkedin.com/in/declanhuggins" target="_blank" className={styles.socialButton}>
+              <Link href="https://linkedin.com/in/declanhuggins" target="_blank" rel="noopener noreferrer" className={styles.socialButton}>
                 <span className="sr-only">LinkedIn</span>
                 <Image
                   src="/icons/linkedin.svg"
@@ -32,7 +32,7 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link href="https://github.com/declanhuggins" target="_blank" className={styles.socialButton}>
+              <Link href="https://github.com/declanhuggins" target="_blank" rel="noopener noreferrer" className={styles.socialButton}>
                 <span className="sr-only">GitHub</span>
                 <Image
                   src="/icons/github.svg"
@@ -44,7 +44,7 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link href="https://www.instagram.com/declanhuggins/" target="_blank" className={styles.socialButton}>
+              <Link href="https://www.instagram.com/declanhuggins/" target="_blank" rel="noopener noreferrer" className={styles.socialButton}>
                 <span className="sr-only">Instagram</span>
                 <Image
                   src="/icons/instagram.svg"

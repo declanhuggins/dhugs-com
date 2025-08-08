@@ -30,17 +30,6 @@ interface ImageGalleryProps {
   galleryID: string;
 }
 
-interface ZoomRef {
-  zoom: number;
-  maxZoom: number;
-  offsetX: number;
-  offsetY: number;
-  disabled: boolean;
-  zoomIn: () => void;
-  zoomOut: () => void;
-  changeZoom: (targetZoom: number, rapid?: boolean, dx?: number, dy?: number) => void;
-}
-
 const TRANSPARENT_BLUR =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4////fwAJ/wP+T24/AAAAAElFTkSuQmCC';
 
@@ -61,7 +50,6 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const zoomRef = React.useRef<ZoomRef | null>(null);
 
   const handleClick = React.useCallback<ClickHandler<IndexedImage>>(
     ({ index, event }) => {
@@ -152,7 +140,6 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
         }}
         plugins={[Counter, Zoom, Download]}
         zoom={{
-          ref: zoomRef,
           wheelZoomDistanceFactor: 133,
           pinchZoomDistanceFactor: 133,
         }}
