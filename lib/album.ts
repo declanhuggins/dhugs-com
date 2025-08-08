@@ -11,25 +11,37 @@ export interface AlbumImage {
 
 const allowedExtensions = [".jpg", ".jpeg", ".png", ".avif"];
 const bucket = process.env.AWS_BUCKET_NAME;
+if (!bucket) {
+  console.warn('AWS_BUCKET_NAME not set; getAlbumImages will return empty array.');
+}
 
 // Configure S3 client for Cloudflare R2.
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   endpoint: process.env.S3_ENDPOINT,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
-  }
+  credentials: process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY ? {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  } : undefined
 });
 
 // Fetch album images from S3 and retrieve metadata if available.
-export async function getAlbumImages(albumName: string): Promise<AlbumImage[]> {
+const albumCache = new Map<string, AlbumImage[]>();
+export async function getAlbumImages(albumName: string, force = false): Promise<AlbumImage[]> {
+  if (!bucket) return [];
+  if (!force && albumCache.has(albumName)) return albumCache.get(albumName)!;
   const prefix = albumName.endsWith("/") ? albumName : albumName + "/";
   const command = new ListObjectsV2Command({
     Bucket: bucket,
     Prefix: prefix,
   });
-  const response = await s3.send(command);
+  let response;
+  try {
+    response = await s3.send(command);
+  } catch (e) {
+    console.error('Error listing objects for album', albumName, e);
+    return [];
+  }
   const objects = response.Contents || [];
 
   const images = await Promise.all(
@@ -61,5 +73,6 @@ export async function getAlbumImages(albumName: string): Promise<AlbumImage[]> {
         } as AlbumImage;
       })
   );
+  albumCache.set(albumName, images);
   return images;
 }

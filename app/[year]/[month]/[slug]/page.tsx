@@ -2,9 +2,7 @@
 import React, { JSX } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { remark } from 'remark';
-import html from 'remark-html';
-import remarkGfm from 'remark-gfm';
+import { markdownToSafeHtml } from '../../../../lib/markdown';
 import { getAllPosts, getPostBySlug } from '../../../../lib/posts';
 import { getAlbumImages } from '../../../../lib/album';
 import ImageGallery, { GalleryImage } from '../../../components/ImageGallery';
@@ -86,8 +84,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
     );
   }
 
-  const processedContent = await remark().use(remarkGfm).use(html).process(post.content);
-  const contentHtml = processedContent.toString();
+  const contentHtml = await markdownToSafeHtml(post.content);
   const formattedDateTime = postDate.toLocaleString('en-US', {
     day: 'numeric', month: 'long', year: 'numeric',
     hour: '2-digit', minute: '2-digit',

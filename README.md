@@ -189,4 +189,4 @@ Contributions are welcome! Please submit any issues or pull requests following t
 
 The code in this repository is licensed under the MIT License. However, all photographs and other visual assets are not open source and are © Declan Huggins. These assets may not be reused or redistributed without explicit permission.
 
-Vectors and icons by <a href="https://www.svgrepo.com" target="_blank">SVG Repo</a>
+Vectors and icons by <a href="https://www.svgrepo.com" target="_blank" rel="noopener noreferrer">SVG Repo</a>

@@ -34,10 +34,22 @@ export interface Post {
   downloadUrl?: string;
 }
 
+interface AlbumJson {
+  title: string;
+  date: string; // Expect format 'YYYY-MM-DD TZ'
+  excerpt?: string;
+  tags?: string[];
+  author: string;
+  width?: 'small' | 'medium' | 'large';
+  downloadUrl?: string;
+}
+
 // Read posts from the posts directory.
-export function getPostsFromBin(): Post[] {
+let markdownCache: Post[] | null = null;
+export function getPostsFromBin(force = false): Post[] {
+  if (!force && markdownCache) return markdownCache;
   const fileNames = fs.readdirSync(postsDir);
-  return fileNames.map((fileName) => {
+  const posts = fileNames.filter(f => f.endsWith('.md')).map((fileName) => {
     const slug = fileName.replace(/\.md$/, '');
     const fullPath = path.join(postsDir, fileName);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
@@ -56,10 +68,14 @@ export function getPostsFromBin(): Post[] {
       width: data.width || 'medium', // Default to 'medium' if not specified
     };
   });
+  markdownCache = posts;
+  return posts;
 }
 
 // Recursively search for album JSON files and convert them to Post objects.
-function getAlbumPosts(): Post[] {
+let albumCache: Post[] | null = null;
+function getAlbumPosts(force = false): Post[] {
+  if (!force && albumCache) return albumCache;
   const albumsDir = path.join(process.cwd(), 'albums');
   const results: Post[] = [];
 
@@ -71,13 +87,19 @@ function getAlbumPosts(): Post[] {
       if (stat.isDirectory()) {
         walk(fullPath);
       } else if (stat.isFile() && path.extname(item).toLowerCase() === '.json') {
-        const relativePath = path.relative(albumsDir, fullPath);
-        const parts = relativePath.split(path.sep);
+        const relativePath = path.relative(albumsDir, fullPath).replace(/\\/g, '/');
+        const parts = relativePath.split('/');
         if (parts.length === 3) {
           const [year, month, fileName] = parts;
           const slug = fileName.replace(/\.json$/, '');
           const fileContents = fs.readFileSync(fullPath, 'utf8');
-          const data = JSON.parse(fileContents);
+          let data: AlbumJson;
+          try {
+            data = JSON.parse(fileContents) as AlbumJson;
+          } catch (e) {
+            console.error(`Failed to parse album JSON: ${fullPath}`, e);
+            continue;
+          }
           const { iso, timezone } = parseDateWithTimezone(data.date);
           const thumbnail = `${process.env.CDN_SITE}/medium/albums/${year}/${month}/${slug}/thumbnail.avif`;
           results.push({
@@ -99,6 +121,7 @@ function getAlbumPosts(): Post[] {
   }
 
   walk(albumsDir);
+  albumCache = results;
   return results;
 }
 
