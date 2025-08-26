@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   poweredByHeader: false,
   images: {
+    unoptimized: true, // Cloudflare Workers disallow Node image optimizer (new Function/eval)
     remotePatterns: [
       {
         protocol: 'https',
