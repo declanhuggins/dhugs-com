@@ -1,11 +1,9 @@
-import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev';
-
-setupDevPlatform().catch(console.error);
-
+// Auto-load .dev.vars for plain `next build` / `node` (non-Wrangler) contexts.
+import './scripts/env-init.ts';
 import type { NextConfig } from "next";
 
 if (!process.env.CDN_SITE) {
-  throw new Error("CDN_SITE must be defined in .env.local");
+  throw new Error("CDN_SITE must be defined in .dev.vars");
 }
 
 const cdnHost = new URL(process.env.CDN_SITE).hostname;
@@ -68,3 +66,6 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+initOpenNextCloudflareForDev();

@@ -1,9 +1,13 @@
-// generate-redirects.js: Sets up bulk redirects using Cloudflare's API.
-// Usage: node scripts/push-bulk-redirects.js (ensure required env vars are set in .env.local)
-const fs = require('fs');
-const path = require('path');
-const matter = require('gray-matter');
-require('dotenv').config({ path: path.join(__dirname, '../.env.local') });
+import './env-init.ts';
+// generate-redirects.ts: Sets up (or refreshes) Cloudflare Bulk Redirects from entries in links/links.md
+// Usage: npm run content:redirects (ensure required env vars are set: AWS_REDIRECT_API_KEY, CLOUDFLARE_ACCOUNT_ID, BASE_URL, BASE_URL_2)
+import fs from 'node:fs';
+import path from 'node:path';
+import matter from 'gray-matter';
+import { fileURLToPath } from 'node:url';
+
+// Equivalent to __dirname in ESM
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const API_KEY = process.env.AWS_REDIRECT_API_KEY;
 const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
@@ -17,70 +21,81 @@ if (!API_KEY || !ACCOUNT_ID || !BASE_URL || !BASE_URL_2) {
 const LIST_NAME = "links";
 const CF_BASE_URL = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}`;
 
-async function cfRequest(url, method, body) {
+type CFAPIMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+interface CFAPIResult<T = any> {
+  result: T;
+  success: boolean;
+  errors?: Array<{ code: number; message: string; [k: string]: any }>;
+}
+
+async function cfRequest<T = any>(url: string, method: CFAPIMethod, body?: unknown): Promise<T> {
   const res = await fetch(url, {
     method,
     headers: {
-      "Authorization": `Bearer ${API_KEY}`,
-      "Content-Type": "application/json"
+      'Authorization': `Bearer ${API_KEY}`,
+      'Content-Type': 'application/json'
     },
     body: body ? JSON.stringify(body) : undefined
   });
-  const data = await res.json();
+  let data: CFAPIResult<T>;
+  try {
+    data = await res.json();
+  } catch (e) {
+    console.error('Failed to parse Cloudflare response JSON');
+    throw e;
+  }
   if (!data.success) {
-    console.error("CF API error:", data.errors);
-    process.exit(1);
+    console.error('CF API error:', data.errors);
+    throw new Error('Cloudflare API request failed');
   }
   return data.result;
 }
 
-async function getListIdByName(listName) {
+async function getListIdByName(listName: string): Promise<string | null> {
   const listsUrl = `${CF_BASE_URL}/rules/lists`;
-  const listsResult = await cfRequest(listsUrl, 'GET');
-  const list = listsResult.find(list => list.name === listName);
+  const listsResult = await cfRequest<Array<{ id: string; name: string }>>(listsUrl, 'GET');
+  const list = listsResult.find(l => l.name === listName);
   return list ? list.id : null;
 }
 
-async function deleteAllItemsFromList(listId) {
+async function deleteAllItemsFromList(listId: string) {
   const listItemsUrl = `${CF_BASE_URL}/rules/lists/${listId}/items`;
-  const listItemsResult = await cfRequest(listItemsUrl, 'GET');
+  const listItemsResult = await cfRequest<Array<{ id: string }>>(listItemsUrl, 'GET');
   const itemIds = listItemsResult.map(item => item.id);
   if (itemIds.length > 0) {
-    console.log("Deleting existing items...");
+    console.log('Deleting existing items...');
     await cfRequest(listItemsUrl, 'DELETE', { items: itemIds.map(id => ({ id })) });
-    console.log("Deleted all items.");
+    console.log('Deleted all items.');
   }
 }
 
-async function getRulesetIdByPhase(phase) {
+async function getRulesetIdByPhase(phase: string): Promise<string | null> {
   const rulesetsUrl = `${CF_BASE_URL}/rulesets`;
-  const rulesetsResult = await cfRequest(rulesetsUrl, 'GET');
-  const ruleset = rulesetsResult.find(ruleset => ruleset.phase === phase);
+  const rulesetsResult = await cfRequest<Array<{ id: string; phase: string }>>(rulesetsUrl, 'GET');
+  const ruleset = rulesetsResult.find(r => r.phase === phase);
   return ruleset ? ruleset.id : null;
 }
 
-async function deleteLinkShortenerRule(rulesetId) {
+async function deleteLinkShortenerRule(rulesetId: string) {
   const rulesetUrl = `${CF_BASE_URL}/rulesets/${rulesetId}`;
-  // Fetch current ruleset including its rules array
-  const rulesetData = await cfRequest(rulesetUrl, 'GET');
-  // Remove only the rule with description "link shortener"
-  const filteredRules = rulesetData.rules.filter(rule => rule.description !== 'link shortener');
+  const rulesetData = await cfRequest<any>(rulesetUrl, 'GET');
+  const filteredRules = rulesetData.rules.filter((rule: any) => rule.description !== 'link shortener');
   if (filteredRules.length < rulesetData.rules.length) {
-    // Update the ruleset with only allowed top-level fields
     await cfRequest(rulesetUrl, 'PUT', {
       name: rulesetData.name,
       kind: rulesetData.kind,
       phase: rulesetData.phase,
       rules: filteredRules
     });
-    console.log("Deleted existing link shortener rule only.");
+    console.log('Deleted existing link shortener rule only.');
   }
 }
 
 async function main() {
   const linksFilePath = path.join(__dirname, '../links/links.md');
   const fileContent = fs.readFileSync(linksFilePath, 'utf8');
-  const { data } = matter(fileContent);
+  const { data } = matter(fileContent) as { data: Record<string, string> };
   
   const items = Object.entries(data).flatMap(([key, url]) => [
     {
@@ -182,10 +197,12 @@ async function main() {
     console.log("Link shortener rule updated with ID:", rulesetId);
   }
   
-  console.log("Bulk redirects have been set up successfully.");
+  console.log('Bulk redirects have been set up successfully.');
 }
 
-main().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
+}

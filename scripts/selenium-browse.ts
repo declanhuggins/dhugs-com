@@ -1,13 +1,18 @@
+import './env-init.ts';
 import { Builder, By, until } from 'selenium-webdriver';
-import chrome from 'selenium-webdriver/chrome.js';
+// Use the TypeScript-friendly chrome import path (no extension)
+import chrome from 'selenium-webdriver/chrome';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
-async function pause(ms) {
+type Mode = 'Desktop' | 'Mobile';
+
+async function pause(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function runFlow(driver, mode) {
+// Using 'any' for driver due to shimmed module lacking full TypeScript types
+async function runFlow(driver: any, mode: Mode): Promise<void> {
   console.log(`${mode} - Opening home page`);
   await driver.get(BASE_URL);
   await pause(1000);
@@ -105,7 +110,7 @@ async function runFlow(driver, mode) {
   // await pause(500);
 }
 
-async function main() {
+async function main(): Promise<void> {
   // Desktop mode
   const desktopOptions = new chrome.Options();
   desktopOptions.addArguments('--no-sandbox', '--start-maximized');
@@ -139,4 +144,10 @@ async function main() {
   }
 }
 
-main();
+// Execute only when run directly (not when imported)
+if (require.main === module) {
+  main().catch(err => {
+    console.error('Fatal error in selenium browse script:', err);
+    process.exitCode = 1;
+  });
+}
