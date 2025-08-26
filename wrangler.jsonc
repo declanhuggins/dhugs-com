@@ -1,18 +1,45 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "dhugs-com",
+	"main": "./.open-next/worker.js",
 	"compatibility_date": "2025-08-07",
 	"compatibility_flags": [
-		"nodejs_compat"
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
+	"workers_dev": true,
+	"routes": [
+		{
+			"pattern": "dhugs.com",
+			"custom_domain": true
+		}
 	],
 	"vars": {
 		"NODE_VERSION": "24.5.0"
 	},
-	"pages_build_output_dir": ".vercel/output/static",
+	"assets": {
+		"directory": "./.open-next/assets",
+		"not_found_handling": "404-page",
+		"binding": "ASSETS"
+	},
 	"observability": {
 		"enabled": true
 	},
 	"dev": {
-		"port": 3000,
+		"port": 3000
+	},
+	"env": {
+		"dev": {
+			"name": "dev-dhugs",
+			"vars": {
+				"NODE_VERSION": "24.5.0"
+			},
+			"routes": [
+				{
+					"pattern": "dev.dhugs.com",
+					"custom_domain": true
+				}
+			]
+		}
 	}
 }

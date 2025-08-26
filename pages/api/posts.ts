@@ -1,14 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { getAllPosts } from '../../lib/posts-edge';
 
-export const runtime = 'edge';
-
-export default async function handler() {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const posts = await getAllPosts();
-    return NextResponse.json(posts, { status: 200 });
+  res.status(200).json(posts);
   } catch (error) {
     console.error('Error fetching posts:', error);
-    return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
+  res.status(500).json({ error: 'Failed to fetch posts' });
   }
 }

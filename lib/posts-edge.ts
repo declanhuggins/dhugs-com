@@ -8,11 +8,12 @@ export interface Post {
   date: string;
   timezone: string;
   excerpt?: string;
+  content?: string;
   author: string;
   tags?: string[];
   thumbnail?: string;
   width?: 'small' | 'medium' | 'large';
-  content?: string;
+  downloadUrl?: string;
 }
 
 const posts: Post[] = (data as unknown as { posts: Post[] }).posts;
