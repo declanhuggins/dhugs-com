@@ -96,13 +96,14 @@
 │   ├── portfolio
 │   │   └── page.tsx
 │   ├── privacy-policy
-│   │   ├── page.tsx
-│   │   └── privacy-policy.md
+│   │   └── page.tsx
 │   ├── recent
 │   │   └── page.tsx
 │   └── search
 │       └── page.tsx
 ├── data
+│   ├── album-images.json
+│   ├── posts-content.json
 │   └── search-data.json
 ├── env.d.ts
 ├── eslint.config.mjs
@@ -167,4 +168,4 @@
 ├── tsconfig.json
 └── wrangler.jsonc
 
-45 directories, 123 files
+45 directories, 124 files

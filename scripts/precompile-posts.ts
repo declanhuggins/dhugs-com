@@ -2,6 +2,7 @@ import './env-init.ts';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { S3Client, ListObjectsV2Command, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { fromZonedTime } from 'date-fns-tz';
 
 /** Front‑matter shape for markdown posts */
@@ -44,6 +45,8 @@ const postsDir = path.join(process.cwd(), 'posts');
 const albumsDir = path.join(process.cwd(), 'albums');
 const outputDir = path.join(process.cwd(), 'data');
 const outputFile = path.join(outputDir, 'search-data.json');
+const contentOutputFile = path.join(outputDir, 'posts-content.json');
+const albumImagesOutputFile = path.join(outputDir, 'album-images.json');
 
 /**
  * Accepts strings like "2024-05-20 America/Los_Angeles" OR an ISO date.
@@ -109,6 +112,8 @@ function getPostsFromBin(): Post[] {
 // Recursively search for album JSON files and convert them to Post objects
 function getAlbumPosts(): Post[] {
   const results: Post[] = [];
+  // Track album folder paths for later image enumeration
+  discoveredAlbumFolders.length = 0;
 
   function walk(dir: string) {
     const items = fs.readdirSync(dir);
@@ -140,6 +145,7 @@ function getAlbumPosts(): Post[] {
               thumbnail,
               width: (data.width as PostWidth | undefined) || 'large',
             });
+            discoveredAlbumFolders.push(`albums/${year}/${month}/${slug}/images`);
           } catch (e) {
             console.error(`Failed to parse album JSON: ${fullPath}`, e);
           }
@@ -153,6 +159,9 @@ function getAlbumPosts(): Post[] {
   }
   return results;
 }
+
+// Collect album folder paths discovered while parsing album posts
+const discoveredAlbumFolders: string[] = [];
 
 // Merge markdown and album posts, sorted by date (newest first)
 function getAllPosts(): Post[] {
@@ -183,9 +192,93 @@ const searchIndex = buildSearchIndex(posts);
 const postsMeta: Omit<Post, 'content'>[] = posts.map(({ content, ...rest }) => rest);
 const searchData: SearchData = { posts: postsMeta, index: searchIndex };
 
+async function main() {
 try {
   fs.writeFileSync(outputFile, JSON.stringify(searchData, null, 2));
   console.log(`Pre-compiled search data written to ${outputFile}`);
+  // Write separate content mapping for markdown posts so edge runtime can hydrate full content without fs.
+  const contentMap: Record<string, string> = {};
+  for (const p of posts) {
+    if (p.content) contentMap[p.slug] = p.content;
+  }
+  fs.writeFileSync(contentOutputFile, JSON.stringify(contentMap, null, 2));
+  console.log(`Pre-compiled post content written to ${contentOutputFile}`);
+
+  // Attempt to enumerate album images (width/height) using S3 at build time so edge runtime needs no AWS SDK.
+  const canUseS3 = !!process.env.AWS_BUCKET_NAME && !!process.env.S3_ENDPOINT && !!process.env.AWS_REGION;
+  const albumImageMap: Record<string, { filename: string; width: number; height: number; alt: string; largeURL: string; thumbnailURL: string; }[]> = {};
+  // Always attempt to include top-level 'portfolio' gallery if present
+  if (!discoveredAlbumFolders.includes('portfolio')) {
+    discoveredAlbumFolders.push('portfolio');
+  }
+  if (canUseS3 && discoveredAlbumFolders.length) {
+    try {
+      const s3 = new S3Client({
+        region: process.env.AWS_REGION || 'auto',
+        endpoint: process.env.S3_ENDPOINT,
+        forcePathStyle: true,
+        credentials: (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) ? {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
+        } : undefined,
+      });
+      const allowedExtensions = ['.jpg', '.jpeg', '.png', '.avif'];
+      const bucketName = process.env.AWS_BUCKET_NAME!;
+      const cdn = cdnSite || '';
+      // Limit parallelism
+      const limit = 5;
+      let index = 0;
+      async function worker() {
+        while (index < discoveredAlbumFolders.length) {
+          const myIdx = index++;
+            const folder = discoveredAlbumFolders[myIdx];
+            try {
+              const list = await s3.send(new ListObjectsV2Command({ Bucket: bucketName, Prefix: folder + '/' }));
+              const contents = list.Contents || [];
+              const images: { filename: string; width: number; height: number; alt: string; largeURL: string; thumbnailURL: string; }[] = [];
+              for (const obj of contents) {
+                if (!obj.Key) continue;
+                const key = obj.Key;
+                const ext = key.slice(key.lastIndexOf('.')).toLowerCase();
+                if (!allowedExtensions.includes(ext)) continue;
+                let width = 1600, height = 900;
+                try {
+                  const head = await s3.send(new HeadObjectCommand({ Bucket: bucketName, Key: key }));
+                  if (head.Metadata && head.Metadata.width && head.Metadata.height) {
+                    width = parseInt(head.Metadata.width, 10) || width;
+                    height = parseInt(head.Metadata.height, 10) || height;
+                  }
+                } catch (err) {
+                  // Ignore head failures, fallback defaults
+                }
+                const filename = key.substring(folder.length + 1);
+                const baseUrl = `${cdn}/${folder}/${filename}`.replace(/([^:])\/+/g, '$1/');
+                images.push({
+                  filename,
+                  width,
+                  height,
+                  alt: filename,
+                  largeURL: baseUrl,
+                  thumbnailURL: baseUrl,
+                });
+              }
+              albumImageMap[folder] = images;
+            } catch (err) {
+              console.warn('Failed to list album images for', folder, err);
+            }
+        }
+      }
+      await (async () => {
+        await Promise.all(Array.from({ length: limit }, () => worker()));
+        fs.writeFileSync(albumImagesOutputFile, JSON.stringify(albumImageMap, null, 2));
+        console.log(`Pre-compiled album images written to ${albumImagesOutputFile}`);
+      })();
+    } catch (err) {
+      console.warn('Skipping album image precompile due to error:', err);
+    }
+  } else {
+    console.log('Album image precompile skipped (missing S3 env or no albums found).');
+  }
 } catch (e) {
   console.error('Failed writing search data:', e);
   process.exitCode = 1;
@@ -194,3 +287,7 @@ try {
 if (!cdnSite) {
   console.warn('Warning: CDN_SITE environment variable not set; thumbnails may be blank.');
 }
+}
+
+// Execute
+main();
