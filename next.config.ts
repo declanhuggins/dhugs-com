@@ -1,8 +1,9 @@
-// Auto-load .dev.vars for plain `next build` / `node` (non-Wrangler) contexts.
 import type { NextConfig } from "next";
 
+require('dotenv').config({ quiet: true });
+
 if (!process.env.CDN_SITE) {
-  throw new Error("CDN_SITE must be defined in .dev.vars");
+  throw new Error("CDN_SITE must be defined in .env");
 }
 
 const cdnHost = new URL(process.env.CDN_SITE).hostname;

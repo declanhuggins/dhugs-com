@@ -1,6 +1,8 @@
 import { S3Client, ListObjectsV2Command, GetObjectCommand, CopyObjectCommand } from "@aws-sdk/client-s3";
 import sharp from "sharp";
 
+require('dotenv').config({ quiet: true });
+
 const bucketName = process.env.AWS_BUCKET_NAME;
 const s3 = new S3Client({
   region: process.env.AWS_REGION,

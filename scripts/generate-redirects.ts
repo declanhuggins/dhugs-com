@@ -5,6 +5,8 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { fileURLToPath } from 'node:url';
 
+require('dotenv').config({ quiet: true });
+
 // Equivalent to __dirname in ESM
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

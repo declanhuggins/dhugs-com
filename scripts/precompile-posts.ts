@@ -4,6 +4,8 @@ import matter from 'gray-matter';
 import { S3Client, ListObjectsV2Command, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { fromZonedTime } from 'date-fns-tz';
 
+require('dotenv').config({ quiet: true });
+
 /** Front‑matter shape for markdown posts */
 interface FrontMatter {
   title: string;

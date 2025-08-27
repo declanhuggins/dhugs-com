@@ -1,6 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { SitemapStream, streamToPromise } from 'sitemap';
+
+require('dotenv').config({ quiet: true });
+
 // Avoid importing TypeScript source (Node ESM resolver won't load .ts by default).
 // Instead, leverage the precompiled search data produced earlier in the build.
 interface PostMeta {

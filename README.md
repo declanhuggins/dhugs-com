@@ -32,9 +32,9 @@ dhugs-com is a personal website showcasing photo albums, blog posts, and various
 
 2. **Create Boilerplate Files:**
 
-   ### .env.local
+   ### .env
 
-   Create a `.env.local` file in the root directory with the following:
+   Create a `.env` file in the root directory with the following:
 
    ```plaintext
    AWS_REGION=your_aws_region
