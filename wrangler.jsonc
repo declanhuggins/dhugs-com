@@ -64,9 +64,40 @@
 		"dev": {
 			"name": "dev-dhugs",
 			"vars": {
-				"NODE_VERSION": "24.5.0",
-				"CDN_SITE": "https://cdn.dhugs.com"
+				"NODE_VERSION": "24.5.0"
 			},
+			"secrets_store_secrets": [
+				{
+					"binding": "AWS_ACCESS_KEY_ID",
+					"store_id": "8866f06775a4447f860f1876cf5428c2",
+					"secret_name": "AWS_ACCESS_KEY_ID"
+				},
+				{
+					"binding": "AWS_SECRET_ACCESS_KEY",
+					"store_id": "8866f06775a4447f860f1876cf5428c2",
+					"secret_name": "AWS_SECRET_ACCESS_KEY"
+				},
+				{
+					"binding": "AWS_REGION",
+					"store_id": "8866f06775a4447f860f1876cf5428c2",
+					"secret_name": "AWS_REGION"
+				},
+				{
+					"binding": "AWS_BUCKET_NAME",
+					"store_id": "8866f06775a4447f860f1876cf5428c2",
+					"secret_name": "AWS_BUCKET_NAME"
+				},
+				{
+					"binding": "S3_ENDPOINT",
+					"store_id": "8866f06775a4447f860f1876cf5428c2",
+					"secret_name": "S3_ENDPOINT"
+				},
+				{
+					"binding": "CDN_SITE",
+					"store_id": "8866f06775a4447f860f1876cf5428c2",
+					"secret_name": "CDN_SITE"
+				}
+			],
 			"routes": [
 				{
 					"pattern": "dev.dhugs.com",

@@ -2,6 +2,8 @@ import { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand, Hea
 import { promisify } from "util";
 import { exec } from "child_process";
 
+require('dotenv').config({ quiet: true });
+
 const execPromise = promisify(exec);
 
 const allowedExtensions = [".jpg", ".jpeg", ".png", ".avif"];

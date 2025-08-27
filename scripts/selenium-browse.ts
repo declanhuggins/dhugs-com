@@ -1,4 +1,6 @@
 import { Builder, By, until } from 'selenium-webdriver';
+
+require('dotenv').config({ quiet: true });
 // Use the TypeScript-friendly chrome import path (no extension)
 import chrome from 'selenium-webdriver/chrome';
 

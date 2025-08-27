@@ -132,7 +132,6 @@
 │   ├── lee-obryan-rebuttal.md
 │   ├── minecraft.md
 │   └── resume.md
-├── preload-env.cjs
 ├── public
 │   ├── favicon.ico
 │   ├── icons
@@ -168,4 +167,4 @@
 ├── tsconfig.json
 └── wrangler.jsonc
 
-45 directories, 124 files
+45 directories, 123 files
