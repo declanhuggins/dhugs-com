@@ -4,7 +4,8 @@
 	"private": true,
 	"scripts": {
 		"dev": "next dev --turbopack",
-		"build": "next build",
+		"build": "npm run cf-typegen && next build",
+		"build:first": "npx opennextjs-cloudflare build",
 		"build:prod": "npm run content:all && npx wrangler build -e prod",
 		"build:dev": "npm run content:all && npx wrangler build -e dev",
 		"start": "next start",
