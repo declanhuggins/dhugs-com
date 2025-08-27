@@ -132,6 +132,7 @@
 │   ├── lee-obryan-rebuttal.md
 │   ├── minecraft.md
 │   └── resume.md
+├── preload-env.cjs
 ├── public
 │   ├── favicon.ico
 │   ├── icons
@@ -154,7 +155,6 @@
 │   └── sitemap.xml
 ├── README.md
 ├── scripts
-│   ├── env-init.ts
 │   ├── generate-image-versions.ts
 │   ├── generate-redirects.ts
 │   ├── generate-sitemap.ts
