@@ -64,7 +64,7 @@
 		"dev": {
 			"name": "dev-dhugs",
 			"vars": {
-				"NODE_VERSION": "24.5.0"
+				"NODE_VERSION": "24.6.0"
 			},
 			"secrets_store_secrets": [
 				{
