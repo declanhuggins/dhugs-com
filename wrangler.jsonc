@@ -15,8 +15,7 @@
 		}
 	],
 	"vars": {
-		"NODE_VERSION": "24.6.0",
-		"CDN_SITE": "https://cdn.dhugs.com"
+		"NODE_VERSION": "24.6.0"
 	},
 	"secrets_store_secrets": [
 		{
@@ -43,6 +42,11 @@
 			"binding": "S3_ENDPOINT",
 			"store_id": "8866f06775a4447f860f1876cf5428c2",
 			"secret_name": "S3_ENDPOINT"
+		},
+		{
+			"binding": "CDN_SITE",
+			"store_id": "8866f06775a4447f860f1876cf5428c2",
+			"secret_name": "CDN_SITE"
 		}
 	],
 	"assets": {
