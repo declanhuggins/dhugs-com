@@ -15,8 +15,36 @@
 		}
 	],
 	"vars": {
-		"NODE_VERSION": "24.6.0"
+		"NODE_VERSION": "24.6.0",
+		"CDN_SITE": "https://cdn.dhugs.com"
 	},
+	"secrets_store_secrets": [
+		{
+			"binding": "AWS_ACCESS_KEY_ID",
+			"store_id": "8866f06775a4447f860f1876cf5428c2",
+			"secret_name": "AWS_ACCESS_KEY_ID"
+		},
+		{
+			"binding": "AWS_SECRET_ACCESS_KEY",
+			"store_id": "8866f06775a4447f860f1876cf5428c2",
+			"secret_name": "AWS_SECRET_ACCESS_KEY"
+		},
+		{
+			"binding": "AWS_REGION",
+			"store_id": "8866f06775a4447f860f1876cf5428c2",
+			"secret_name": "AWS_REGION"
+		},
+		{
+			"binding": "AWS_BUCKET_NAME",
+			"store_id": "8866f06775a4447f860f1876cf5428c2",
+			"secret_name": "AWS_BUCKET_NAME"
+		},
+		{
+			"binding": "S3_ENDPOINT",
+			"store_id": "8866f06775a4447f860f1876cf5428c2",
+			"secret_name": "S3_ENDPOINT"
+		}
+	],
 	"assets": {
 		"directory": "./.open-next/assets",
 		"not_found_handling": "404-page",
@@ -32,7 +60,8 @@
 		"dev": {
 			"name": "dev-dhugs",
 			"vars": {
-				"NODE_VERSION": "24.5.0"
+				"NODE_VERSION": "24.5.0",
+				"CDN_SITE": "https://cdn.dhugs.com"
 			},
 			"routes": [
 				{
