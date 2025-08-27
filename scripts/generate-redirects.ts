@@ -1,4 +1,3 @@
-import './env-init.ts';
 // generate-redirects.ts: Sets up (or refreshes) Cloudflare Bulk Redirects from entries in links/links.md
 // Usage: npm run content:redirects (ensure required env vars are set: AWS_REDIRECT_API_KEY, CLOUDFLARE_ACCOUNT_ID, BASE_URL, BASE_URL_2)
 import fs from 'node:fs';

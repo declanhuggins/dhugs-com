@@ -1,4 +1,3 @@
-import './env-init.ts';
 import { Builder, By, until } from 'selenium-webdriver';
 // Use the TypeScript-friendly chrome import path (no extension)
 import chrome from 'selenium-webdriver/chrome';

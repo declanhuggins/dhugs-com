@@ -1,4 +1,3 @@
-import './env-init.ts';
 import { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { promisify } from "util";
 import { exec } from "child_process";

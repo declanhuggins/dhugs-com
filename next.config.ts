@@ -1,5 +1,4 @@
 // Auto-load .dev.vars for plain `next build` / `node` (non-Wrangler) contexts.
-import './scripts/env-init.ts';
 import type { NextConfig } from "next";
 
 if (!process.env.CDN_SITE) {
