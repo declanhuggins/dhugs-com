@@ -1,4 +1,4 @@
-import './env-init.ts';
+import '../../scripts/env-init';
 import Image from 'next/image';
 
 export default function AboutPage() {
