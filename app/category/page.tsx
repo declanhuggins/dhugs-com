@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { getAllPosts } from '../../lib/posts';
 import { tagToSlug } from '../../lib/tagUtils';
 
-export default function CategoryIndex() {
-  const posts = getAllPosts();
+export default async function CategoryIndex() {
+  const posts = await getAllPosts();
   const tagSet = new Set<string>();
   posts.forEach(post => {
     if (post.tags && Array.isArray(post.tags)) {

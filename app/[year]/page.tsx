@@ -4,6 +4,7 @@ import { getAllPosts } from '../../lib/posts';
 import Link from 'next/link';
 
 // Generate unique year params based on post dates.
+// Pre-generate all years at build time
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   const yearSet = new Set<string>();

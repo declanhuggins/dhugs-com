@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getAllPosts } from '../../lib/posts-edge';
+import { getAllPosts } from '../../lib/posts';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {

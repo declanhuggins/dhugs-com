@@ -34,17 +34,22 @@ const TRANSPARENT_BLUR =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4////fwAJ/wP+T24/AAAAAElFTkSuQmCC';
 
 export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
+  const toMedium = (src: string): string => {
+    try {
+      const u = new URL(src);
+      return u.origin + u.pathname.replace(/\/o\//, '/m/');
+    } catch {
+      return src.replace(/\/o\//, '/m/');
+    }
+  };
   const imagesWithIndex = React.useMemo<IndexedImage[]>(
-    () => images.map((img, index) => {
-      const url = new URL(img.src);
-      return {
-        ...img,
-        index,
-        href: img.src,
-        mediumSrc: `${url.origin}/medium${url.pathname}`,
-        src: img.src,
-      };
-    }),
+    () => images.map((img, index) => ({
+      ...img,
+      index,
+      href: img.src,
+      mediumSrc: toMedium(img.src),
+      src: img.src,
+    })),
     [images]
   );
 

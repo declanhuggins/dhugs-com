@@ -7,6 +7,7 @@ import { tagToSlug } from '../../../lib/tagUtils';
 import { toDate } from 'date-fns-tz';
 
 // Generate parameters for year and month archives.
+// Pre-generate all year-month combinations at build time
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   const paramsSet = new Set<string>();

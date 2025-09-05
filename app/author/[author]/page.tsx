@@ -5,10 +5,8 @@ import PostPreview from '../../../app/components/PostPreview';
 import Link from 'next/link';
 import { getAuthorSlug, getProperAuthorName } from '../../../lib/posts';
 
-export const dynamic = 'force-static';
-
 export async function generateStaticParams() {
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
   const authors = Array.from(new Set(posts.map(post => getAuthorSlug(post.author))));
   return authors.map(author => ({ author }));
 }
@@ -20,7 +18,7 @@ interface PageProps {
 
 export default async function AuthorPage({ params }: PageProps): Promise<JSX.Element> {
   const { author: authorSlug } = await params;
-  const posts = getAllPosts().filter(post => getAuthorSlug(post.author) === authorSlug);
+  const posts = (await getAllPosts()).filter(post => getAuthorSlug(post.author) === authorSlug);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -39,7 +37,7 @@ export default async function AuthorPage({ params }: PageProps): Promise<JSX.Ele
               author={post.author}
               date={post.date}
               timezone={post.timezone}
-              imageSrc={`/thumbnails/${post.slug}.avif`}
+              imageSrc={`/medium/thumbnails/${post.slug}.avif`}
               thumbnail={post.thumbnail}
               tags={post.tags}
             />

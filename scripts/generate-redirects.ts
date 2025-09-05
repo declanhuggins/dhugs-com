@@ -1,8 +1,9 @@
-// generate-redirects.ts: Sets up (or refreshes) Cloudflare Bulk Redirects from entries in links/links.md
-// Usage: npm run content:redirects (ensure required env vars are set: AWS_REDIRECT_API_KEY, CLOUDFLARE_ACCOUNT_ID, BASE_URL, BASE_URL_2)
+// generate-redirects.ts
+// Refresh Cloudflare Bulk Redirects using the Rulesets Entrypoint API (latest practice).
+// Usage: npm run content:redirects (env: CLOUDFLARE_API_TOKEN or AWS_REDIRECT_API_KEY, CLOUDFLARE_ACCOUNT_ID, BASE_URL, BASE_URL_2)
 import fs from 'node:fs';
 import path from 'node:path';
-import matter from 'gray-matter';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 require('dotenv').config({ quiet: true });
@@ -10,13 +11,13 @@ require('dotenv').config({ quiet: true });
 // Equivalent to __dirname in ESM
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const API_KEY = process.env.AWS_REDIRECT_API_KEY;
+const API_KEY = process.env.CLOUDFLARE_API_TOKEN || process.env.AWS_REDIRECT_API_KEY;
 const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const BASE_URL = process.env.BASE_URL;
 const BASE_URL_2 = process.env.BASE_URL_2;
 if (!API_KEY || !ACCOUNT_ID || !BASE_URL || !BASE_URL_2) {
-  console.error("Missing required environment variables.");
-  process.exit(1);
+  console.warn("[redirects] Missing env (CLOUDFLARE_API_TOKEN or AWS_REDIRECT_API_KEY, CLOUDFLARE_ACCOUNT_ID, BASE_URL, BASE_URL_2). Skipping.");
+  process.exit(0);
 }
 
 const LIST_NAME = "links";
@@ -37,20 +38,21 @@ async function cfRequest<T = any>(url: string, method: CFAPIMethod, body?: unkno
       'Authorization': `Bearer ${API_KEY}`,
       'Content-Type': 'application/json'
     },
-    body: body ? JSON.stringify(body) : undefined
+    body: body !== undefined ? JSON.stringify(body) : undefined
   });
-  let data: CFAPIResult<T>;
-  try {
-    data = await res.json();
-  } catch (e) {
-    console.error('Failed to parse Cloudflare response JSON');
-    throw e;
+  let text = '';
+  try { text = await res.text(); } catch {}
+  let data: CFAPIResult<T> | null = null;
+  try { data = text ? JSON.parse(text) : null; } catch {}
+  if (!data || !('success' in data)) {
+    console.error('CF API non-JSON or unexpected response:', { status: res.status, text: text?.slice(0, 500) });
+    throw new Error('Cloudflare API request failed (non-JSON)');
   }
   if (!data.success) {
-    console.error('CF API error:', data.errors);
+    console.error('CF API error:', data.errors, 'payload:', body);
     throw new Error('Cloudflare API request failed');
   }
-  return data.result;
+  return data.result as T;
 }
 
 async function getListIdByName(listName: string): Promise<string | null> {
@@ -60,60 +62,45 @@ async function getListIdByName(listName: string): Promise<string | null> {
   return list ? list.id : null;
 }
 
-async function deleteAllItemsFromList(listId: string) {
-  const listItemsUrl = `${CF_BASE_URL}/rules/lists/${listId}/items`;
-  const listItemsResult = await cfRequest<Array<{ id: string }>>(listItemsUrl, 'GET');
-  const itemIds = listItemsResult.map(item => item.id);
-  if (itemIds.length > 0) {
-    console.log('Deleting existing items...');
-    await cfRequest(listItemsUrl, 'DELETE', { items: itemIds.map(id => ({ id })) });
-    console.log('Deleted all items.');
-  }
+// Replacing entire list is simpler and avoids DELETE semantics differences
+async function replaceAllItems(listId: string, items: any[]) {
+  const url = `${CF_BASE_URL}/rules/lists/${listId}/items`;
+  // Some endpoints expect the raw array for PUT (update all items)
+  return await cfRequest(url, 'PUT', items);
 }
 
-async function getRulesetIdByPhase(phase: string): Promise<string | null> {
-  const rulesetsUrl = `${CF_BASE_URL}/rulesets`;
-  const rulesetsResult = await cfRequest<Array<{ id: string; phase: string }>>(rulesetsUrl, 'GET');
-  const ruleset = rulesetsResult.find(r => r.phase === phase);
-  return ruleset ? ruleset.id : null;
-}
-
-async function deleteLinkShortenerRule(rulesetId: string) {
-  const rulesetUrl = `${CF_BASE_URL}/rulesets/${rulesetId}`;
-  const rulesetData = await cfRequest<any>(rulesetUrl, 'GET');
-  const filteredRules = rulesetData.rules.filter((rule: any) => rule.description !== 'link shortener');
-  if (filteredRules.length < rulesetData.rules.length) {
-    await cfRequest(rulesetUrl, 'PUT', {
-      name: rulesetData.name,
-      kind: rulesetData.kind,
-      phase: rulesetData.phase,
-      rules: filteredRules
-    });
-    console.log('Deleted existing link shortener rule only.');
-  }
+// Use the Entrypoint API for http_request_redirect to add or update only our rule
+async function upsertEntrypointRule(listName: string) {
+  const entryUrl = `${CF_BASE_URL}/rulesets/phases/http_request_redirect/entrypoint`;
+  const entry = await cfRequest<any>(entryUrl, 'GET');
+  const rules = Array.isArray(entry?.rules) ? entry.rules : [];
+  const desc = 'link shortener (managed by script)';
+  const expr = `http.request.full_uri in $${listName}`;
+  const template = {
+    expression: expr,
+    description: desc,
+    action: 'redirect',
+    action_parameters: {
+      from_list: { name: listName, key: 'http.request.full_uri' }
+    }
+  };
+  const idx = rules.findIndex((r: any) => r?.description === desc || r?.expression === expr);
+  const next = idx >= 0 ? rules.map((r: any, i: number) => i === idx ? { ...r, ...template } : r) : [...rules, template];
+  await cfRequest(entryUrl, 'PUT', { rules: next });
 }
 
 async function main() {
-  const linksFilePath = path.join(__dirname, '../links/links.md');
-  const fileContent = fs.readFileSync(linksFilePath, 'utf8');
-  const { data } = matter(fileContent) as { data: Record<string, string> };
-  
-  const items = Object.entries(data).flatMap(([key, url]) => [
-    {
-      redirect: {
-        source_url: `${BASE_URL}/${key}`,
-        target_url: url.replace(/^“|”$/g, ''),
-        status_code: 302
-      }
-    },
-    {
-      redirect: {
-        source_url: `${BASE_URL_2}/${key}`,
-        target_url: url.replace(/^“|”$/g, ''),
-        status_code: 302
-      }
-    }
-  ]);
+  // Ensure links table exists and read current links from D1
+  ensureLinksTable();
+  const rows = fetchLinksFromD1(); // { slug, url }
+
+  const items = rows.flatMap(({ slug, url }) => {
+    const clean = String(url).replace(/^“|”$/g, '');
+    return [
+      { redirect: { source_url: `${BASE_URL}/${slug}`, target_url: clean, status_code: 302, include_subdomains: false, subpath_matching: false } },
+      { redirect: { source_url: `${BASE_URL_2}/${slug}`, target_url: clean, status_code: 302, include_subdomains: false, subpath_matching: false } },
+    ];
+  });
   
   let listId = await getListIdByName(LIST_NAME);
   if (!listId) {
@@ -129,74 +116,20 @@ async function main() {
     console.log("Created list with ID:", listId);
   } else {
     console.log(`List "${LIST_NAME}" exists with ID: ${listId}`);
-    await deleteAllItemsFromList(listId);
   }
   
-  const addItemsUrl = `${CF_BASE_URL}/rules/lists/${listId}/items`;
-  console.log("Adding redirect items...");
-  await cfRequest(addItemsUrl, 'POST', items);
-  console.log("Added all items.");
-  
-  const phase = "http_request_redirect";
-  let rulesetId = await getRulesetIdByPhase(phase);
-  const rulesetPayload = {
-    name: "default",
-    kind: "root",
-    phase: phase,
-    rules: [
-      {
-        expression: `http.request.full_uri in $${LIST_NAME}`,
-        description: "link shortener",
-        action: "redirect",
-        action_parameters: {
-          from_list: {
-            name: LIST_NAME,
-            key: "http.request.full_uri"
-          }
-        }
-      }
-    ]
-  };
-  
-  if (!rulesetId) {
-    const rulesetUrl = `${CF_BASE_URL}/rulesets`;
-    console.log("Creating Bulk Redirect Rule...");
-    const rulesetResult = await cfRequest(rulesetUrl, 'POST', rulesetPayload);
-    rulesetId = rulesetResult.id;
-    console.log("Bulk Redirect Rule created with ID:", rulesetId);
+  console.log("Upserting redirect items (replace all)...");
+  if (items.length === 0) {
+    console.log("No links found in D1; leaving list empty.");
   } else {
-    console.log("Removing existing link shortener rule...");
-    await deleteLinkShortenerRule(rulesetId);
-
-    // Fetch the latest ruleset to preserve any other rules
-    const rulesetUrl = `${CF_BASE_URL}/rulesets/${rulesetId}`;
-    const existingRuleset = await cfRequest(rulesetUrl, 'GET');
-
-    // Append the refreshed link shortener rule
-    const updatedRules = [
-      ...existingRuleset.rules,
-      {
-        expression: `http.request.full_uri in $${LIST_NAME}`,
-        description: "link shortener",
-        action: "redirect",
-        action_parameters: {
-          from_list: {
-            name: LIST_NAME,
-            key: "http.request.full_uri"
-          }
-        }
-      }
-    ];
-
-    // Update ruleset with both preserved rules and the new link shortener rule
-    await cfRequest(rulesetUrl, 'PUT', {
-      name: existingRuleset.name,
-      kind: existingRuleset.kind,
-      phase: existingRuleset.phase,
-      rules: updatedRules
-    });
-    console.log("Link shortener rule updated with ID:", rulesetId);
+    await replaceAllItems(listId!, items);
+    console.log("List items replaced.");
   }
+  
+  // Ensure/refresh just our rule at the entrypoint, preserving others
+  console.log('Upserting entrypoint redirect rule...');
+  await upsertEntrypointRule(LIST_NAME);
+  console.log('Entrypoint rule updated.');
   
   console.log('Bulk redirects have been set up successfully.');
 }
@@ -206,4 +139,75 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.error(err);
     process.exit(1);
   });
+}
+
+// ===== D1 helpers for short links =====
+
+function d1Exec(sql: string, json = true): any[] | any {
+  const binding = process.env.D1_BINDING || 'D1_POSTS';
+  const envName = process.env.CF_ENV || 'prod';
+  const remote = ['--remote','--env', envName];
+  const base = ['wrangler','d1','execute', binding, '--command', sql];
+  const args = json ? [...base, '--json', ...remote] : [...base, ...remote];
+  const res = spawnSync('npx', args, { encoding: 'utf8' });
+  if (res.status !== 0) throw new Error(res.stderr || 'wrangler failed');
+  if (!json) return res.stdout;
+  const parsed = JSON.parse(res.stdout || '[]');
+  let rows: any[] = [];
+  if (Array.isArray(parsed)) {
+    for (const part of parsed) {
+      const maybe = (part as any);
+      if (Array.isArray(maybe?.results)) { rows = maybe.results; break; }
+      if (Array.isArray(maybe?.result)) { rows = maybe.result; break; }
+    }
+  } else {
+    const maybe = parsed as any;
+    if (Array.isArray(maybe?.results)) rows = maybe.results;
+    else if (Array.isArray(maybe?.result)) rows = maybe.result;
+  }
+  return rows;
+}
+
+export function ensureLinksTable(): void {
+  const sql = `CREATE TABLE IF NOT EXISTS links (
+    slug TEXT PRIMARY KEY,
+    url TEXT NOT NULL,
+    created_at TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+  );`;
+  d1Exec(sql, false);
+}
+
+function fetchLinksFromD1(): Array<{ slug: string; url: string }> {
+  const rows = d1Exec(`SELECT slug,url FROM links ORDER BY created_at DESC;`) as any[];
+  return rows.map((r: any) => ({ slug: r.slug, url: r.url }));
+}
+
+function randomSlug(len = 4): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let out = '';
+  for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
+
+export function validateSlug(s: string): boolean {
+  return /^[a-z0-9]{4,}$/.test(s);
+}
+
+export function addShortLink(url: string, customSlug?: string): string {
+  ensureLinksTable();
+  let slug = (customSlug || '').trim().toLowerCase();
+  if (slug && !validateSlug(slug)) throw new Error('Invalid custom slug (lowercase a-z and 0-9, length >= 4)');
+  if (!slug) {
+    let len = 4, attempts = 0;
+    while (true) {
+      const candidate = randomSlug(len);
+      const exists = (d1Exec(`SELECT 1 FROM links WHERE slug='${candidate.replace(/'/g, "''")}';`) as any[]).length > 0;
+      if (!exists) { slug = candidate; break; }
+      attempts++; if (attempts > 20) { len++; attempts = 0; }
+    }
+  }
+  const esc = (v: unknown) => `'${String(v).replace(/'/g, "''")}'`;
+  d1Exec(`INSERT INTO links (slug,url) VALUES (${esc(slug)}, ${esc(url)})
+          ON CONFLICT(slug) DO UPDATE SET url=excluded.url;`, false);
+  return slug;
 }

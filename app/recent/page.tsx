@@ -4,8 +4,8 @@ import PostGrid from '../components/PostGrid';
 import Sidebar from '../components/Sidebar';
 import { getAllPosts } from '../../lib/posts';
 
-export default function RecentPage() {
-  const posts = getAllPosts().sort(
+export default async function RecentPage() {
+  const posts = (await getAllPosts()).sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 

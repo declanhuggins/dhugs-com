@@ -1,5 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "dhugs-com",
 	"main": "./.open-next/worker.js",
 	"compatibility_date": "2025-08-27",
 	"compatibility_flags": [
@@ -11,100 +12,107 @@
 		"not_found_handling": "404-page",
 		"binding": "ASSETS"
 	},
-	"observability": {
-		"enabled": true
+	"observability": { "enabled": true },
+	"dev": { "port": 3000 },
+	"routes": [
+		{ "pattern": "dhugs.com", "custom_domain": true }
+	],
+	"vars": {
+		"NODE_VERSION": "24.7.0"
 	},
-	"dev": {
-		"port": 3000
-	},
+	"d1_databases": [
+		{
+			"binding": "D1_POSTS",
+			"database_name": "dhugs-posts",
+			"database_id": "daa031b4-72fa-4321-ae8f-a5836b334192",
+			"migrations_dir": "migrations/posts",
+			"experimental_remote": true
+		}
+	],
+	"secrets_store_secrets": [
+		{ "binding": "ADMIN_API_TOKEN", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "ADMIN_API_TOKEN" },
+		{ "binding": "AWS_ACCESS_KEY_ID", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_ACCESS_KEY_ID" },
+		{ "binding": "AWS_SECRET_ACCESS_KEY", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_SECRET_ACCESS_KEY" },
+		{ "binding": "AWS_REGION", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_REGION" },
+		{ "binding": "AWS_BUCKET_NAME", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_BUCKET_NAME" },
+		{ "binding": "S3_ENDPOINT", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "S3_ENDPOINT" },
+		{ "binding": "CDN_SITE", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "CDN_SITE" }
+	],
+	"r2_buckets": [
+		{ 
+			"binding": "R2_ASSETS", 
+			"bucket_name": "dhugs-assets",
+			"experimental_remote": true
+		}
+	],
 	"env": {
-		"prod": {
-			"name": "dhugs-com",
+		"dev": {
+			"name": "dev-dhugs",
+			"routes": [
+				{ "pattern": "dev.dhugs.com", "custom_domain": true }
+			],
 			"vars": {
-				"NODE_VERSION": "24.6.0"
+				"NODE_VERSION": "24.7.0"
 			},
-			"secrets_store_secrets": [
+			"d1_databases": [
 				{
-					"binding": "AWS_ACCESS_KEY_ID",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "AWS_ACCESS_KEY_ID"
-				},
-				{
-					"binding": "AWS_SECRET_ACCESS_KEY",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "AWS_SECRET_ACCESS_KEY"
-				},
-				{
-					"binding": "AWS_REGION",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "AWS_REGION"
-				},
-				{
-					"binding": "AWS_BUCKET_NAME",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "AWS_BUCKET_NAME"
-				},
-				{
-					"binding": "S3_ENDPOINT",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "S3_ENDPOINT"
-				},
-				{
-					"binding": "CDN_SITE",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "CDN_SITE"
+					"binding": "D1_POSTS",
+					"database_name": "dhugs-posts",
+					"database_id": "daa031b4-72fa-4321-ae8f-a5836b334192",
+					"migrations_dir": "migrations/posts",
+					"experimental_remote": true
 				}
 			],
-			"routes": [
-				{
-					"pattern": "dhugs.com",
-					"custom_domain": true
+			"secrets_store_secrets": [
+				{ "binding": "ADMIN_API_TOKEN", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "ADMIN_API_TOKEN" },
+				{ "binding": "AWS_ACCESS_KEY_ID", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_ACCESS_KEY_ID" },
+				{ "binding": "AWS_SECRET_ACCESS_KEY", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_SECRET_ACCESS_KEY" },
+				{ "binding": "AWS_REGION", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_REGION" },
+				{ "binding": "AWS_BUCKET_NAME", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_BUCKET_NAME" },
+				{ "binding": "S3_ENDPOINT", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "S3_ENDPOINT" },
+				{ "binding": "CDN_SITE", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "CDN_SITE" }
+			],
+			"r2_buckets": [
+				{ 
+					"binding": "R2_ASSETS", 
+					"bucket_name": "dhugs-assets",
+					"experimental_remote": true
 				}
 			]
 		},
-		"dev": {
-			"name": "dev-dhugs",
+		"prod": {
+			"name": "dhugs-com",
+			"routes": [
+				{ "pattern": "dhugs.com", "custom_domain": true }
+			],
 			"vars": {
-				"NODE_VERSION": "24.6.0"
+				"NODE_VERSION": "24.7.0"
 			},
-			"secrets_store_secrets": [
+			"d1_databases": [
 				{
-					"binding": "AWS_ACCESS_KEY_ID",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "AWS_ACCESS_KEY_ID"
-				},
-				{
-					"binding": "AWS_SECRET_ACCESS_KEY",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "AWS_SECRET_ACCESS_KEY"
-				},
-				{
-					"binding": "AWS_REGION",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "AWS_REGION"
-				},
-				{
-					"binding": "AWS_BUCKET_NAME",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "AWS_BUCKET_NAME"
-				},
-				{
-					"binding": "S3_ENDPOINT",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "S3_ENDPOINT"
-				},
-				{
-					"binding": "CDN_SITE",
-					"store_id": "8866f06775a4447f860f1876cf5428c2",
-					"secret_name": "CDN_SITE"
+					"binding": "D1_POSTS",
+					"database_name": "dhugs-posts",
+					"database_id": "daa031b4-72fa-4321-ae8f-a5836b334192",
+					"migrations_dir": "migrations/posts",
+					"experimental_remote": true
 				}
 			],
-			"routes": [
-				{
-					"pattern": "dev.dhugs.com",
-					"custom_domain": true
+			"secrets_store_secrets": [
+				{ "binding": "ADMIN_API_TOKEN", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "ADMIN_API_TOKEN" },
+				{ "binding": "AWS_ACCESS_KEY_ID", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_ACCESS_KEY_ID" },
+				{ "binding": "AWS_SECRET_ACCESS_KEY", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_SECRET_ACCESS_KEY" },
+				{ "binding": "AWS_REGION", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_REGION" },
+				{ "binding": "AWS_BUCKET_NAME", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "AWS_BUCKET_NAME" },
+				{ "binding": "S3_ENDPOINT", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "S3_ENDPOINT" },
+				{ "binding": "CDN_SITE", "store_id": "8866f06775a4447f860f1876cf5428c2", "secret_name": "CDN_SITE" }
+			],
+			"r2_buckets": [
+				{ 
+					"binding": "R2_ASSETS", 
+					"bucket_name": "dhugs-assets",
+					"experimental_remote": true
 				}
 			]
-		}
+		},
 	}
 }
