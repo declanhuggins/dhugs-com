@@ -68,9 +68,6 @@
 ├── open-next.config.ts
 ├── package-lock.json
 ├── package.json
-├── pages
-│   └── api
-│       └── posts.ts
 ├── postcss.config.mjs
 ├── public
 │   ├── favicon.ico
@@ -91,6 +88,7 @@
 │   │   ├── sun.svg
 │   │   └── user.svg
 │   ├── robots.txt
+│   ├── search-index.json
 │   └── sitemap.xml
 ├── README_DB_AUTHORING.md
 ├── README_PUBLISHING.md
@@ -106,6 +104,7 @@
 │   ├── edit-post-tags.js
 │   ├── generate-image-versions.ts
 │   ├── generate-redirects.ts
+│   ├── generate-search-index.ts
 │   ├── generate-sitemap.ts
 │   ├── ingest-albums.js
 │   ├── ingest-posts.js
@@ -126,4 +125,4 @@
 ├── tsconfig.json
 └── wrangler.jsonc
 
-27 directories, 104 files
+24 directories, 102 files
