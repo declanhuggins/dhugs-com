@@ -54,12 +54,12 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/resume',
-        destination: '/2025/01/resume',
+        destination: '/2025/01/resume/',
         permanent: true,
       },
       {
         source: '/minecraft',
-        destination: '/2025/01/minecraft',
+        destination: '/2025/01/minecraft/',
         permanent: true,
       },
     ];

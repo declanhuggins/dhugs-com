@@ -46,9 +46,6 @@ next-env.d.ts
 !.env.example
 /dist*
 
-# links
-/links*
-
 # data
 /data*
 

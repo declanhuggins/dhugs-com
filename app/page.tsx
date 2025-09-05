@@ -4,15 +4,18 @@ import Sidebar from './components/Sidebar';
 import PostGrid from './components/PostGrid';
 import { getAllPosts } from '../lib/posts';
 
-export default function Home() {
-  const posts = getAllPosts().sort(
+// Static prerender at build time; content fetched from D1 then.
+
+export default async function Home() {
+  const posts = (await getAllPosts()).sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   const latestTag = 'Photography';
-  const filteredPosts = posts.filter(
+  const filteredPostsRaw = posts.filter(
     post => post.tags && post.tags.includes(latestTag)
   );
+  const filteredPosts = filteredPostsRaw.length > 0 ? filteredPostsRaw : posts;
 
   const archivesMap = new Map<string, { year: string; month: string }>();
   posts.forEach(post => {

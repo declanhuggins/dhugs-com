@@ -3,12 +3,13 @@ import React, { JSX } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { markdownToSafeHtml } from '../../../../lib/markdown';
-import { getAllPosts, getPostBySlug } from '../../../../lib/posts';
+import { getAllPosts, getPostByPath } from '../../../../lib/posts';
 import { getAlbumImages } from '../../../../lib/album';
 import ImageGallery, { GalleryImage } from '../../../components/ImageGallery';
 import ProseContent from '../../../components/ProseContent';
 import { tagToSlug } from '../../../../lib/tagUtils';
 
+// Pre-generate all post paths at build time
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   return posts.map(post => {
@@ -36,7 +37,7 @@ interface PageProps {
 
 export default async function PostPage({ params }: PageProps): Promise<JSX.Element> {
   const { year, month, slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = await getPostByPath(`${year}/${month}/${slug}`);
   if (!post) {
     notFound();
   }
@@ -54,7 +55,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
     ));
 
   if (post.content.trim() === "") {
-    const albumFolder = `albums/${year}/${month}/${slug}/images`;
+    const albumFolder = post.path ? `o/albums/${post.path}/images` : `o/albums/${year}/${month}/${slug}/images`;
     const albumImages = await getAlbumImages(albumFolder);
     const images: GalleryImage[] = albumImages.map(img => ({
       src: img.thumbnailURL,

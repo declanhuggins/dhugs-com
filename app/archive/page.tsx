@@ -3,8 +3,8 @@ import React from 'react';
 import Link from 'next/link';
 import { getAllPosts } from '../../lib/posts';
 
-export default function ArchivesTimeline() {
-  const posts = getAllPosts();
+export default async function ArchivesTimeline() {
+  const posts = await getAllPosts();
   const archiveMap: { [year: string]: Set<string> } = {};
 
   posts.forEach(post => {

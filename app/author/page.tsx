@@ -3,8 +3,8 @@ import React from 'react';
 import Link from 'next/link';
 import { getAllPosts, getAuthorSlug, getProperAuthorName } from '../../lib/posts';
 
-export default function AuthorIndex() {
-  const posts = getAllPosts();
+export default async function AuthorIndex() {
+  const posts = await getAllPosts();
   const authorSet = new Set<string>();
   posts.forEach(post => {
     authorSet.add(getAuthorSlug(post.author));

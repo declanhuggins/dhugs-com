@@ -1,56 +1,4 @@
 .
-├── albums
-│   ├── 2023
-│   │   ├── 09
-│   │   │   └── sep-21.json
-│   │   └── 11
-│   │       └── nov-18.json
-│   ├── 2024
-│   │   ├── 03
-│   │   │   ├── mar-16.json
-│   │   │   └── mar-27.json
-│   │   ├── 04
-│   │   │   ├── apr-16.json
-│   │   │   └── apr-19.json
-│   │   ├── 05
-│   │   │   └── may-10.json
-│   │   ├── 07
-│   │   │   └── jul-17.json
-│   │   ├── 08
-│   │   │   ├── aug-29.json
-│   │   │   └── aug-31.json
-│   │   ├── 09
-│   │   │   ├── sep-10.json
-│   │   │   ├── sep-20.json
-│   │   │   └── sep-28.json
-│   │   ├── 10
-│   │   │   └── oct-20.json
-│   │   ├── 11
-│   │   │   └── nov-17.json
-│   │   └── 12
-│   │       └── dec-20.json
-│   └── 2025
-│       ├── 04
-│       │   ├── apr-25.json
-│       │   └── apr-29.json
-│       ├── 05
-│       │   ├── may-01.json
-│       │   ├── may-19.json
-│       │   ├── may-20.json
-│       │   ├── may-21.json
-│       │   ├── may-22.json
-│       │   ├── may-24.json
-│       │   └── may-28.json
-│       ├── 06
-│       │   ├── jun-07.json
-│       │   ├── jun-11.json
-│       │   ├── jun-14.json
-│       │   ├── jun-16.json
-│       │   ├── jun-21.json
-│       │   ├── jun-24.json
-│       │   ├── jun-25.json
-│       │   └── jun-26.json
-│       └── 07
 ├── app
 │   ├── [year]
 │   │   ├── [month]
@@ -60,6 +8,11 @@
 │   │   └── page.tsx
 │   ├── about
 │   │   └── page.tsx
+│   ├── api
+│   │   ├── health
+│   │   │   └── route.ts
+│   │   └── search
+│   │       └── route.ts
 │   ├── archive
 │   │   └── page.tsx
 │   ├── author
@@ -101,37 +54,24 @@
 │   │   └── page.tsx
 │   └── search
 │       └── page.tsx
-├── data
-│   ├── album-images.json
-│   ├── posts-content.json
-│   └── search-data.json
 ├── env.d.ts
 ├── eslint.config.mjs
 ├── file-structure.txt
 ├── lib
 │   ├── album.ts
 │   ├── markdown.ts
-│   ├── posts-edge.ts
 │   ├── posts.ts
 │   ├── sanitizeUrl.ts
 │   └── tagUtils.ts
 ├── LICENSE
-├── links
-│   └── links.md
 ├── next.config.ts
 ├── open-next.config.ts
 ├── package-lock.json
 ├── package.json
 ├── pages
 │   └── api
-│       ├── posts.ts
-│       └── search.ts
+│       └── posts.ts
 ├── postcss.config.mjs
-├── posts
-│   ├── climate-change.md
-│   ├── lee-obryan-rebuttal.md
-│   ├── minecraft.md
-│   └── resume.md
 ├── public
 │   ├── favicon.ico
 │   ├── icons
@@ -152,19 +92,38 @@
 │   │   └── user.svg
 │   ├── robots.txt
 │   └── sitemap.xml
+├── README_DB_AUTHORING.md
+├── README_PUBLISHING.md
 ├── README.md
 ├── scripts
+│   ├── add-link.ts
+│   ├── backfill-slugs-r2.js
+│   ├── d1-local-copy.ts
+│   ├── db-delete-post.ts
+│   ├── db-upsert-album.ts
+│   ├── db-upsert-post.ts
+│   ├── debug-getAlbumImages.ts
+│   ├── edit-post-tags.js
 │   ├── generate-image-versions.ts
 │   ├── generate-redirects.ts
 │   ├── generate-sitemap.ts
-│   ├── precompile-posts.ts
+│   ├── ingest-albums.js
+│   ├── ingest-posts.js
+│   ├── prepare-album-folder.js
+│   ├── publish-album.js
+│   ├── publish-albums-batch.js
+│   ├── publish-portfolio.js
+│   ├── publish-post.js
+│   ├── reset-ids.js
 │   ├── selenium-browse.ts
-│   └── update-image-metadata.ts
+│   ├── update-image-metadata.ts
+│   └── upsert-post.js
 ├── SECURITY.md
 ├── tailwind.config.ts
 ├── tools
-│   └── avifier.sh
+│   ├── avifier.sh
+│   └── convert.sh
 ├── tsconfig.json
 └── wrangler.jsonc
 
-45 directories, 123 files
+27 directories, 104 files

@@ -5,15 +5,15 @@ import { getAllPosts } from '../../../lib/posts';
 import PostGrid from '../../components/PostGrid';
 import { slugToTag, formatTag, tagToSlug } from '../../../lib/tagUtils';
 
+// Pre-generate all categories at build time
 export async function generateStaticParams() {
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
   const tagSet = new Set<string>();
   posts.forEach(post => {
     if (post.tags && Array.isArray(post.tags)) {
       post.tags.forEach(tag => tagSet.add(tag.toLowerCase()));
     }
   });
-  // Use helper to generate route-ready slugs
   return Array.from(tagSet).map(tag => ({ tag: tagToSlug(tag) }));
 }
 

@@ -1,14 +1,5 @@
-import { S3Client, ListObjectsV2Command, HeadObjectCommand } from "@aws-sdk/client-s3";
-// Precompiled album images (optional)
-let precompiledAlbumImages: Record<string, { filename: string; width: number; height: number; alt: string; largeURL: string; thumbnailURL: string; }[]> = {};
-try {
-  // Attempt dynamic import (will be bundled if exists)
-  precompiledAlbumImages = (await import('../data/album-images.json')) as unknown as typeof precompiledAlbumImages;
-} catch {
-  try {
-    precompiledAlbumImages = (Function('try{return require("../data/album-images.json");}catch{return {}}'))();
-  } catch { precompiledAlbumImages = {}; }
-}
+// Album image listing using Cloudflare R2 when running in Worker/Edge.
+// No local fallbacks; images must exist in R2.
 
 export interface AlbumImage {
   filename: string;
@@ -19,92 +10,150 @@ export interface AlbumImage {
   alt: string;
 }
 
+// Minimal R2 bucket shapes (avoid full workers types dependency)
+interface R2ObjectLike { key?: string; name?: string }
+interface R2ListResult { objects?: R2ObjectLike[]; keys?: R2ObjectLike[] }
+interface R2HeadMeta { customMetadata?: Record<string, unknown>; httpMetadata?: { headers?: Record<string, unknown> } }
+interface R2BucketLike {
+  list(options: { prefix: string }): Promise<R2ListResult>;
+  head(key: string): Promise<R2HeadMeta | null>;
+}
+interface WorkerEnvLike { R2_ASSETS?: R2BucketLike; CDN_SITE?: string }
+
 const allowedExtensions = [".jpg", ".jpeg", ".png", ".avif"];
-const bucket = process.env.AWS_BUCKET_NAME;
-if (!bucket) {
-  console.warn('AWS_BUCKET_NAME not set; getAlbumImages will return empty array.');
-}
-
-// Configure S3 client for Cloudflare R2 if Node fs APIs exist; skip in edge worker to avoid fs.* calls by credential chain.
-let s3: S3Client | null = null;
-// Heuristic: if process.versions and not in Cloudflare worker runtime (no global Edge constraints), treat as Node.
-const nodeLike = typeof process !== 'undefined' && !!process.versions?.node;
-const s3Enabled = process.env.ENABLE_S3 === 'true';
-if (nodeLike && s3Enabled) {
-  s3 = new S3Client({
-    region: process.env.AWS_REGION || 'auto',
-    endpoint: process.env.S3_ENDPOINT,
-    forcePathStyle: true,
-    credentials: (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) ? {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
-    } : undefined,
-  });
-} else if (typeof console !== 'undefined' && process?.env?.NODE_ENV !== 'production') {
-  console.warn('[album] S3 disabled (runtime not Node or ENABLE_S3 not true); album images omitted.');
-}
-
-// Fetch album images from S3 and retrieve metadata if available.
 const albumCache = new Map<string, AlbumImage[]>();
-export async function getAlbumImages(albumName: string, force = false): Promise<AlbumImage[]> {
-  // 1. Edge fallback: use precompiled data immediately when S3 disabled.
-  if (!s3) {
-    return precompiledAlbumImages[albumName] || [];
-  }
-  if (!bucket) return [];
-  if (!force && albumCache.has(albumName)) return albumCache.get(albumName)!;
-  const prefix = albumName.endsWith("/") ? albumName : albumName + "/";
-  const command = new ListObjectsV2Command({
-    Bucket: bucket,
-    Prefix: prefix,
-  });
-  const client = s3; // non-null local reference
-  let response;
-  try {
-  response = await client!.send(command);
-  } catch (e: unknown) {
-    // If the error is due to fs not implemented (edge), disable s3 for remainder of session.
-    const hasMessage = (val: unknown): val is { message: string } =>
-      typeof val === 'object' && val !== null && 'message' in val && typeof (val as { message: unknown }).message === 'string';
-    if (hasMessage(e) && e.message.includes('fs.readFile')) {
-      if (typeof console !== 'undefined') console.warn('[album] Disabling S3 in edge runtime after fs error.');
-      s3 = null;
-      return [];
-    }
-    console.error('Error listing objects for album', albumName, e);
-    return [];
-  }
-  const objects = response.Contents || [];
 
-  const images = await Promise.all(
-    objects.filter(obj => {
-        if (!obj.Key) return false;
-        const ext = obj.Key.slice(obj.Key.lastIndexOf(".")).toLowerCase();
-        return allowedExtensions.includes(ext);
-      }).map(async obj => {
-        const key = obj.Key!;
-        let width = 1600, height = 900;
-        try {
-          const head = new HeadObjectCommand({ Bucket: bucket, Key: key });
-          const headData = await client!.send(head);
-          if (headData.Metadata && headData.Metadata.width && headData.Metadata.height) {
-            width = parseInt(headData.Metadata.width.trim(), 10);
-            height = parseInt(headData.Metadata.height.trim(), 10);
+export async function getAlbumImages(albumName: string, force = false): Promise<AlbumImage[]> {
+  const g = globalThis as unknown as {
+    [k: symbol]: unknown;
+    env?: WorkerEnvLike;
+    ENV?: WorkerEnvLike;
+    ENVIRONMENT?: WorkerEnvLike;
+  };
+
+  // Prefer OpenNext Cloudflare context (AsyncLocalStorage) for env bindings
+  const cfCtxSym = Symbol.for("__cloudflare-context__");
+  const cfCtx = (g as Record<string | symbol, unknown>)[cfCtxSym] as { env?: WorkerEnvLike } | undefined;
+  const env: WorkerEnvLike | undefined = cfCtx?.env || g.env || g.ENV || g.ENVIRONMENT;
+  const bucket: R2BucketLike | undefined = env?.R2_ASSETS;
+  if (!force && albumCache.has(albumName)) return albumCache.get(albumName)!;
+  const prefix = albumName.endsWith('/') ? albumName : `${albumName}/`;
+  // Prefer Cloudflare Worker binding for CDN host when available
+  // In Workers with nodejs_compat, `process` exists but does not carry .env; using it first breaks URLs.
+  const cdnCandidate = (env as Record<string, unknown> | undefined)?.CDN_SITE ?? (typeof process !== 'undefined' ? process.env.CDN_SITE : '');
+  const cdnBase = (typeof cdnCandidate === 'string' && /^https?:\/\//i.test(cdnCandidate))
+    ? cdnCandidate.replace(/\/+$/, '')
+    : 'https://cdn.dhugs.com';
+  
+  // If running in Cloudflare Worker with an R2 binding, use it
+  if (bucket) {
+    try {
+      const prefixesToTry = [prefix, prefix.replace(/\/images\/?$/, '/')];
+      for (const p of prefixesToTry) {
+        const listing = await bucket.list({ prefix: p });
+        const listObjects: R2ObjectLike[] = (listing.objects || listing.keys || []).filter(Boolean) as R2ObjectLike[];
+        const images: AlbumImage[] = await Promise.all(
+          listObjects
+            .map(o => (o.key || o.name || '').toString())
+            .filter(key => {
+              if (!key) return false;
+              const ext = key.slice(key.lastIndexOf('.')).toLowerCase();
+              return allowedExtensions.includes(ext) && !key.endsWith('/_meta.json');
+            })
+            .map(async key => {
+              let width = 1600;
+              let height = 900;
+              try {
+                const h = await bucket.head(key);
+                const meta = h?.customMetadata || h?.httpMetadata?.headers || {};
+                const wRaw = (meta as Record<string, unknown>).width || (meta as Record<string, unknown>)["x-amz-meta-width"];
+                const hRaw = (meta as Record<string, unknown>).height || (meta as Record<string, unknown>)["x-amz-meta-height"];
+                const w = Number(typeof wRaw === 'string' ? wRaw : (wRaw as { toString?: () => string })?.toString?.());
+                const hh = Number(typeof hRaw === 'string' ? hRaw : (hRaw as { toString?: () => string })?.toString?.());
+                if (!Number.isNaN(w) && !Number.isNaN(hh)) { width = w; height = hh; }
+              } catch {
+                // ignore metadata errors
+              }
+              const filename = key.replace(p, '');
+              const baseUrl = `${cdnBase}/${albumName}/${filename}`.replace(/([^:])\\+/g, '$1/');
+              return { filename, largeURL: baseUrl, thumbnailURL: baseUrl, width, height, alt: filename } satisfies AlbumImage;
+            })
+        );
+        if (images.length > 0) {
+          if (p !== prefix) {
+            console.warn(`[album] Found images under '${p}' (fallback without '/images'). Consider normalizing album structure.`);
           }
-        } catch (err) {
-          console.error(`Error fetching metadata for ${key}:`, err);
+          albumCache.set(albumName, images);
+          return images;
         }
-        const filename = key.replace(prefix, '');
-        return {
-          filename,
-          largeURL: `${process.env.CDN_SITE}/${albumName}/${filename}`,
-          thumbnailURL: `${process.env.CDN_SITE}/${albumName}/${filename}`,
-          width,
-          height,
-          alt: filename,
-        } as AlbumImage;
-      })
-  );
-  albumCache.set(albumName, images);
-  return images;
+      }
+      console.warn(`[album] No images found for either prefix '${prefix}' or fallback '${prefix.replace(/\/images\/?$/, '/')}' in Worker R2 binding.`);
+      return [];
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new Error(`[album] R2 list failed for prefix '${prefix}': ${msg}`);
+    }
+  }
+
+  // Build-time/Node path: list via S3 SDK (R2-compatible)
+  if (typeof process !== 'undefined') {
+    const endpoint = process.env.S3_ENDPOINT || process.env.AWS_S3_ENDPOINT || '';
+    const region = process.env.AWS_REGION || 'auto';
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID_WRITE || '';
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY_WRITE || '';
+    const bucketName = process.env.AWS_BUCKET_NAME || process.env.R2_BUCKET_NAME;
+    const missing: string[] = [];
+    if (!endpoint) missing.push('S3_ENDPOINT');
+    if (!bucketName) missing.push('AWS_BUCKET_NAME or R2_BUCKET_NAME');
+    if (!accessKeyId) missing.push('AWS_ACCESS_KEY_ID');
+    if (!secretAccessKey) missing.push('AWS_SECRET_ACCESS_KEY');
+
+    if (missing.length) {
+      throw new Error(`[album] Missing required env for build-time R2 access: ${missing.join(', ')}. Album: '${albumName}', Prefix: '${prefix}'.`);
+    }
+
+    try {
+      const { S3Client, ListObjectsV2Command, HeadObjectCommand } = await import('@aws-sdk/client-s3');
+      const s3 = new S3Client({ region, endpoint, forcePathStyle: true, credentials: { accessKeyId, secretAccessKey } });
+      const prefixesToTry = [prefix, prefix.replace(/\/images\/?$/, '/')];
+      for (const p of prefixesToTry) {
+        const out = await s3.send(new ListObjectsV2Command({ Bucket: bucketName!, Prefix: p }));
+        const keys = (out.Contents || []).map(o => o.Key || '').filter(Boolean) as string[];
+        const filtered = keys.filter(key => {
+          const ext = key.slice(key.lastIndexOf('.')).toLowerCase();
+          return allowedExtensions.includes(ext) && !key.endsWith('/_meta.json');
+        });
+        const images: AlbumImage[] = await Promise.all(filtered.map(async (key) => {
+          let width = 1600;
+          let height = 900;
+          try {
+            const head = await s3.send(new HeadObjectCommand({ Bucket: bucketName!, Key: key }));
+            const meta = head.Metadata || {};
+            const wRaw = meta.width || (meta as Record<string, unknown>)["x-amz-meta-width"] as unknown as string | undefined;
+            const hRaw = meta.height || (meta as Record<string, unknown>)["x-amz-meta-height"] as unknown as string | undefined;
+            const w = Number(typeof wRaw === 'string' ? wRaw : undefined);
+            const hh = Number(typeof hRaw === 'string' ? hRaw : undefined);
+            if (!Number.isNaN(w) && !Number.isNaN(hh)) { width = w; height = hh; }
+          } catch {}
+          const filename = key.replace(p, '');
+          const baseUrl = `${cdnBase}/${albumName}/${filename}`.replace(/([^:])\\+/g, '$1/');
+          return { filename, largeURL: baseUrl, thumbnailURL: baseUrl, width, height, alt: filename } satisfies AlbumImage;
+        }));
+        if (images.length > 0) {
+          if (p !== prefix) {
+            console.warn(`[album] Found images under '${p}' (fallback without '/images') during build. Consider normalizing album structure.`);
+          }
+          albumCache.set(albumName, images);
+          return images;
+        }
+      }
+      console.warn(`[album] No images found for either prefix '${prefix}' or fallback '${prefix.replace(/\/images\/?$/, '/')}' in S3/R2 (build-time).`);
+      return [];
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new Error(`[album] S3 list failed for bucket '${bucketName}' prefix '${prefix}': ${msg}`);
+    }
+  }
+  // Fallback when no env or credentials available
+  throw new Error(`[album] No R2 binding and no S3 credentials found for album '${albumName}' (prefix '${prefix}'). Set Cloudflare Worker binding 'R2_ASSETS' at runtime or provide build-time env: S3_ENDPOINT, AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_BUCKET_NAME (or R2_BUCKET_NAME).`);
 }
