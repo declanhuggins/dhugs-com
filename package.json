@@ -40,7 +40,7 @@
     "link:add": "tsx scripts/add-link.ts",
     
     
-    "content:all": "npm run content:redirects && npm run content:sitemap && npm run content:searchIndex && npm run tree",
+    "content:all": "npm run content:redirects && npm run content:sitemap && npm run content:searchIndex",
 
     "publish:album": "node scripts/publish-album.js",
     
