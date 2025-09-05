@@ -5,8 +5,8 @@
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"build": "npx wrangler types --env-interface CloudflareEnv ./env.d.ts && next build",
-    "build:prod": "npm run content:all && npx opennextjs-cloudflare build && npx wrangler build --env prod",
-    "build:dev": "npm run content:all && npx opennextjs-cloudflare build && npx wrangler build --env dev",
+		"build:prod": "npm run content:all && npx opennextjs-cloudflare build && npx wrangler build --env prod",
+		"build:dev": "npm run content:all && npx opennextjs-cloudflare build && npx wrangler build --env dev",
 		"start": "next start",
 		"lint": "next lint",
 		"test": "vitest run",
@@ -23,40 +23,40 @@
 		"db:migrate:remote": "npx wrangler d1 --env prod migrations apply D1_POSTS --remote",
         
 
-    "db:ingest:albums": "node scripts/ingest-albums.js",
-    "db:ingest:posts": "node scripts/ingest-posts.js",
-    "db:ingest": "npm run db:ingest:albums && npm run db:ingest:posts",
-    
-        
-    "db:upsert:post": "tsx scripts/db-upsert-post.ts",
-    "db:upsert:album": "tsx scripts/db-upsert-album.ts",
-    "db:delete:post": "tsx scripts/db-delete-post.ts",
+		"db:ingest:albums": "node scripts/ingest-albums.js",
+		"db:ingest:posts": "node scripts/ingest-posts.js",
+		"db:ingest": "npm run db:ingest:albums && npm run db:ingest:posts",
+		
+			
+		"db:upsert:post": "tsx scripts/db-upsert-post.ts",
+		"db:upsert:album": "tsx scripts/db-upsert-album.ts",
+		"db:delete:post": "tsx scripts/db-delete-post.ts",
 
-    "content:redirects": "tsx scripts/generate-redirects.ts",
-    
-    "content:sitemap": "tsx scripts/generate-sitemap.ts",
-    "content:searchIndex": "tsx scripts/generate-search-index.ts",
-    "content:images": "tsx scripts/generate-image-versions.ts",
-    "link:add": "tsx scripts/add-link.ts",
-    
-    
-    "content:all": "npm run content:redirects && npm run content:sitemap && npm run content:searchIndex",
+		"content:redirects": "tsx scripts/generate-redirects.ts",
+		
+		"content:sitemap": "tsx scripts/generate-sitemap.ts",
+		"content:searchIndex": "tsx scripts/generate-search-index.ts",
+		"content:images": "tsx scripts/generate-image-versions.ts",
+		"link:add": "tsx scripts/add-link.ts",
+		
 
-    "publish:album": "node scripts/publish-album.js",
-    
-    "publish:post": "node scripts/publish-post.js",
-    
+		"content:all": "npm run content:redirects && npm run content:sitemap && npm run content:searchIndex",
 
-    "publish:albums:batch": "node scripts/publish-albums-batch.js",
-    "publish:portfolio": "node scripts/publish-portfolio.js",
+		"publish:album": "node scripts/publish-album.js",
+		
+		"publish:post": "node scripts/publish-post.js",
+		
 
-    "prepare:album": "node scripts/prepare-album-folder.js",
-    "db:edit:tags": "node scripts/edit-post-tags.js",
-    "db:reset-ids": "node scripts/reset-ids.js",
+		"publish:albums:batch": "node scripts/publish-albums-batch.js",
+		"publish:portfolio": "node scripts/publish-portfolio.js",
+
+		"prepare:album": "node scripts/prepare-album-folder.js",
+		"db:edit:tags": "node scripts/edit-post-tags.js",
+		"db:reset-ids": "node scripts/reset-ids.js",
 
 		"tree": "bash -c 'pattern=\"$(( sed \"/^\\s*#/d;/^$/d\" .gitignore; echo .next; echo node_modules; echo dist ) | tr \"\\n\" \"|\" | sed \"s/|$//\")\"; tree -I \"$pattern\" > file-structure.txt'",
 		"browse": "tsx scripts/selenium-browse.ts",
-    "upgrade": "npx npm-check-updates -u && npm install"
+		"upgrade": "npx npm-check-updates -u && npm install"
   },
   "dependencies": {
 		"@aws-sdk/client-s3": "^3.882.0",
@@ -75,8 +75,8 @@
 		"remark-html": "^16.0.1",
 		"remark-rehype": "^11.1.2",
 		"sitemap": "^8.0.0",
-    "yet-another-react-lightbox": "^3.25.0",
-    "enquirer": "^2.4.1"
+		"yet-another-react-lightbox": "^3.25.0",
+		"enquirer": "^2.4.1"
   },
 	"devDependencies": {
 		"@eslint/eslintrc": "^3",
