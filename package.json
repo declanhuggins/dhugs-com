@@ -5,8 +5,8 @@
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"build": "npx wrangler types --env-interface CloudflareEnv ./env.d.ts && next build",
-        "build:prod": "npm run content:all && npx @cloudflare/next-on-pages && npx wrangler build --env prod",
-        "build:dev": "npm run content:all && npx @cloudflare/next-on-pages && npx wrangler build --env dev",
+        "build:prod": "npm run content:all && npx @cloudflare/next-on-pages && node scripts/copy-assetsignore.js && npx wrangler build --env prod",
+        "build:dev": "npm run content:all && npx @cloudflare/next-on-pages && node scripts/copy-assetsignore.js && npx wrangler build --env dev",
 		"start": "next start",
 		"lint": "next lint",
 		"test": "vitest run",
