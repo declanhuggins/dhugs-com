@@ -27,7 +27,7 @@ export async function generateMetadata(
     ? post.excerpt.trim()
     : `Post by ${post.author}${post.date ? ` on ${new Date(post.date).toLocaleDateString('en-US')}` : ''}.`;
   const thumbnail = post.thumbnail;
-  const canonical = `/${year}/${month}/${slug}/`;
+  const canonical = `/${year}/${month}/${slug}`;
   return {
     title,
     description,

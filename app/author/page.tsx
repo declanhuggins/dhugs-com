@@ -35,7 +35,7 @@ export default async function AuthorIndex() {
 export const metadata: Metadata = {
   title: 'Authors',
   description: 'Browse posts and albums by author.',
-  alternates: { canonical: '/author/' },
+  alternates: { canonical: '/author' },
   openGraph: {
     title: 'Authors',
     description: 'Browse posts and albums by author.',

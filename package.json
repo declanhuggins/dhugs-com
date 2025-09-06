@@ -44,7 +44,8 @@
 		
 		"publish:post": "node scripts/publish-post.js",
 
-		"publish:portfolio": "node scripts/publish-portfolio.js",
+        "publish:portfolio": "node scripts/publish-portfolio.js",
+        "publish:home-thumb": "node scripts/publish-home-thumbnail.js",
 
     	"db:edit:tags": "node scripts/edit-post-tags.js",
 

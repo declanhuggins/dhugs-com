@@ -92,6 +92,12 @@ Album (batch)
 Markdown post
 - `npm run publish:post` and pick a file from `./posts` with frontmatter
 
+Homepage thumbnail
+- `npm run publish:home-thumb -- --file ./path/to/image.avif` uploads a single image and publishes:
+  - `o/thumbnail.avif` (original/transcoded)
+  - `s/thumbnail.avif` (320w), `m/thumbnail.avif` (640w), `l/thumbnail.avif` (1280w)
+  The homepage Open Graph image uses the large tier at `${CDN_SITE}/l/thumbnail.avif`.
+
 —
 
 ## Environment

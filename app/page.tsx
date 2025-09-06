@@ -56,12 +56,10 @@ export default async function Home() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  // Choose a good default OG image: latest post with thumbnail, else portfolio thumbnail
-  const posts = await getAllPosts();
-  const withThumb = posts.find(p => !!p.thumbnail);
   const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
-  const fallbackImg = `${cdn}/o/portfolio/thumbnail.avif`;
-  const ogImage = withThumb?.thumbnail || fallbackImg;
+  // Use a dedicated site thumbnail hosted on the CDN.
+  // Keep using the large tier for OG.
+  const ogImage = `${cdn}/l/thumbnail.avif`;
   const base = process.env.BASE_URL || 'https://dhugs.com';
   const canonical = '/';
   return {

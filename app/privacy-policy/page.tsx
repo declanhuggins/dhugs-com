@@ -6,7 +6,7 @@ import ProseContent from '../components/ProseContent';
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'Privacy Policy outlining data collection, usage, and security practices for dhugs.com.',
-  alternates: { canonical: '/privacy-policy/' },
+  alternates: { canonical: '/privacy-policy' },
   openGraph: {
     title: 'Privacy Policy',
     description: 'Privacy Policy outlining data collection, usage, and security practices for dhugs.com.',

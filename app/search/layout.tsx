@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 export const metadata: Metadata = {
   title: 'Search',
   description: 'Search posts and photo albums on dhugs.com.',
-  alternates: { canonical: '/search/' },
+  alternates: { canonical: '/search' },
   openGraph: {
     title: 'Search',
     description: 'Search posts and photo albums on dhugs.com.',

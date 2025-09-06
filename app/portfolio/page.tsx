@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const base = process.env.BASE_URL || 'https://dhugs.com';
   const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
   const img = `${cdn}/o/portfolio/thumbnail.avif`;
-  const canonical = '/portfolio/';
+  const canonical = '/portfolio';
   return {
     title: 'Portfolio',
     description: 'Selected photography and visual work by Declan Huggins.',

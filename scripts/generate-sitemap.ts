@@ -68,16 +68,16 @@ async function generateSitemap() {
 
   // Add static pages with balanced priorities
   sitemap.write({ url: '/', changefreq: 'daily', priority: 1.0 });
-  sitemap.write({ url: '/about/', changefreq: 'monthly', priority: 0.6 });
-  sitemap.write({ url: '/portfolio/', changefreq: 'monthly', priority: 0.7 });
-  sitemap.write({ url: '/resume/', changefreq: 'monthly', priority: 0.7 });
-  sitemap.write({ url: '/privacy-policy/', changefreq: 'yearly', priority: 0.2 });
+  sitemap.write({ url: '/about', changefreq: 'monthly', priority: 0.6 });
+  sitemap.write({ url: '/portfolio', changefreq: 'monthly', priority: 0.7 });
+  sitemap.write({ url: '/resume', changefreq: 'monthly', priority: 0.7 });
+  sitemap.write({ url: '/privacy-policy', changefreq: 'yearly', priority: 0.2 });
 
   // New: Additional static pages balanced for SEO
-  sitemap.write({ url: '/archive/', changefreq: 'monthly', priority: 0.5 });
-  sitemap.write({ url: '/author/', changefreq: 'monthly', priority: 0.4 });
-  sitemap.write({ url: '/category/', changefreq: 'weekly', priority: 0.5 });
-  sitemap.write({ url: '/recent/', changefreq: 'daily', priority: 0.9 });
+  sitemap.write({ url: '/archive', changefreq: 'monthly', priority: 0.5 });
+  sitemap.write({ url: '/author', changefreq: 'monthly', priority: 0.4 });
+  sitemap.write({ url: '/category', changefreq: 'weekly', priority: 0.5 });
+  sitemap.write({ url: '/recent', changefreq: 'daily', priority: 0.9 });
   // Do not include /search/ in sitemap (search results pages should not be indexed)
 
   // Add dynamic posts with balanced priority
@@ -96,7 +96,7 @@ async function generateSitemap() {
     
     // Add full post URL with trailing slash
     sitemap.write({ 
-      url: `/${year}/${month}/${post.slug}/`, 
+      url: `/${year}/${month}/${post.slug}`, 
       changefreq: 'weekly', 
       priority: 0.9,
       lastmod: new Date(post.date).toISOString(),
@@ -116,7 +116,7 @@ async function generateSitemap() {
   // Add year archive pages
   yearArchives.forEach((year) => {
     sitemap.write({ 
-      url: `/${year}/`,
+      url: `/${year}`,
       changefreq: 'monthly',
       priority: 0.5,
       lastmod: yearLastmod.get(String(year)),
@@ -126,7 +126,7 @@ async function generateSitemap() {
   // Add month archive pages 
   monthArchives.forEach((monthPath: string) => {
     sitemap.write({ 
-      url: `/${monthPath}/`,
+      url: `/${monthPath}`,
       changefreq: 'weekly', 
       priority: 0.5,
       lastmod: monthLastmod.get(monthPath),
@@ -143,10 +143,10 @@ async function generateSitemap() {
     }
   });
   authors.forEach(author => {
-    sitemap.write({ url: `/author/${encodeURIComponent(author)}/`, changefreq: 'weekly', priority: 0.7 });
+    sitemap.write({ url: `/author/${encodeURIComponent(author)}`, changefreq: 'weekly', priority: 0.7 });
   });
   categories.forEach(category => {
-    sitemap.write({ url: `/category/${encodeURIComponent(category)}/`, changefreq: 'weekly', priority: 0.7 });
+    sitemap.write({ url: `/category/${encodeURIComponent(category)}`, changefreq: 'weekly', priority: 0.7 });
   });
 
   sitemap.end();

@@ -65,7 +65,7 @@ export async function generateMetadata(
   const img = first?.thumbnail || `${cdn}/o/portfolio/thumbnail.avif`;
   const title = `Posts in ${display}`;
   const description = `Articles and albums tagged “${display}”.`;
-  const canonical = `/category/${tag}/`;
+  const canonical = `/category/${tag}`;
   return {
     title,
     description,

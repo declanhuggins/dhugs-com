@@ -67,7 +67,7 @@ export default function Sidebar({ posts, archives, categories }: SidebarProps) {
           <ul className={styles.list}>
             {categories.map(tag => (
               <li key={tag} className={styles.listItem}>
-                <Link href={`/category/${tagToSlug(tag)}/`} className={styles.link}>
+                <Link href={`/category/${tagToSlug(tag)}`} className={styles.link}>
                   {tag}
                 </Link>
               </li>

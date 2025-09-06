@@ -33,7 +33,7 @@ export default async function ArchivesTimeline() {
             return (
               <div key={year} className="min-w-max">
                 <h2 className="text-xl font-semibold mb-2">
-                  <Link href={`/${year}/`} className="hover:underline">
+                  <Link href={`/${year}`} className="hover:underline">
                     {year}
                   </Link>
                 </h2>
@@ -61,7 +61,7 @@ export default async function ArchivesTimeline() {
 export const metadata: Metadata = {
   title: 'Archive',
   description: 'Browse all posts and photo albums by year and month.',
-  alternates: { canonical: '/archive/' },
+  alternates: { canonical: '/archive' },
   openGraph: {
     title: 'Archive',
     description: 'Browse all posts and photo albums by year and month.',

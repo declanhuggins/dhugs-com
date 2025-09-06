@@ -26,8 +26,8 @@ async function runFlow(driver: any, mode: Mode): Promise<void> {
   }
 
   console.log(`${mode} - Navigating to About`);
-  await driver.wait(until.elementLocated(By.css('a[href="/about/"]')), 5000);
-  await driver.findElement(By.css('a[href="/about/"]')).click();
+  await driver.wait(until.elementLocated(By.css('a[href="/about"]')), 5000);
+  await driver.findElement(By.css('a[href="/about"]')).click();
   await driver.wait(until.urlContains('/about'), 5000);
   await pause(1000);
   console.log(`${mode} - Scrolling About page`);
@@ -41,8 +41,8 @@ async function runFlow(driver: any, mode: Mode): Promise<void> {
   await pause(1000);
 
   console.log(`${mode} - Navigating to Portfolio`);
-  await driver.wait(until.elementLocated(By.css('a[href="/portfolio/"]')), 5000);
-  await driver.findElement(By.css('a[href="/portfolio/"]')).click();
+  await driver.wait(until.elementLocated(By.css('a[href="/portfolio"]')), 5000);
+  await driver.findElement(By.css('a[href="/portfolio"]')).click();
   await driver.wait(until.urlContains('/portfolio'), 5000);
   await pause(1000);
   console.log(`${mode} - Scrolling Portfolio page`);
@@ -69,8 +69,8 @@ async function runFlow(driver: any, mode: Mode): Promise<void> {
   await pause(1000);
 
   console.log(`${mode} - Navigating to Archive`);
-  await driver.wait(until.elementLocated(By.css('a[href="/archive/"]')), 5000);
-  await driver.findElement(By.css('a[href="/archive/"]')).click();
+  await driver.wait(until.elementLocated(By.css('a[href="/archive"]')), 5000);
+  await driver.findElement(By.css('a[href="/archive"]')).click();
   await driver.wait(until.urlContains('/archive'), 5000);
   await pause(1000);
   console.log(`${mode} - Scrolling Archive page`);
