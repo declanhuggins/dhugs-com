@@ -1,5 +1,6 @@
 // PostPage: Renders a blog post and, if the post’s content is empty, displays an album gallery.
 import React, { JSX } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { markdownToSafeHtml } from '../../../../lib/markdown';
@@ -8,6 +9,38 @@ import { getAlbumImages } from '../../../../lib/album';
 import ImageGallery, { GalleryImage } from '../../../components/ImageGallery';
 import ProseContent from '../../../components/ProseContent';
 import { tagToSlug } from '../../../../lib/tagUtils';
+
+// Force static generation for this route. Any attempt to render at
+// request time will error, ensuring we always serve the prebuilt RSC/HTML.
+export const dynamic = 'force-static';
+export const revalidate = false;
+export const fetchCache = 'only-cache';
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ year: string; month: string; slug: string }> }
+): Promise<Metadata> {
+  const { year, month, slug } = await params;
+  const post = await getPostByPath(`${year}/${month}/${slug}`);
+  if (!post) return { title: 'Not Found' };
+  const title = post.title || slug;
+  const description = post.excerpt && post.excerpt.trim().length
+    ? post.excerpt.trim()
+    : `Post by ${post.author}${post.date ? ` on ${new Date(post.date).toLocaleDateString('en-US')}` : ''}.`;
+  const thumbnail = post.thumbnail;
+  const canonical = `/${year}/${month}/${slug}/`;
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url: canonical,
+      images: thumbnail ? [thumbnail] : undefined,
+    },
+  };
+}
 
 // Pre-generate all post paths at build time
 export async function generateStaticParams() {

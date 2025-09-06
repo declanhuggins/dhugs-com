@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { spawnSync } from 'node:child_process';
 import { SitemapStream, streamToPromise } from 'sitemap';
 import dotenv from 'dotenv';
 
@@ -29,29 +28,22 @@ function tagToSlug(tag: string): string {
 
 const baseUrl = process.env.BASE_URL || 'https://dhugs.com';
 
-async function fetchPostsFromD1(): Promise<PostMeta[]> {
-  const binding = process.env.D1_BINDING || 'D1_POSTS'; // fixed binding; env var optional
-  const remote = ['--remote','-e', (process.env.CF_ENV || 'prod')];
-  const SQL = `SELECT p.slug,p.title,p.date_utc as date,p.timezone,p.author,p.thumbnail,p.width,
-    json_group_array(DISTINCT t.name) AS tags
-  FROM posts p
-  LEFT JOIN post_tags pt ON pt.post_id=p.id
-  LEFT JOIN tags t ON t.id=pt.tag_id
-  GROUP BY p.id
-  ORDER BY p.date_utc DESC;`;
-  const cmd = ['wrangler','d1','execute',binding,'--command', SQL.replace(/\s+/g,' ').trim(),'--json',...remote];
-  let res = spawnSync('npx', cmd, { encoding: 'utf8' });
-  // no local fallback; always remote
-  if (res.status !== 0) throw new Error(res.stderr || 'wrangler failed');
-  const parsed = JSON.parse(res.stdout || '[]');
-  let rows: any[] = [];
-  if (Array.isArray(parsed)) {
-    for (const part of parsed) {
-      if (Array.isArray(part?.result)) rows = part.result;
-    }
-  } else if (Array.isArray(parsed?.result)) {
-    rows = parsed.result;
-  }
+async function loadPostsFromSnapshot(): Promise<PostMeta[]> {
+  // Use the precomputed snapshot from dist/data/posts.json
+  const fs = await import('node:fs/promises');
+  const path = await import('node:path');
+  const file = path.join(process.cwd(), 'dist', 'data', 'posts.json');
+  const content = await fs.readFile(file, 'utf8');
+  const rows = JSON.parse(content) as Array<{
+    slug: string;
+    title: string;
+    date: string;
+    timezone: string;
+    author: string;
+    thumbnail?: string | null;
+    width?: string | null;
+    tags?: string[] | null;
+  }>;
   return rows.map(r => ({
     slug: r.slug,
     title: r.title,
@@ -60,37 +52,40 @@ async function fetchPostsFromD1(): Promise<PostMeta[]> {
     author: r.author,
     thumbnail: r.thumbnail || undefined,
     width: r.width || undefined,
-    tags: r.tags ? String(r.tags).split('||').filter(Boolean) : undefined
+    tags: r.tags || undefined,
   }));
 }
 
 async function generateSitemap() {
-  // Pull directly from D1 instead of precompiled JSON
+  // Use the precomputed posts snapshot (no DB at sitemap time)
   let posts: PostMeta[] = [];
   try {
-    posts = await fetchPostsFromD1();
+    posts = await loadPostsFromSnapshot();
   } catch (e) {
-    console.warn('Could not query D1 for sitemap; generating minimal sitemap.', e);
+    console.warn('Could not load dist/data/posts.json for sitemap; generating minimal sitemap.', e);
   }
   const sitemap = new SitemapStream({ hostname: baseUrl });
 
   // Add static pages with balanced priorities
   sitemap.write({ url: '/', changefreq: 'daily', priority: 1.0 });
-  sitemap.write({ url: '/about', changefreq: 'monthly', priority: 0.9 });
-  sitemap.write({ url: '/portfolio', changefreq: 'monthly', priority: 0.9 });
-  sitemap.write({ url: '/resume', changefreq: 'monthly', priority: 0.8 });
-  sitemap.write({ url: '/privacy-policy', changefreq: 'monthly', priority: 0.5 });
+  sitemap.write({ url: '/about/', changefreq: 'monthly', priority: 0.6 });
+  sitemap.write({ url: '/portfolio/', changefreq: 'monthly', priority: 0.7 });
+  sitemap.write({ url: '/resume/', changefreq: 'monthly', priority: 0.7 });
+  sitemap.write({ url: '/privacy-policy/', changefreq: 'yearly', priority: 0.2 });
 
   // New: Additional static pages balanced for SEO
-  sitemap.write({ url: '/archive', changefreq: 'weekly', priority: 0.7 });
-  sitemap.write({ url: '/author', changefreq: 'weekly', priority: 0.6 });
-  sitemap.write({ url: '/category', changefreq: 'weekly', priority: 0.6 });
-  sitemap.write({ url: '/recent', changefreq: 'weekly', priority: 0.7 });
+  sitemap.write({ url: '/archive/', changefreq: 'monthly', priority: 0.5 });
+  sitemap.write({ url: '/author/', changefreq: 'monthly', priority: 0.4 });
+  sitemap.write({ url: '/category/', changefreq: 'weekly', priority: 0.5 });
+  sitemap.write({ url: '/recent/', changefreq: 'daily', priority: 0.9 });
+  // Do not include /search/ in sitemap (search results pages should not be indexed)
 
   // Add dynamic posts with balanced priority
-  const yearArchives = new Set();
-  const monthArchives = new Set();
+  const yearArchives = new Set<string>();
+  const monthArchives = new Set<string>();
   
+  const yearLastmod = new Map<string, string>();
+  const monthLastmod = new Map<string, string>();
   posts.forEach(post => {
     const postDate = new Date(post.date);
     const year = postDate.getFullYear();
@@ -103,29 +98,38 @@ async function generateSitemap() {
     sitemap.write({ 
       url: `/${year}/${month}/${post.slug}/`, 
       changefreq: 'weekly', 
-      priority: 0.8 
+      priority: 0.9,
+      lastmod: new Date(post.date).toISOString(),
+      img: post.thumbnail ? [{ url: post.thumbnail, title: post.title, caption: post.title }] : undefined,
     });
 
     // Only add year/month archive pages if we have content
-    yearArchives.add(year);
+    yearArchives.add(String(year));
     monthArchives.add(`${year}/${month}`);
+    const iso = new Date(post.date).toISOString();
+    const yKey = String(year);
+    if (!yearLastmod.has(yKey) || iso > (yearLastmod.get(yKey) as string)) yearLastmod.set(yKey, iso);
+    const mKey = `${year}/${month}`;
+    if (!monthLastmod.has(mKey) || iso > (monthLastmod.get(mKey) as string)) monthLastmod.set(mKey, iso);
   });
 
   // Add year archive pages
-  yearArchives.forEach(year => {
+  yearArchives.forEach((year) => {
     sitemap.write({ 
       url: `/${year}/`,
       changefreq: 'monthly',
-      priority: 0.6 
+      priority: 0.5,
+      lastmod: yearLastmod.get(String(year)),
     });
   });
 
   // Add month archive pages 
-  monthArchives.forEach(monthPath => {
+  monthArchives.forEach((monthPath: string) => {
     sitemap.write({ 
       url: `/${monthPath}/`,
-      changefreq: 'monthly', 
-      priority: 0.6 
+      changefreq: 'weekly', 
+      priority: 0.5,
+      lastmod: monthLastmod.get(monthPath),
     });
   });
 
@@ -152,21 +156,7 @@ async function generateSitemap() {
   fs.writeFileSync(sitemapPath, sitemapData);
   console.log(`Sitemap written to ${sitemapPath}`);
 
-  // Also store sitemap into D1 site_meta table (key: 'sitemap.xml') for inspection or other uses
-  try {
-    const binding = process.env.D1_BINDING || 'D1_POSTS';
-    const remote = ['--remote','-e', (process.env.CF_ENV || 'prod')];
-    const escaped = sitemapData.replace(/'/g, "''");
-    const sql = `INSERT INTO site_meta (key, value) VALUES ('sitemap.xml','${escaped}') ON CONFLICT(key) DO UPDATE SET value=excluded.value;`;
-    const res = spawnSync('npx', ['wrangler','d1','execute',binding,'--command',sql, ...remote], { encoding: 'utf8' });
-    if (res.status !== 0) {
-      console.warn('Warning: failed to write sitemap into D1:', res.stderr?.slice(0,200) || '');
-    } else {
-      console.log('Sitemap also stored in D1 (site_meta).');
-    }
-  } catch (e) {
-    console.warn('Warning: error while storing sitemap in D1:', e);
-  }
+  // No DB write-back; sitemap is fully static and written to public
 
   // New: generate robots.txt using BASE_URL from .env.local
   const robotsTxtContent = `User-agent: *

@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import ImageGallery, { GalleryImage } from '../components/ImageGallery';
 import { getAlbumImages } from '../../lib/album';
 
@@ -23,4 +24,22 @@ export default async function PortfolioPage() {
       <ImageGallery images={images} galleryID="portfolio-gallery" />
     </article>
   );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const base = process.env.BASE_URL || 'https://dhugs.com';
+  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
+  const img = `${cdn}/o/portfolio/thumbnail.avif`;
+  const canonical = '/portfolio/';
+  return {
+    title: 'Portfolio',
+    description: 'Selected photography and visual work by Declan Huggins.',
+    alternates: { canonical },
+    openGraph: {
+      title: 'Portfolio',
+      description: 'Selected photography and visual work by Declan Huggins.',
+      url: new URL(canonical, base).toString(),
+      images: [img],
+    },
+  };
 }

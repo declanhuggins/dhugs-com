@@ -188,7 +188,7 @@ async function uploadThumbnail(dir, entries, destThumbKey, chosenOrPath) {
   // Generate responsive variants (s/m/l) for the thumbnail too
   try {
     for (const [short, widthTarget] of Object.entries(RESPONSIVE_SIZES)) {
-      const variantKey = destThumbKey.replace(/^o\//, `${short}/`); // o/albums/.. -> s/albums/..
+      const variantKey = destThumbKey.replace(/^o\//, `${short}/`); // o/YYYY/MM/.. -> s/YYYY/MM/..
       const tmpVar = path.join(process.cwd(), `.thumb-${short}-${Date.now()}-${Math.random().toString(36).slice(2)}.avif`);
       try {
         await sharp(tmpOut).resize(widthTarget).toFormat('avif', { quality: 60 }).toFile(tmpVar);
@@ -234,7 +234,7 @@ async function generateResponsiveSizes(avifDir, uploaded, albumRoot) {
     ].find(p => fs.existsSync(p)) : null;
     const source = jpgPath || avifPath;
 
-    const baseKey = `${albumRoot}/images/${f}`; // o/albums/.../images/file
+    const baseKey = `${albumRoot}/images/${f}`; // o/YYYY/MM/.../images/file
   for (const [short, width] of Object.entries(RESPONSIVE_SIZES)) {
       const key = baseKey.replace(/^o\//, `${short}/`);
       const tmp = path.join(process.cwd(), `.img-${short}-${Date.now()}-${Math.random().toString(36).slice(2)}.avif`);

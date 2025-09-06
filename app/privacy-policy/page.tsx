@@ -1,10 +1,16 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { markdownToSafeHtml } from '../../lib/markdown';
 import ProseContent from '../components/ProseContent';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'Privacy Policy outlining data collection, usage, and security practices for dhugs.com.'
+  description: 'Privacy Policy outlining data collection, usage, and security practices for dhugs.com.',
+  alternates: { canonical: '/privacy-policy/' },
+  openGraph: {
+    title: 'Privacy Policy',
+    description: 'Privacy Policy outlining data collection, usage, and security practices for dhugs.com.',
+  },
 };
 
 const PRIVACY_POLICY_MD = `# Privacy Policy

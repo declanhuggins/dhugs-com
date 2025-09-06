@@ -1,5 +1,6 @@
 // RecentPage: Renders sorted recent posts with archives and categories.
 import React from 'react';
+import type { Metadata } from 'next';
 import PostGrid from '../components/PostGrid';
 import Sidebar from '../components/Sidebar';
 import { getAllPosts } from '../../lib/posts';
@@ -46,4 +47,22 @@ export default async function RecentPage() {
       <Sidebar posts={posts} archives={archives} categories={categories} />
     </div>
   );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const base = process.env.BASE_URL || 'https://dhugs.com';
+  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
+  const img = `${cdn}/o/portfolio/thumbnail.avif`;
+  const canonical = '/recent/';
+  return {
+    title: 'Recent Posts',
+    description: 'The latest writing and photo albums by Declan Huggins.',
+    alternates: { canonical },
+    openGraph: {
+      title: 'Recent Posts',
+      description: 'The latest writing and photo albums by Declan Huggins.',
+      url: new URL(canonical, base).toString(),
+      images: [img],
+    },
+  };
 }

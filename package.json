@@ -23,38 +23,38 @@
 		"db:migrate:remote": "npx wrangler d1 --env prod migrations apply D1_POSTS --remote",
         
 
-		"db:ingest:albums": "node scripts/ingest-albums.js",
-		"db:ingest:posts": "node scripts/ingest-posts.js",
-		"db:ingest": "npm run db:ingest:albums && npm run db:ingest:posts",
-		
-			
-		"db:upsert:post": "tsx scripts/db-upsert-post.ts",
-		"db:upsert:album": "tsx scripts/db-upsert-album.ts",
-		"db:delete:post": "tsx scripts/db-delete-post.ts",
+        
+            
+        "db:upsert:post": "tsx scripts/db-upsert-post.ts",
+        "db:upsert:album": "tsx scripts/db-upsert-album.ts",
+        "db:delete:post": "tsx scripts/db-delete-post.ts",
+
+		"content:all": "npm run content:redirects && npm run content:sitemap && npm run content:searchIndex && npm run content:postsJson && npm run content:albumsIndex",
 
 		"content:redirects": "tsx scripts/generate-redirects.ts",
-		
 		"content:sitemap": "tsx scripts/generate-sitemap.ts",
 		"content:searchIndex": "tsx scripts/generate-search-index.ts",
 		"content:postsJson": "tsx scripts/generate-posts-json.ts",
-		"content:images": "tsx scripts/generate-image-versions.ts",
-		"link:add": "tsx scripts/add-link.ts",
-		
-
-		"content:all": "npm run content:redirects && npm run content:sitemap && npm run content:searchIndex && npm run content:postsJson",
-
-		"publish:album": "node scripts/publish-album.js",
-		
-		"publish:post": "node scripts/publish-post.js",
-		
-
-		"publish:albums:batch": "node scripts/publish-albums-batch.js",
-		"publish:portfolio": "node scripts/publish-portfolio.js",
+		"content:albumsIndex": "tsx scripts/generate-album-index.ts",
+		"content:images": "tsx scripts/generate-image-versions.ts",		
 
 		"prepare:album": "node scripts/prepare-album-folder.js",
+
+		"publish:album": "node scripts/publish-album.js",
+
+		"publish:albums:batch": "node scripts/publish-albums-batch.js",
+		
+		"publish:post": "node scripts/publish-post.js",
+
+		"publish:portfolio": "node scripts/publish-portfolio.js",
+
     	"db:edit:tags": "node scripts/edit-post-tags.js",
 
-		"tree": "bash -c 'pattern=\"$(( sed \"/^\\s*#/d;/^$/d\" .gitignore; echo .next; echo node_modules; echo dist ) | tr \"\\n\" \"|\" | sed \"s/|$//\")\"; tree -I \"$pattern\" > file-structure.txt'",
+		"link:add": "tsx scripts/add-link.ts",
+
+    	"cdn:robots:disallow": "tsx scripts/upload-cdn-robots.ts disallow",
+    	"cdn:robots:allow": "tsx scripts/upload-cdn-robots.ts allow",
+
 		"browse": "tsx scripts/selenium-browse.ts",
 		"upgrade": "npx npm-check-updates -u && npm install"
   },

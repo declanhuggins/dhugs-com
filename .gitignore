@@ -51,6 +51,3 @@ next-env.d.ts
 
 # sitemap
 /public/sitemap.xml
-# generated search index
-/public/search-index.json
-/public/posts.json
