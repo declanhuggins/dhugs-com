@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { S3Client, ListObjectsV2Command, HeadObjectCommand, ListObjectsV2CommandOutput } from '@aws-sdk/client-s3';
+import { spawnSync } from 'node:child_process';
 
 dotenv.config({ path: '.env', quiet: true });
 
@@ -71,22 +72,42 @@ async function main() {
     return;
   }
 
-  const endpoint = requireEnv('S3_ENDPOINT');
-  const region = process.env.AWS_REGION || 'auto';
-  const accessKeyId = requireEnv('AWS_ACCESS_KEY_ID');
-  const secretAccessKey = requireEnv('AWS_SECRET_ACCESS_KEY');
-  const bucket = process.env.AWS_BUCKET_NAME || process.env.R2_BUCKET_NAME;
-  if (!bucket) throw new Error('Missing required env: AWS_BUCKET_NAME or R2_BUCKET_NAME');
-
   const cdnCandidate = process.env.CDN_SITE || '';
   const cdnBase = /^https?:\/\//i.test(cdnCandidate) ? cdnCandidate.replace(/\/+$/, '') : 'https://cdn.dhugs.com';
 
-  const s3 = new S3Client({
-    region,
-    endpoint,
-    forcePathStyle: true,
-    credentials: { accessKeyId, secretAccessKey },
-  });
+  // Prefer S3-style creds if available; otherwise fall back to Wrangler R2 CLI (works in CF build env)
+  const hasS3 = !!(process.env.S3_ENDPOINT && (process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID_WRITE));
+  let s3: S3Client | null = null;
+  let bucket = process.env.AWS_BUCKET_NAME || process.env.R2_BUCKET_NAME || '';
+  if (hasS3) {
+    const endpoint = requireEnv('S3_ENDPOINT');
+    const region = process.env.AWS_REGION || 'auto';
+    const accessKeyId = (process.env.AWS_ACCESS_KEY_ID_WRITE || process.env.AWS_ACCESS_KEY_ID)!;
+    const secretAccessKey = (process.env.AWS_SECRET_ACCESS_KEY_WRITE || process.env.AWS_SECRET_ACCESS_KEY)!;
+    if (!bucket) throw new Error('Missing required env: AWS_BUCKET_NAME or R2_BUCKET_NAME');
+    s3 = new S3Client({ region, endpoint, forcePathStyle: true, credentials: { accessKeyId, secretAccessKey } });
+  }
+
+  const cfEnv = process.env.CF_ENV || 'prod';
+
+  function listKeysViaWrangler(prefix: string): string[] {
+    const binding = 'R2_ASSETS';
+    const res = spawnSync('npx', ['wrangler','r2','object','list', binding, '--env', cfEnv, '--prefix', prefix, '--json'], { encoding: 'utf8' });
+    if (res.status !== 0) return [];
+    try {
+      const parsed = JSON.parse(res.stdout || '[]');
+      // Support array of objects or wrapped shape
+      const arr: any[] = Array.isArray(parsed) ? parsed : (Array.isArray(parsed?.objects) ? parsed.objects : []);
+      const keys: string[] = [];
+      for (const item of arr) {
+        const k = (item && (item.key || item.name || item.Key)) as string | undefined;
+        if (k) keys.push(k);
+      }
+      return keys;
+    } catch {
+      return [];
+    }
+  }
 
   const index: AlbumIndex = {};
   for (const albumName of albums) {
@@ -94,7 +115,8 @@ async function main() {
     const prefixes = [prefix, prefix.replace(/\/images\/?$/, '/')];
     let keys: string[] = [];
     for (const p of prefixes) {
-      keys = await listAllKeys(s3, String(bucket), p);
+      if (s3) keys = await listAllKeys(s3, String(bucket), p);
+      else keys = listKeysViaWrangler(p);
       if (keys.length) {
         const filtered = keys.filter(k => {
           if (k.endsWith('/_meta.json')) return false;
@@ -105,15 +127,17 @@ async function main() {
         const images: AlbumImage[] = await Promise.all(filtered.map(async (key) => {
           let width = 1600;
           let height = 900;
-          try {
-            const head = await s3.send(new HeadObjectCommand({ Bucket: String(bucket), Key: key }));
-            const meta = (head.Metadata || {}) as Record<string, string>;
-            const wRaw = meta.width || (meta['x-amz-meta-width'] as unknown as string | undefined);
-            const hRaw = meta.height || (meta['x-amz-meta-height'] as unknown as string | undefined);
-            const w = Number(typeof wRaw === 'string' ? wRaw : undefined);
-            const hh = Number(typeof hRaw === 'string' ? hRaw : undefined);
-            if (!Number.isNaN(w) && !Number.isNaN(hh)) { width = w; height = hh; }
-          } catch {}
+          if (s3) {
+            try {
+              const head = await s3.send(new HeadObjectCommand({ Bucket: String(bucket), Key: key }));
+              const meta = (head.Metadata || {}) as Record<string, string>;
+              const wRaw = meta.width || (meta['x-amz-meta-width'] as unknown as string | undefined);
+              const hRaw = meta.height || (meta['x-amz-meta-height'] as unknown as string | undefined);
+              const w = Number(typeof wRaw === 'string' ? wRaw : undefined);
+              const hh = Number(typeof hRaw === 'string' ? hRaw : undefined);
+              if (!Number.isNaN(w) && !Number.isNaN(hh)) { width = w; height = hh; }
+            } catch {}
+          }
           const filename = key.replace(p, '');
           const url = `${cdnBase}/${albumName}/${filename}`.replace(/([^:])\/+\/+/g, '$1/');
           return { filename, largeURL: url, thumbnailURL: url, width, height, alt: filename } as AlbumImage;
