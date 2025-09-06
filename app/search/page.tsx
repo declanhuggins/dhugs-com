@@ -117,7 +117,19 @@ function SearchResultsContent() {
       const results = isV3Index(indexCache)
         ? scoreV3(indexCache, terms)
         : scoreLegacy(indexCache as LegacyIndexItem[], terms);
-      if (mounted) setPosts(results);
+      // Normalize tags to string[] for consistent rendering
+      const normalized = results.map(p => {
+        let t: string[] | undefined = undefined;
+        if (Array.isArray(p.tags)) t = p.tags;
+        else if (typeof (p as any).tags === 'string') {
+          const s = String((p as any).tags);
+          try {
+            t = s.trim().startsWith('[') ? (JSON.parse(s) as string[]).map(x=>String(x)) : s.split(/[,|]+/).map(x=>x.trim()).filter(Boolean);
+          } catch { t = s.split(/[,|]+/).map(x=>x.trim()).filter(Boolean); }
+        }
+        return { ...p, tags: t } as Post;
+      });
+      if (mounted) setPosts(normalized);
     }
     run();
     return () => { mounted = false; };
