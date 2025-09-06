@@ -155,11 +155,17 @@ async function main() {
   for (const [tok, id] of vocab.entries()) vocabObj[tok] = id;
 
   const index = { v: 3, N, avdl, df: dfCounts, vocab: vocabObj, postings, docs };
-  const outDir = path.join(process.cwd(), 'dist', 'data');
-  const outPath = path.join(outDir, 'search-index.json');
-  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(outPath, JSON.stringify(index));
-  console.log(`Search index written to ${outPath} (${docs.length} items, vocab=${Object.keys(vocabObj).length})`);
+  // Write to private snapshot (used by server at build/runtime)
+  const distDir = path.join(process.cwd(), 'dist', 'data');
+  const distPath = path.join(distDir, 'search-index.json');
+  if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
+  fs.writeFileSync(distPath, JSON.stringify(index));
+  // Also write a public copy for client-side search
+  const pubDir = path.join(process.cwd(), 'public');
+  const pubPath = path.join(pubDir, 'search-index.json');
+  if (!fs.existsSync(pubDir)) fs.mkdirSync(pubDir, { recursive: true });
+  fs.writeFileSync(pubPath, JSON.stringify(index));
+  console.log(`Search index written to ${distPath} and ${pubPath} (${docs.length} items, vocab=${Object.keys(vocabObj).length})`);
 }
 
 main().catch(err => {
