@@ -2,15 +2,10 @@ import type { NextConfig } from "next";
 
 require('dotenv').config({ quiet: true });
 
-// Require CDN_SITE at build time. In Cloudflare builds, Secrets/Env Vars
-// are available to the Next build process. If this throws, the issue
-// is with the project env configuration, not availability.
-const rawCdn = process.env.CDN_SITE;
-if (!rawCdn) {
-  throw new Error(
-    "CDN base is not defined. Set NEXT_PUBLIC_CDN_SITE or CDN_SITE as a Build Environment Variable in your Cloudflare project."
-  );
-}
+// Resolve CDN base for Next image config. In Cloudflare Pages builds, Secrets
+// are NOT injected into process.env at build time. Default to the canonical
+// CDN host if the env var is unavailable so the build does not fail.
+const rawCdn = process.env.CDN_SITE || 'https://cdn.dhugs.com';
 
 let cdnHost: string;
 try {
