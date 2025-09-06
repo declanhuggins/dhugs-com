@@ -109,7 +109,7 @@ export async function getAllPosts(): Promise<Post[]> {
     const arr = (postsSnapshot as unknown as RowShape[]).map(mapRowToPost);
     allPostsCache = arr;
     return arr;
-  } catch (e) {
+  } catch {
     throw new Error('posts snapshot missing. Run: npm run content:postsJson');
   }
 }
