@@ -1,10 +1,11 @@
 // AuthorIndex: Lists all unique authors from posts.
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getAllPosts, getAuthorSlug, getProperAuthorName } from '../../lib/posts';
 
-export default function AuthorIndex() {
-  const posts = getAllPosts();
+export default async function AuthorIndex() {
+  const posts = await getAllPosts();
   const authorSet = new Set<string>();
   posts.forEach(post => {
     authorSet.add(getAuthorSlug(post.author));
@@ -30,3 +31,13 @@ export default function AuthorIndex() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: 'Authors',
+  description: 'Browse posts and albums by author.',
+  alternates: { canonical: '/author/' },
+  openGraph: {
+    title: 'Authors',
+    description: 'Browse posts and albums by author.',
+  },
+};

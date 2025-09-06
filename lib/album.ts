@@ -1,4 +1,5 @@
-import { S3Client, ListObjectsV2Command, HeadObjectCommand } from "@aws-sdk/client-s3";
+// Album images: Use a precomputed static index (public/album-index.json).
+// Build must generate this file; runtime never lists R2.
 
 export interface AlbumImage {
   filename: string;
@@ -9,57 +10,22 @@ export interface AlbumImage {
   alt: string;
 }
 
-const allowedExtensions = [".jpg", ".jpeg", ".png", ".avif"];
-const bucket = process.env.AWS_BUCKET_NAME;
+// Minimal R2 bucket shapes (avoid full workers types dependency)
+// Minimal R2 bucket shapes (for Worker runtime)
+const albumCache = new Map<string, AlbumImage[]>();
+type AlbumIndex = Record<string, AlbumImage[]>;
 
-// Configure S3 client for Cloudflare R2.
-const s3 = new S3Client({
-  region: process.env.AWS_REGION,
-  endpoint: process.env.S3_ENDPOINT,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
+import albumIndexSnapshot from '../dist/data/album-index.json';
+
+export async function getAlbumImages(albumName: string, force = false): Promise<AlbumImage[]> {
+  if (!force && albumCache.has(albumName)) return albumCache.get(albumName)!;
+  const idx = albumIndexSnapshot as unknown as AlbumIndex;
+  const exact = idx[albumName];
+  const fallback = idx[albumName.replace(/\/images\/?$/, '/')];
+  const images = exact || fallback;
+  if (!images) {
+    throw new Error(`[album] Album '${albumName}' not found in precomputed index. Run 'npm run content:albumsIndex'.`);
   }
-});
-
-// Fetch album images from S3 and retrieve metadata if available.
-export async function getAlbumImages(albumName: string): Promise<AlbumImage[]> {
-  const prefix = albumName.endsWith("/") ? albumName : albumName + "/";
-  const command = new ListObjectsV2Command({
-    Bucket: bucket,
-    Prefix: prefix,
-  });
-  const response = await s3.send(command);
-  const objects = response.Contents || [];
-
-  const images = await Promise.all(
-    objects.filter(obj => {
-        if (!obj.Key) return false;
-        const ext = obj.Key.slice(obj.Key.lastIndexOf(".")).toLowerCase();
-        return allowedExtensions.includes(ext);
-      }).map(async obj => {
-        const key = obj.Key!;
-        let width = 1600, height = 900;
-        try {
-          const head = new HeadObjectCommand({ Bucket: bucket, Key: key });
-          const headData = await s3.send(head);
-          if (headData.Metadata && headData.Metadata.width && headData.Metadata.height) {
-            width = parseInt(headData.Metadata.width.trim(), 10);
-            height = parseInt(headData.Metadata.height.trim(), 10);
-          }
-        } catch (err) {
-          console.error(`Error fetching metadata for ${key}:`, err);
-        }
-        const filename = key.replace(prefix, '');
-        return {
-          filename,
-          largeURL: `${process.env.CDN_SITE}/${albumName}/${filename}`,
-          thumbnailURL: `${process.env.CDN_SITE}/${albumName}/${filename}`,
-          width,
-          height,
-          alt: filename,
-        } as AlbumImage;
-      })
-  );
+  albumCache.set(albumName, images);
   return images;
 }

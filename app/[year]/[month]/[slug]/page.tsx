@@ -1,16 +1,48 @@
 // PostPage: Renders a blog post and, if the post’s content is empty, displays an album gallery.
 import React, { JSX } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { remark } from 'remark';
-import html from 'remark-html';
-import remarkGfm from 'remark-gfm';
-import { getAllPosts, getPostBySlug } from '../../../../lib/posts';
+import { markdownToSafeHtml } from '../../../../lib/markdown';
+import { getAllPosts, getPostByPath } from '../../../../lib/posts';
 import { getAlbumImages } from '../../../../lib/album';
 import ImageGallery, { GalleryImage } from '../../../components/ImageGallery';
 import ProseContent from '../../../components/ProseContent';
 import { tagToSlug } from '../../../../lib/tagUtils';
 
+// Force static generation for this route. Any attempt to render at
+// request time will error, ensuring we always serve the prebuilt RSC/HTML.
+export const dynamic = 'force-static';
+export const revalidate = false;
+export const fetchCache = 'only-cache';
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ year: string; month: string; slug: string }> }
+): Promise<Metadata> {
+  const { year, month, slug } = await params;
+  const post = await getPostByPath(`${year}/${month}/${slug}`);
+  if (!post) return { title: 'Not Found' };
+  const title = post.title || slug;
+  const description = post.excerpt && post.excerpt.trim().length
+    ? post.excerpt.trim()
+    : `Post by ${post.author}${post.date ? ` on ${new Date(post.date).toLocaleDateString('en-US')}` : ''}.`;
+  const thumbnail = post.thumbnail;
+  const canonical = `/${year}/${month}/${slug}/`;
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url: canonical,
+      images: thumbnail ? [thumbnail] : undefined,
+    },
+  };
+}
+
+// Pre-generate all post paths at build time
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   return posts.map(post => {
@@ -38,7 +70,7 @@ interface PageProps {
 
 export default async function PostPage({ params }: PageProps): Promise<JSX.Element> {
   const { year, month, slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = await getPostByPath(`${year}/${month}/${slug}`);
   if (!post) {
     notFound();
   }
@@ -56,7 +88,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
     ));
 
   if (post.content.trim() === "") {
-    const albumFolder = `albums/${year}/${month}/${slug}/images`;
+    const albumFolder = post.path ? `o/${post.path}/images` : `o/${year}/${month}/${slug}/images`;
     const albumImages = await getAlbumImages(albumFolder);
     const images: GalleryImage[] = albumImages.map(img => ({
       src: img.thumbnailURL,
@@ -86,8 +118,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
     );
   }
 
-  const processedContent = await remark().use(remarkGfm).use(html).process(post.content);
-  const contentHtml = processedContent.toString();
+  const contentHtml = await markdownToSafeHtml(post.content);
   const formattedDateTime = postDate.toLocaleString('en-US', {
     day: 'numeric', month: 'long', year: 'numeric',
     hour: '2-digit', minute: '2-digit',

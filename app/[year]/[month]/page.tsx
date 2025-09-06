@@ -1,4 +1,5 @@
 import React, { JSX } from 'react';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAllPosts } from '../../../lib/posts';
 import Link from 'next/link';
@@ -6,7 +7,13 @@ import { sanitizePathSegment } from '../../../lib/sanitizeUrl';
 import { tagToSlug } from '../../../lib/tagUtils';
 import { toDate } from 'date-fns-tz';
 
+// Enforce fully static generation for month archives
+export const dynamic = 'force-static';
+export const revalidate = false;
+export const fetchCache = 'only-cache';
+
 // Generate parameters for year and month archives.
+// Pre-generate all year-month combinations at build time
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   const paramsSet = new Set<string>();
@@ -114,4 +121,36 @@ export default async function MonthArchive({ params }: PageProps): Promise<JSX.E
       </ul>
     </div>
   );
+}
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ year: string; month: string }> }
+): Promise<Metadata> {
+  const { year, month } = await params;
+  const base = process.env.BASE_URL || 'https://dhugs.com';
+  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
+  const { getAllPosts } = await import('../../../lib/posts');
+  const posts = await getAllPosts();
+  const hit = posts.find(p => {
+    const d = new Date(p.date);
+    const y = d.getFullYear().toString();
+    const m = d.toLocaleString('en-US', { timeZone: p.timezone, month: '2-digit' });
+    return y === year && m === month && p.thumbnail;
+  });
+  const img = hit?.thumbnail || `${cdn}/o/portfolio/thumbnail.avif`;
+  const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString('en-US', { month: 'long' });
+  const title = `Archive – ${monthName} ${year}`;
+  const description = `Posts from ${monthName} ${year} on Declan Huggins.`;
+  const canonical = `/${year}/${month}/`;
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: new URL(canonical, base).toString(),
+      images: [img],
+    },
+  };
 }

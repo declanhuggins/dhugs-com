@@ -1,10 +1,11 @@
 // ArchivesTimeline: Renders a horizontal timeline of archives grouped by year.
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getAllPosts } from '../../lib/posts';
 
-export default function ArchivesTimeline() {
-  const posts = getAllPosts();
+export default async function ArchivesTimeline() {
+  const posts = await getAllPosts();
   const archiveMap: { [year: string]: Set<string> } = {};
 
   posts.forEach(post => {
@@ -56,3 +57,13 @@ export default function ArchivesTimeline() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: 'Archive',
+  description: 'Browse all posts and photo albums by year and month.',
+  alternates: { canonical: '/archive/' },
+  openGraph: {
+    title: 'Archive',
+    description: 'Browse all posts and photo albums by year and month.',
+  },
+};

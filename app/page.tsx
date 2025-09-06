@@ -1,18 +1,22 @@
 // Home: Displays the latest posts (filtered by a specific tag) alongside a sidebar.
 import React from 'react';
+import type { Metadata } from 'next';
 import Sidebar from './components/Sidebar';
 import PostGrid from './components/PostGrid';
 import { getAllPosts } from '../lib/posts';
 
-export default function Home() {
-  const posts = getAllPosts().sort(
+// Static prerender at build time; content fetched from D1 then.
+
+export default async function Home() {
+  const posts = (await getAllPosts()).sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   const latestTag = 'Photography';
-  const filteredPosts = posts.filter(
+  const filteredPostsRaw = posts.filter(
     post => post.tags && post.tags.includes(latestTag)
   );
+  const filteredPosts = filteredPostsRaw.length > 0 ? filteredPostsRaw : posts;
 
   const archivesMap = new Map<string, { year: string; month: string }>();
   posts.forEach(post => {
@@ -49,4 +53,24 @@ export default function Home() {
       <Sidebar posts={posts} archives={archives} categories={categories} />
     </div>
   );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  // Choose a good default OG image: latest post with thumbnail, else portfolio thumbnail
+  const posts = await getAllPosts();
+  const withThumb = posts.find(p => !!p.thumbnail);
+  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
+  const fallbackImg = `${cdn}/o/portfolio/thumbnail.avif`;
+  const ogImage = withThumb?.thumbnail || fallbackImg;
+  const base = process.env.BASE_URL || 'https://dhugs.com';
+  const canonical = '/';
+  return {
+    alternates: { canonical },
+    openGraph: {
+      title: 'Declan Huggins',
+      description: 'Computer science student and photographer at Notre Dame, Declan Huggins combines technical expertise in software and audio/visual engineering with service and leadership in Air Force ROTC.',
+      url: new URL(canonical, base).toString(),
+      images: [ogImage],
+    },
+  };
 }
