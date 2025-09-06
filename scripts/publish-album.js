@@ -185,6 +185,13 @@ async function uploadThumbnail(dir, entries, destThumbKey, chosenOrPath) {
   console.log('Uploading thumbnail ->', destThumbKey, `(${tw}x${th})`);
   const bucket = getR2BucketName();
   await s3PutFile(bucket, destThumbKey, tmpOut, 'image/avif', { width: String(tw), height: String(th) });
+  // Also upload JPG original
+  try {
+    const tmpJ = path.join(process.cwd(), `.thumb-o-${Date.now()}.jpg`);
+    await sharp(tmpOut).jpeg({ quality: 88, progressive: true }).toFile(tmpJ);
+    await s3PutFile(bucket, destThumbKey.replace(/\.avif$/i,'.jpg'), tmpJ, 'image/jpeg', { width: String(tw), height: String(th) });
+    try { fs.unlinkSync(tmpJ); } catch {}
+  } catch {}
   // Generate responsive variants (s/m/l) for the thumbnail too
   try {
     for (const [short, widthTarget] of Object.entries(RESPONSIVE_SIZES)) {
@@ -202,6 +209,13 @@ async function uploadThumbnail(dir, entries, destThumbKey, chosenOrPath) {
         await s3PutFile(bucket, variantKey, tmpVar, 'image/avif', vw && vh ? { width: String(vw), height: String(vh) } : undefined);
         console.log('Uploaded thumbnail variant ->', variantKey, `(${vw || '?'}x${vh || '?'})`);
       } finally { try { fs.unlinkSync(tmpVar); } catch {} }
+      // JPG variant
+      try {
+        const tmpJ = path.join(process.cwd(), `.thumb-${short}-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`);
+        await sharp(tmpOut).resize(widthTarget).jpeg({ quality: 88, progressive: true }).toFile(tmpJ);
+        await s3PutFile(bucket, variantKey.replace(/\.avif$/i,'.jpg'), tmpJ, 'image/jpeg');
+        try { fs.unlinkSync(tmpJ); } catch {}
+      } catch {}
     }
   } catch (e) {
     console.warn('Warning: failed generating responsive thumbnail variants:', e.message);

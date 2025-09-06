@@ -5,8 +5,8 @@
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"build": "npx wrangler types --env-interface CloudflareEnv ./env.d.ts && next build",
-        "build:prod": "npm run content:all && npx @cloudflare/next-on-pages && node -e \"const fs=require('fs');fs.mkdirSync('.vercel/output/static',{recursive:true});fs.writeFileSync('.vercel/output/static/.assetsignore','_worker.js\\n');\" && npx wrangler build --env prod",
-        "build:dev": "npm run content:all && npx @cloudflare/next-on-pages && node -e \"const fs=require('fs');fs.mkdirSync('.vercel/output/static',{recursive:true});fs.writeFileSync('.vercel/output/static/.assetsignore','_worker.js\\n');\" && npx wrangler build --env dev",
+		"build:prod": "npm run content:all && npx @cloudflare/next-on-pages && npm run assets:ignore && npx wrangler build --env prod",
+		"build:dev": "npm run content:all && npx @cloudflare/next-on-pages && npm run assets:ignore && npx wrangler build --env dev",
 		"start": "next start",
 		"lint": "next lint",
 		"test": "vitest run",
@@ -17,6 +17,8 @@
 		"deploy:dev": "npm run build:dev && npx wrangler deploy -e dev",
 		"upload:dev": "npm run build:dev && npx wrangler upload -e dev",
 		"cf-typegen": "npx wrangler types --env-interface CloudflareEnv ./env.d.ts",
+		
+		"assets:ignore": "mkdir -p .vercel/output/static && printf '_worker.js\n' > .vercel/output/static/.assetsignore",
 		
 		"db:migration:new": "npx wrangler d1 migrations create D1_POSTS",
 		"db:migrate": "npx wrangler d1 migrations apply D1_POSTS",
