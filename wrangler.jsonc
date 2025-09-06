@@ -1,14 +1,11 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "dhugs-com",
-	"main": "./.open-next/worker.js",
 	"compatibility_date": "2025-08-27",
-	"compatibility_flags": [
-		"nodejs_compat",
-		"global_fetch_strictly_public"
-	],
+	"compatibility_flags": ["nodejs_compat"],
+	"main": ".vercel/output/static/_worker.js",
 	"assets": {
-		"directory": "./.open-next/assets",
+		"directory": ".vercel/output/static",
 		"not_found_handling": "404-page",
 		"binding": "ASSETS"
 	},
@@ -113,6 +110,6 @@
 					"experimental_remote": true
 				}
 			]
-		},
+		}
 	}
 }
