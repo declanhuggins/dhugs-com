@@ -38,7 +38,7 @@ export default async function CategoryIndex() {
 export const metadata: Metadata = {
   title: 'Categories',
   description: 'Browse posts and photo albums by category.',
-  alternates: { canonical: '/category/' },
+  alternates: { canonical: '/category' },
   openGraph: {
     title: 'Categories',
     description: 'Browse posts and photo albums by category.',

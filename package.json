@@ -29,7 +29,7 @@
         "content:all": "npm run content:postsJson && npm run content:albumsIndex && npm run content:searchIndex && npm run content:sitemap && npm run content:redirects",
 
 		"content:redirects": "tsx scripts/generate-redirects.ts",
-		"content:sitemap": "tsx scripts/generate-sitemap.ts",
+        "content:sitemap": "tsx scripts/generate-sitemap.ts",
 		"content:searchIndex": "tsx scripts/generate-search-index.ts",
 		"content:postsJson": "tsx scripts/generate-posts-json.ts",
 		"content:albumsIndex": "tsx scripts/generate-album-index.ts",
@@ -44,7 +44,8 @@
 		
 		"publish:post": "node scripts/publish-post.js",
 
-		"publish:portfolio": "node scripts/publish-portfolio.js",
+        "publish:portfolio": "node scripts/publish-portfolio.js",
+        "publish:home-thumb": "node scripts/publish-home-thumbnail.js",
 
     	"db:edit:tags": "node scripts/edit-post-tags.js",
 

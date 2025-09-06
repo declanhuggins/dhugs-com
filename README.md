@@ -59,7 +59,7 @@ Dev & build
 
 Content pipeline
 - `content:redirects`: set bulk redirects and entry rule from `links/`
-- `content:sitemap`: generate `public/sitemap.xml` and `public/robots.txt`
+- `content:sitemap`: generate `public/sitemap.xml` (index) and `public/sitemaps/` child sitemaps plus `public/robots.txt`
 - `content:searchIndex`: write `dist/data/search-index.json`
 - `content:postsJson`: write `dist/data/posts.json`
 - `content:albumsIndex`: write `dist/data/album-index.json` (uses R2 listing when creds are present; otherwise reads per‑album manifests). `publish:portfolio` writes the portfolio manifest.
@@ -91,6 +91,12 @@ Album (batch)
 
 Markdown post
 - `npm run publish:post` and pick a file from `./posts` with frontmatter
+
+Homepage thumbnail
+- `npm run publish:home-thumb -- --file ./path/to/image.avif` uploads a single image and publishes:
+  - `o/thumbnail.avif` (original/transcoded)
+  - `s/thumbnail.avif` (320w), `m/thumbnail.avif` (640w), `l/thumbnail.avif` (1280w)
+  The homepage Open Graph image uses the large tier at `${CDN_SITE}/l/thumbnail.avif`.
 
 —
 

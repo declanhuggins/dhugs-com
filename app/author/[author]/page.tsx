@@ -72,7 +72,7 @@ export async function generateMetadata(
   const display = getProperAuthorName(author);
   const title = `Posts by ${display}`;
   const description = `Articles and albums by ${display}.`;
-  const canonical = `/author/${author}/`;
+  const canonical = `/author/${author}`;
   return {
     title,
     description,
