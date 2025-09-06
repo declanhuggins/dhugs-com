@@ -108,6 +108,40 @@ async function uploadThumbnail(avifDir, uploaded, destThumbKey, chosenOrPath) {
   return file;
 }
 
+async function generateThumbnailResponsiveSizes(avifDir, chosenOrPath, portfolioRoot) {
+  const bucket = getR2BucketName();
+  const RESPONSIVE_SIZES = { s: 320, m: 640, l: 1280 };
+  const absProvided = chosenOrPath && path.isAbsolute(chosenOrPath) && fs.existsSync(chosenOrPath);
+  // Resolve preferred source (JPG sibling if exists)
+  const pickName = absProvided ? path.basename(chosenOrPath) : chosenOrPath;
+  const srcAvif = absProvided ? chosenOrPath : path.join(avifDir, pickName);
+  const base = (pickName || '').replace(/\.avif$/i,'');
+  const jpgDirGuess = avifDir.endsWith(' Avif') ? avifDir.replace(/ Avif$/,' JPG') : path.join(path.dirname(avifDir), path.basename(avifDir).replace(/Avif$/,'JPG'));
+  const jpgCandidate = path.join(jpgDirGuess, base + '.jpg');
+  const sourcePath = (pickName && fs.existsSync(jpgCandidate)) ? jpgCandidate : srcAvif;
+
+  const meta = await sharp(sourcePath).rotate().metadata();
+  const ow = meta.width || 0;
+  const oh = meta.height || 0;
+  if (!ow || !oh) throw new Error('Unable to read image dimensions for ' + sourcePath);
+  const targetHFromW = Math.floor((ow * 2) / 3);
+  let cw, ch;
+  if (targetHFromW <= oh) { cw = ow; ch = targetHFromW; } else { ch = oh; cw = Math.floor((oh * 3) / 2); }
+  const left = Math.floor((ow - cw) / 2);
+  const top = Math.floor((oh - ch) / 2);
+
+  for (const [tier, width] of Object.entries(RESPONSIVE_SIZES)) {
+    const key = `${tier}/portfolio/thumbnail.avif`;
+    const tmpOut = path.join(process.cwd(), `.thumb-${tier}-${Date.now()}-${Math.random().toString(36).slice(2)}.avif`);
+    try {
+      await sharp(sourcePath).rotate().extract({ left, top, width: cw, height: ch }).resize({ width: Number(width) }).toFormat('avif').toFile(tmpOut);
+      await s3PutFile(bucket, key, tmpOut, 'image/avif');
+    } finally {
+      try { fs.unlinkSync(tmpOut); } catch {}
+    }
+  }
+}
+
 async function generateResponsiveSizes(avifDir, uploaded, portfolioRoot) {
   const bucket = getR2BucketName();
   // Prefer sibling JPG folder as source if available to avoid AVIF decode hiccups
@@ -143,6 +177,26 @@ async function generateResponsiveSizes(avifDir, uploaded, portfolioRoot) {
       } finally { try { fs.unlinkSync(tmp); } catch {} }
     }
   }
+}
+
+async function writeManifestForPortfolio(avifDir, uploaded, portfolioRoot) {
+  const { PutObjectCommand } = await import('@aws-sdk/client-s3');
+  const s3 = await getS3Client();
+  const bucket = getR2BucketName();
+  const images = [];
+  for (const f of uploaded) {
+    const filePath = path.join(avifDir, f);
+    let w = 1600, h = 900;
+    try {
+      const meta = await sharp(filePath).metadata();
+      if (meta.width && meta.height) { w = meta.width; h = meta.height; }
+    } catch {}
+    images.push({ filename: f, width: w, height: h, alt: f });
+  }
+  const body = JSON.stringify({ images });
+  const key = `${portfolioRoot}/images/_manifest.json`;
+  await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: 'application/json', CacheControl: 'public, max-age=60' }));
+  console.log('Wrote portfolio manifest:', key, `(${images.length} images)`);
 }
 
 async function main() {
@@ -202,12 +256,16 @@ async function main() {
     thumbPick = uploaded[idx - 1];
   }
   const thumbKey = `${portfolioRoot}/thumbnail.avif`;
-  await uploadThumbnail(avifDir, uploaded, thumbKey, thumbPick);
+  const picked = await uploadThumbnail(avifDir, uploaded, thumbKey, thumbPick);
   console.log('Uploaded thumbnail.');
 
   // 3) Generate s/m/l variants
   await generateResponsiveSizes(avifDir, uploaded, portfolioRoot);
+  await generateThumbnailResponsiveSizes(avifDir, picked, portfolioRoot);
   console.log('Generated responsive sizes.');
+
+  // 4) Write manifest for album-index generation fallback
+  await writeManifestForPortfolio(avifDir, uploaded, portfolioRoot);
 
   console.log('\nPortfolio publish complete.');
   console.log('- Images prefix:', imagesPrefix);
