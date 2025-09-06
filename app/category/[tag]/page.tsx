@@ -62,7 +62,7 @@ export async function generateMetadata(
   const { getAllPosts } = await import('../../../lib/posts');
   const posts = await getAllPosts();
   const first = posts.find(p => p.tags?.some(t => t.toLowerCase() === norm.toLowerCase()) && p.thumbnail);
-  const img = first?.thumbnail || `${cdn}/o/portfolio/thumbnail.avif`;
+  const img = (first?.thumbnail ? first.thumbnail.replace(/\/o\//, '/l/').replace(/\.avif$/i, '.jpg') : `${cdn}/l/portfolio/thumbnail.jpg`);
   const title = `Posts in ${display}`;
   const description = `Articles and albums tagged “${display}”.`;
   const canonical = `/category/${tag}`;

@@ -121,6 +121,14 @@ async function main() {
     try { fs.unlinkSync(originalTmp); } catch {}
   }
 
+  // Also upload original as JPG to o/thumbnail.jpg
+  const originalJpg = path.join(process.cwd(), `.home-thumb-o-${Date.now()}.jpg`);
+  try {
+    await sharp(abs).rotate().jpeg({ quality: 90, progressive: true }).toFile(originalJpg);
+    await s3PutFile(bucket, 'o/thumbnail.jpg', originalJpg, 'image/jpeg');
+    console.log('Uploaded: o/thumbnail.jpg');
+  } finally { try { fs.unlinkSync(originalJpg); } catch {} }
+
   // 2) Generate s/m/l tiers, handling AVIF decode edge cases
   let resizeSrc = abs;
   let canDecode = true;
@@ -139,22 +147,39 @@ async function main() {
   }
 
   if (!canDecode) {
-    console.warn('Warning: could not decode input for resizing; copying original AVIF to s/m/l.');
+    console.warn('Warning: could not decode input for resizing; copying original AVIF to s/m/l for AVIF, and trying JPG from raster if available.');
     const copySrc = abs; // already AVIF
     for (const tier of Object.keys(RESPONSIVE_SIZES)) {
       await s3PutFile(bucket, `${tier}/thumbnail.avif`, copySrc, 'image/avif');
       console.log(`Uploaded (copy): ${tier}/thumbnail.avif`);
     }
+    const sib = findSiblingRaster(abs);
+    if (sib) {
+      for (const [tier, width] of Object.entries(RESPONSIVE_SIZES)) {
+        const tmpJ = path.join(process.cwd(), `.home-thumb-${tier}-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`);
+        try {
+          await sharp(sib).rotate().resize({ width: Number(width) }).jpeg({ quality: 90, progressive: true }).toFile(tmpJ);
+          await s3PutFile(bucket, `${tier}/thumbnail.jpg`, tmpJ, 'image/jpeg');
+          console.log(`Uploaded: ${tier}/thumbnail.jpg`);
+        } finally { try { fs.unlinkSync(tmpJ); } catch {} }
+      }
+    }
   } else {
     for (const [tier, width] of Object.entries(RESPONSIVE_SIZES)) {
-      const tmp = path.join(process.cwd(), `.home-thumb-${tier}-${Date.now()}-${Math.random().toString(36).slice(2)}.avif`);
+      // AVIF
+      const tmpA = path.join(process.cwd(), `.home-thumb-${tier}-${Date.now()}-${Math.random().toString(36).slice(2)}.avif`);
       try {
-        await sharp(resizeSrc).rotate().resize({ width: Number(width) }).toFormat('avif').toFile(tmp);
-        await s3PutFile(bucket, `${tier}/thumbnail.avif`, tmp, 'image/avif');
+        await sharp(resizeSrc).rotate().resize({ width: Number(width) }).toFormat('avif').toFile(tmpA);
+        await s3PutFile(bucket, `${tier}/thumbnail.avif`, tmpA, 'image/avif');
         console.log(`Uploaded: ${tier}/thumbnail.avif`);
-      } finally {
-        try { fs.unlinkSync(tmp); } catch {}
-      }
+      } finally { try { fs.unlinkSync(tmpA); } catch {} }
+      // JPG
+      const tmpJ = path.join(process.cwd(), `.home-thumb-${tier}-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`);
+      try {
+        await sharp(resizeSrc).rotate().resize({ width: Number(width) }).jpeg({ quality: 90, progressive: true }).toFile(tmpJ);
+        await s3PutFile(bucket, `${tier}/thumbnail.jpg`, tmpJ, 'image/jpeg');
+        console.log(`Uploaded: ${tier}/thumbnail.jpg`);
+      } finally { try { fs.unlinkSync(tmpJ); } catch {} }
     }
   }
 

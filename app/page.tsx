@@ -59,7 +59,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
   // Use a dedicated site thumbnail hosted on the CDN.
   // Keep using the large tier for OG.
-  const ogImage = `${cdn}/l/thumbnail.avif`;
+  const ogImage = `${cdn}/l/thumbnail.jpg`;
   const base = process.env.BASE_URL || 'https://dhugs.com';
   const canonical = '/';
   return {

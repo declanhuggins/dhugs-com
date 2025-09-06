@@ -100,8 +100,15 @@ async function uploadThumbnail(avifDir, uploaded, destThumbKey, chosenOrPath) {
 
   const tmpOut = path.join(process.cwd(), `.thumb-${Date.now()}.avif`);
   try {
+    // AVIF
     await sharp(sourcePath).rotate().extract({ left, top, width: cw, height: ch }).toFormat('avif').toFile(tmpOut);
     await s3PutFile(getR2BucketName(), destThumbKey, tmpOut, 'image/avif');
+    // JPG
+    const tmpJ = path.join(process.cwd(), `.thumb-o-jpg-${Date.now()}.jpg`);
+    try {
+      await sharp(sourcePath).rotate().extract({ left, top, width: cw, height: ch }).jpeg({ quality: 88, progressive: true }).toFile(tmpJ);
+      await s3PutFile(getR2BucketName(), destThumbKey.replace(/\.avif$/i,'.jpg'), tmpJ, 'image/jpeg');
+    } finally { try { fs.unlinkSync(tmpJ); } catch {} }
   } finally {
     try { fs.unlinkSync(tmpOut); } catch {}
   }
@@ -131,14 +138,20 @@ async function generateThumbnailResponsiveSizes(avifDir, chosenOrPath, portfolio
   const top = Math.floor((oh - ch) / 2);
 
   for (const [tier, width] of Object.entries(RESPONSIVE_SIZES)) {
-    const key = `${tier}/portfolio/thumbnail.avif`;
-    const tmpOut = path.join(process.cwd(), `.thumb-${tier}-${Date.now()}-${Math.random().toString(36).slice(2)}.avif`);
+    // AVIF
+    const keyA = `${tier}/portfolio/thumbnail.avif`;
+    const tmpA = path.join(process.cwd(), `.thumb-${tier}-${Date.now()}-${Math.random().toString(36).slice(2)}.avif`);
     try {
-      await sharp(sourcePath).rotate().extract({ left, top, width: cw, height: ch }).resize({ width: Number(width) }).toFormat('avif').toFile(tmpOut);
-      await s3PutFile(bucket, key, tmpOut, 'image/avif');
-    } finally {
-      try { fs.unlinkSync(tmpOut); } catch {}
-    }
+      await sharp(sourcePath).rotate().extract({ left, top, width: cw, height: ch }).resize({ width: Number(width) }).toFormat('avif').toFile(tmpA);
+      await s3PutFile(bucket, keyA, tmpA, 'image/avif');
+    } finally { try { fs.unlinkSync(tmpA); } catch {} }
+    // JPG
+    const keyJ = `${tier}/portfolio/thumbnail.jpg`;
+    const tmpJ = path.join(process.cwd(), `.thumb-${tier}-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`);
+    try {
+      await sharp(sourcePath).rotate().extract({ left, top, width: cw, height: ch }).resize({ width: Number(width) }).jpeg({ quality: 88, progressive: true }).toFile(tmpJ);
+      await s3PutFile(bucket, keyJ, tmpJ, 'image/jpeg');
+    } finally { try { fs.unlinkSync(tmpJ); } catch {} }
   }
 }
 

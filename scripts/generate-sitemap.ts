@@ -111,7 +111,7 @@ async function generateSitemap() {
       changefreq: 'weekly',
       priority: 0.8,
       lastmod: new Date(post.date).toISOString(),
-      img: post.thumbnail ? [{ url: post.thumbnail, title: post.title, caption: post.title }] : undefined,
+      img: post.thumbnail ? [{ url: post.thumbnail.replace(/\/o\//, '/l/').replace(/\.avif$/i, '.jpg'), title: post.title, caption: post.title }] : undefined,
     });
     postLastmod.set(postPath, new Date(post.date).toISOString());
 
