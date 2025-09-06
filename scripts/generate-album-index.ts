@@ -95,12 +95,24 @@ async function main() {
     const res = spawnSync('npx', ['wrangler','r2','object','list', binding, '--env', cfEnv, '--prefix', prefix, '--json'], { encoding: 'utf8' });
     if (res.status !== 0) return [];
     try {
-      const parsed = JSON.parse(res.stdout || '[]');
-      // Support array of objects or wrapped shape
-      const arr: any[] = Array.isArray(parsed) ? parsed : (Array.isArray(parsed?.objects) ? parsed.objects : []);
+      const raw = (res.stdout || '').trim();
+      if (!raw) return [];
+      let arr: any[] = [];
+      // Wrangler may output NDJSON lines; parse line-by-line when array parse fails
+      try {
+        const parsed = JSON.parse(raw);
+        arr = Array.isArray(parsed) ? parsed : (Array.isArray((parsed as any)?.objects) ? (parsed as any).objects : []);
+      } catch {
+        arr = raw
+          .split(/\r?\n/)
+          .map(l => l.trim())
+          .filter(Boolean)
+          .map(l => { try { return JSON.parse(l); } catch { return null; } })
+          .filter(Boolean) as any[];
+      }
       const keys: string[] = [];
       for (const item of arr) {
-        const k = (item && (item.key || item.name || item.Key)) as string | undefined;
+        const k = (item && (item.key || (item as any).name || (item as any).Key)) as string | undefined;
         if (k) keys.push(k);
       }
       return keys;
@@ -117,13 +129,36 @@ async function main() {
     for (const p of prefixes) {
       if (s3) keys = await listAllKeys(s3, String(bucket), p);
       else keys = listKeysViaWrangler(p);
+      if (!keys.length && !s3) {
+        // Try manifest over CDN as a last resort
+        try {
+          const manifestUrl = `${cdnBase}/${p.replace(/\/+$/, '')}/_manifest.json`.replace(/([^:])\/+\/+/g, '$1/');
+          const res = await fetch(manifestUrl);
+          if (res.ok) {
+            const json = await res.json() as { images?: Array<{ filename: string; width?: number; height?: number; alt?: string }> };
+            const images = (json.images || []).map(it => {
+              const url = `${cdnBase}/${albumName}/${it.filename}`.replace(/([^:])\/+\/+/g, '$1/');
+              return { filename: it.filename, largeURL: url, thumbnailURL: url, width: Number(it.width || 1600), height: Number(it.height || 900), alt: it.alt || it.filename } as AlbumImage;
+            });
+            if (images.length) {
+              index[albumName] = images;
+              break; // manifest satisfied this album
+            }
+          }
+        } catch {}
+      }
       if (keys.length) {
-        const filtered = keys.filter(k => {
+        let filtered = keys.filter(k => {
           if (k.endsWith('/_meta.json')) return false;
           const dot = k.lastIndexOf('.');
           const ext = dot >= 0 ? k.slice(dot).toLowerCase() : '';
           return allowedExtensions.has(ext);
         });
+        // If we matched the fallback prefix (without '/images'), keep only images/* files
+        if (p !== prefix) {
+          const imagesPrefix = (p.endsWith('/') ? p : p + '/') + 'images/';
+          filtered = filtered.filter(k => k.startsWith(imagesPrefix));
+        }
         const images: AlbumImage[] = await Promise.all(filtered.map(async (key) => {
           let width = 1600;
           let height = 900;
@@ -147,7 +182,9 @@ async function main() {
       }
     }
     if (!index[albumName]) {
-      throw new Error(`No images found for album '${albumName}'. Ensure objects exist under '${prefixes[0]}' or '${prefixes[1]}'.`);
+      // Final fallback: include just the thumbnail so album pages don’t break
+      const thumbUrl = `${cdnBase}/${albumName.replace(/\/images\/?$/, '')}/thumbnail.avif`.replace(/([^:])\/+\/+/g, '$1/');
+      index[albumName] = [{ filename: 'thumbnail.avif', largeURL: thumbUrl, thumbnailURL: thumbUrl, width: 1600, height: 900, alt: 'thumbnail' }];
     }
   }
 
