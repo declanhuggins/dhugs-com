@@ -20,14 +20,75 @@ type BM25IndexV3 = { v: 3; N: number; avdl: number; df: number[]; vocab: Record<
 type BM25Index = BM25IndexV2 | BM25IndexV3;
 type LegacyIndexItem = DocMeta & { h: string };
 
-import searchIndex from '../../../dist/data/search-index.json';
+let cachedIndex: { data: BM25Index | LegacyIndexItem[]; ts: number } | null = null;
+const INDEX_TTL_MS = 5 * 60 * 1000;
+
+async function loadIndex(reqUrl: string): Promise<BM25Index | LegacyIndexItem[]> {
+  const now = Date.now();
+  if (cachedIndex && (now - cachedIndex.ts) < INDEX_TTL_MS) return cachedIndex.data;
+  const assetPath = '/search-index.json';
+
+  // Try Cloudflare ASSETS (prod worker)
+  try {
+    type CloudflareContext = { env?: Record<string, unknown> };
+    type OpenNextCloudflare = { getCloudflareContext?: (opts?: { async?: boolean }) => Promise<CloudflareContext> };
+    let env: Record<string, unknown> | undefined;
+    try {
+      const mod = (await import('@opennextjs/cloudflare')) as unknown as OpenNextCloudflare;
+      const ctx = await mod.getCloudflareContext?.({ async: true });
+      env = ctx?.env;
+    } catch {
+      const g = globalThis as Record<string | symbol, unknown>;
+      const cfCtxSym = Symbol.for('__cloudflare-context__');
+      const ctx = g[cfCtxSym] as { env?: Record<string, unknown> } | undefined;
+      env = ctx?.env;
+    }
+    const assets = env?.ASSETS as unknown as { fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response> } | undefined;
+    if (assets && typeof assets.fetch === 'function') {
+      const req = new Request(new URL(assetPath, reqUrl));
+      const res = await assets.fetch(req);
+      if (res && res.ok) {
+        const json = await res.json() as unknown;
+        const hasVersion = !!(json && typeof json === 'object' && Object.prototype.hasOwnProperty.call(json as object, 'v'));
+        const data = hasVersion ? (json as BM25Index) : (json as LegacyIndexItem[]);
+        cachedIndex = { data, ts: now };
+        return data;
+      }
+    }
+  } catch {}
+
+  // Node dev: read from filesystem
+  if (typeof process !== 'undefined' && process.release?.name === 'node') {
+    try {
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
+      const file = path.join(process.cwd(), 'dist', 'data', 'search-index.json');
+      const content = await fs.readFile(file, 'utf8');
+      const json = JSON.parse(content) as unknown;
+      const hasVersion = !!(json && typeof json === 'object' && Object.prototype.hasOwnProperty.call(json as object, 'v'));
+      const data = hasVersion ? (json as BM25Index) : (json as LegacyIndexItem[]);
+      cachedIndex = { data, ts: now };
+      return data;
+    } catch {}
+  }
+
+  // Fallback: same-origin HTTP (cached at edge)
+  const url = new URL(assetPath, reqUrl);
+  const res = await fetch(url, { cf: { cacheEverything: true, cacheTtl: 3600 } } as RequestInit & { cf?: { cacheEverything?: boolean; cacheTtl?: number } });
+  if (!res.ok) return [] as LegacyIndexItem[];
+  const json = await res.json() as unknown;
+  const hasVersion = !!(json && typeof json === 'object' && Object.prototype.hasOwnProperty.call(json as object, 'v'));
+  const data = hasVersion ? (json as BM25Index) : (json as LegacyIndexItem[]);
+  cachedIndex = { data, ts: now };
+  return data;
+}
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const qRaw = (url.searchParams.get('q') || '').trim();
   if (!qRaw) return NextResponse.json([] as Post[], { status: 200, headers: { 'Cache-Control': 'public, max-age=0, s-maxage=600' } });
   const q = qRaw.toLowerCase();
-  const data = searchIndex as unknown as (BM25Index | LegacyIndexItem[]);
+  const data = await loadIndex(req.url);
   if (Array.isArray(data)) {
     const results: Post[] = [];
     for (const item of data) {
