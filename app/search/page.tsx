@@ -75,6 +75,19 @@ function scoreLegacy(list: LegacyIndexItem[], terms: string[]): Post[] {
   const q = terms.join(' ');
   const out: Post[] = [];
   for (const item of list) if (item.h.includes(q)) {
+    // Normalize legacy tags which may be serialized as a JSON string
+    let normTags: string[] | undefined = undefined;
+    if (Array.isArray(item.tags)) normTags = item.tags;
+    else if (typeof (item as unknown as { tags?: unknown }).tags === 'string') {
+      const s = String((item as unknown as { tags?: string }).tags);
+      try {
+        normTags = s.trim().startsWith('[')
+          ? (JSON.parse(s) as unknown[]).map(x => String(x))
+          : s.split(/[,|]+/).map(x => x.trim()).filter(Boolean);
+      } catch {
+        normTags = s.split(/[,|]+/).map(x => x.trim()).filter(Boolean);
+      }
+    }
     out.push({
       path: item.path,
       slug: item.slug,
@@ -83,7 +96,7 @@ function scoreLegacy(list: LegacyIndexItem[], terms: string[]): Post[] {
       timezone: item.timezone,
       excerpt: item.excerpt,
       content: '',
-      tags: item.tags,
+      tags: normTags,
       author: item.author,
       thumbnail: item.thumbnail,
       width: (item.width || 'medium') as Post['width'],
@@ -121,7 +134,18 @@ function SearchResultsContent() {
       const normalized = results.map((p) => {
         let t: string[] | undefined = undefined;
         if (Array.isArray(p.tags)) {
-          t = p.tags;
+          // Handle bad shape: ["[\"Tag1\",\"Tag2\"]"]
+          if (p.tags.length === 1) {
+            const only = String(p.tags[0] ?? '').trim();
+            if (only.startsWith('[')) {
+              try { t = (JSON.parse(only) as unknown[]).map(x => String(x)); }
+              catch { t = [only]; }
+            } else {
+              t = p.tags.map(x => String(x));
+            }
+          } else {
+            t = p.tags.map(x => String(x));
+          }
         } else {
           const rawTags: unknown = (p as unknown as { tags?: unknown }).tags;
           if (typeof rawTags === 'string') {
