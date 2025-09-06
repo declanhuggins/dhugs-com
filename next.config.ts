@@ -21,13 +21,11 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   poweredByHeader: false,
   images: {
-    unoptimized: true, // Cloudflare Workers disallow Node image optimizer (new Function/eval)
+    // Keep images unoptimized — assets are pre-generated on the CDN.
+    // Flip to `unoptimized: false` to use Next's image optimizer in Node.
+    unoptimized: true,
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: cdnHost,
-        pathname: '/**',
-      },
+      { protocol: 'https', hostname: cdnHost, pathname: '/**' },
     ],
   },
   async headers() {
@@ -75,6 +73,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
-initOpenNextCloudflareForDev();
