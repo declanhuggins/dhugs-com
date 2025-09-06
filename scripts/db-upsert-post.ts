@@ -56,6 +56,8 @@ async function main() {
   const pathSeg = `${yyyy}/${mm}/${slug}`;
 
   // Insert with empty content first to avoid oversized SQL literals, then append in chunks.
+  const cdn = process.env.CDN_SITE || '';
+  const defaultThumb = data.thumbnail || (cdn ? `${cdn}/o/${yyyy}/${mm}/${slug}/thumbnail.avif` : undefined);
   const insertPost = `INSERT INTO posts (path,slug,type,title,author,excerpt,content,date_utc,timezone,width,thumbnail,download_url)
     VALUES (
       ${esc(pathSeg)},
@@ -68,7 +70,7 @@ async function main() {
       ${esc(dateIso(data.date).iso)},
       ${esc(dateIso(data.date).timezone)},
       ${esc(data.width || 'medium')},
-      ${esc(data.thumbnail)},
+      ${esc(defaultThumb)},
       ${esc(data.downloadUrl)}
     ) ON CONFLICT(path) DO UPDATE SET title=excluded.title,author=excluded.author,excerpt=excluded.excerpt,date_utc=excluded.date_utc,timezone=excluded.timezone,width=excluded.width,thumbnail=excluded.thumbnail,download_url=excluded.download_url;`;
 

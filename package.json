@@ -1,6 +1,6 @@
 {
 	"name": "dhugs-com",
-	"version": "3.0.0",
+	"version": "3.1.0",
 	"private": true,
 	"scripts": {
 		"dev": "next dev --turbopack",
@@ -36,11 +36,12 @@
 		
 		"content:sitemap": "tsx scripts/generate-sitemap.ts",
 		"content:searchIndex": "tsx scripts/generate-search-index.ts",
+		"content:postsJson": "tsx scripts/generate-posts-json.ts",
 		"content:images": "tsx scripts/generate-image-versions.ts",
 		"link:add": "tsx scripts/add-link.ts",
 		
 
-		"content:all": "npm run content:redirects && npm run content:sitemap && npm run content:searchIndex",
+		"content:all": "npm run content:redirects && npm run content:sitemap && npm run content:searchIndex && npm run content:postsJson",
 
 		"publish:album": "node scripts/publish-album.js",
 		
@@ -51,8 +52,7 @@
 		"publish:portfolio": "node scripts/publish-portfolio.js",
 
 		"prepare:album": "node scripts/prepare-album-folder.js",
-		"db:edit:tags": "node scripts/edit-post-tags.js",
-		"db:reset-ids": "node scripts/reset-ids.js",
+    	"db:edit:tags": "node scripts/edit-post-tags.js",
 
 		"tree": "bash -c 'pattern=\"$(( sed \"/^\\s*#/d;/^$/d\" .gitignore; echo .next; echo node_modules; echo dist ) | tr \"\\n\" \"|\" | sed \"s/|$//\")\"; tree -I \"$pattern\" > file-structure.txt'",
 		"browse": "tsx scripts/selenium-browse.ts",

@@ -68,7 +68,9 @@ function main() {
     const yyyy = String(d.getUTCFullYear());
     const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
     const pathSeg = `${yyyy}/${mm}/${slug}`;
-    rows.push({ slug, path: pathSeg, title: data.title || slug, author: data.author || 'Unknown Author', excerpt: data.excerpt || null, content, iso, tz, width: data.width || 'medium', thumbnail: data.thumbnail || null, downloadUrl: data.downloadUrl || null, tags: Array.isArray(data.tags) ? data.tags : [] });
+    const cdn = process.env.CDN_SITE || '';
+    const defaultThumb = cdn ? `${cdn}/o/${yyyy}/${mm}/${slug}/thumbnail.avif` : null;
+    rows.push({ slug, path: pathSeg, title: data.title || slug, author: data.author || 'Unknown Author', excerpt: data.excerpt || null, content, iso, tz, width: data.width || 'medium', thumbnail: data.thumbnail || defaultThumb, downloadUrl: data.downloadUrl || null, tags: Array.isArray(data.tags) ? data.tags : [] });
   }
   if (!rows.length) { console.log('No markdown posts found.'); return; }
   const binding = process.env.D1_BINDING || 'D1_POSTS';

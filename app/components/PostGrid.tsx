@@ -19,9 +19,16 @@ export default function PostGrid({ posts }: PostGridProps) {
       return src.replace(/\/o\//, '/m/');
     }
   };
+  const mediumThumb = (post: Post): string => {
+    // Build m/YYYY/MM/slug/thumbnail.avif for card thumbnails
+    const d = new Date(post.date);
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    return `${cdn}/m/${y}/${m}/${post.slug}/thumbnail.avif`;
+  };
   return (
     <div className={styles.grid}>
-      {posts.map((post) => (
+      {posts.map((post, idx) => (
         <PostPreview
           key={post.path || `${new Date(post.date).getUTCFullYear()}/${String(new Date(post.date).getUTCMonth()+1).padStart(2,'0')}/${post.slug}`}
           slug={post.slug}
@@ -29,9 +36,10 @@ export default function PostGrid({ posts }: PostGridProps) {
           author={post.author}
           date={post.date}
           timezone={post.timezone}
-          imageSrc={`${cdn}/m/extras/thumbnails/${post.slug}.avif`}
+          imageSrc={mediumThumb(post)}
           thumbnail={toMediumThumb(post.thumbnail)}
           tags={post.tags}
+          priority={idx < 2}
         />
       ))}
     </div>

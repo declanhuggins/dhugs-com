@@ -46,7 +46,7 @@ function scanAlbums(root) {
           date_utc: iso,
           timezone: tz,
           width: meta.width || 'large',
-          thumbnail: process.env.CDN_SITE ? `${process.env.CDN_SITE}/albums/${year}/${month}/${slug}/thumbnail.avif` : null,
+          thumbnail: process.env.CDN_SITE ? `${process.env.CDN_SITE}/o/${year}/${month}/${slug}/thumbnail.avif` : null,
           downloadUrl: meta.downloadUrl || null,
           tags: Array.isArray(meta.tags) ? meta.tags : [],
         });
