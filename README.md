@@ -1,13 +1,13 @@
 # dhugs-com — Architecture, Data, and Workflows
 
-Static Next.js (App Router) site deployed to Cloudflare Workers via OpenNext. Content metadata lives in Cloudflare D1; images live in Cloudflare R2; the site builds to fully static assets and RSC payloads.
+Static Next.js (App Router) site deployed to Cloudflare Workers via Wrangler. Content metadata lives in Cloudflare D1; images live in Cloudflare R2; the site builds to fully static assets and RSC payloads.
 
 —
 
 ## Stack & Infra
 
 - Next.js 15 (App Router), React 19, Tailwind
-- OpenNext Cloudflare worker (`.open-next/worker.js`), `wrangler` for deploy
+- Wrangler + Workers (static export served via Worker assets)
 - D1 (binding `D1_POSTS`) for posts metadata
 - R2 (binding `R2_ASSETS`) for originals and responsive variants
 - Static assets served by Cloudflare ASSETS binding; CDN host: `CDN_SITE`
@@ -43,7 +43,7 @@ Mirrored size prefixes: `o/` (originals), `s/`, `m/`, `l/`.
 - Pages are static by default (`dynamic = 'force-static'`).
 - lib/posts.ts imports `dist/data/posts.json`; no runtime DB reads.
 - lib/album.ts imports `dist/data/album-index.json`; no runtime bucket listing.
-- app/api/search reads `dist/data/search-index.json`.
+- Search happens entirely client-side: the search page fetches `/search-index.json` and ranks locally.
 - SEO: per-page `generateMetadata` with Open Graph image (post thumbnail or fallback).
 - Sitemap: `public/sitemap.xml` with trailing slashes, lastmod, and image entries.
 
@@ -53,9 +53,9 @@ Mirrored size prefixes: `o/` (originals), `s/`, `m/`, `l/`.
 
 Dev & build
 - `dev`: Next dev with Turbopack
-- `build:dev` / `build:prod`: run content generation → OpenNext build → wrangler build
-- `preview:dev` / `preview`: dev server for the worker with bindings
-- `deploy:dev` / `deploy`: deploy worker (dev/prod)
+- `build:dev` / `build:prod`: run content generation → Next build → static export to `out/` → `wrangler build`
+- `preview:dev` / `preview`: local Worker dev via Wrangler with asset serving from `out/`
+- `deploy:dev` / `deploy`: deploy Worker via Wrangler
 
 Content pipeline
 - `content:redirects`: set bulk redirects and entry rule from `links/`
@@ -105,9 +105,8 @@ Markdown post
 - `AWS_ACCESS_KEY_ID_WRITE`, `AWS_SECRET_ACCESS_KEY_WRITE` (write)
 - `CLOUDFLARE_ACCOUNT_ID`, `BASE_URL`, `BASE_URL_2`
 
-Cloudflare (prod/dev env)
-- Bindings: `ASSETS`, `D1_POSTS`, `R2_ASSETS`
-- Secrets: same keys as above
+Cloudflare (Workers)
+- Bindings configured in `wrangler.jsonc` (D1, R2, vars, secrets store). Scripts also use Wrangler for content tools.
 
 —
 
@@ -130,13 +129,15 @@ Cloudflare (prod/dev env)
 
 —
 
-## How to Fork/Clone & Deploy
+## How to Run / Deploy
 
 1) Fork and clone repo; `npm install`
-2) Create `.env` with the variables above
-3) Configure `wrangler.jsonc` bindings (D1, R2, ASSETS) and routes
-4) `npm run preview:dev` to validate locally
-5) `npm run deploy:dev` / `npm run deploy` to publish
+2) Create `.env` with the variables above (for content tooling)
+3) Generate content snapshots: `npm run content:all`
+4) Local dev (Node): `npm run dev`
+5) Local Worker preview (dev env): `npm run preview:dev`
+6) Deploy dev: `npm run deploy:dev`
+7) Deploy production: `npm run deploy`
 
 —
 

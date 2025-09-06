@@ -1,13 +1,14 @@
 import Image from 'next/image';
 
 export default function AboutPage() {
+  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
   return (
     <div>
       <h1 className="text-3xl font-bold mb-8 text-center">About</h1>
       <article className="space-y-6">
         <div className="w-full mx-auto md:w-[40%] md:float-left md:mr-4 md:mb-4">
           <Image
-            src={`${process.env.CDN_SITE}/l/about/AboutOne.avif`}
+            src={`${cdn}/l/about/AboutOne.avif`}
             alt="About photo one"
             width={500}
             height={500}
@@ -24,7 +25,7 @@ export default function AboutPage() {
         </p>
         <div className="w-full mx-auto md:w-[30%] md:float-right md:ml-4 md:mb-4">
           <Image
-            src={`${process.env.CDN_SITE}/l/about/AboutTwo.avif`}
+            src={`${cdn}/l/about/AboutTwo.avif`}
             alt="About photo two"
             width={500}
             height={500}
