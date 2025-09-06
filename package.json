@@ -34,6 +34,7 @@
 		"content:postsJson": "tsx scripts/generate-posts-json.ts",
 		"content:albumsIndex": "tsx scripts/generate-album-index.ts",
 		"content:images": "tsx scripts/generate-image-versions.ts",		
+		"albums:backfill:manifests": "tsx scripts/backfill-album-manifests.ts",
 
 		"prepare:album": "node scripts/prepare-album-folder.js",
 

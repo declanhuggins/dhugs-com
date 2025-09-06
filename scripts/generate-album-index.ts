@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { S3Client, ListObjectsV2Command, HeadObjectCommand, ListObjectsV2CommandOutput } from '@aws-sdk/client-s3';
-import { spawnSync } from 'node:child_process';
 
 dotenv.config({ path: '.env', quiet: true });
 
@@ -88,65 +87,34 @@ async function main() {
     s3 = new S3Client({ region, endpoint, forcePathStyle: true, credentials: { accessKeyId, secretAccessKey } });
   }
 
-  const cfEnv = process.env.CF_ENV || 'prod';
-
-  function listKeysViaWrangler(prefix: string): string[] {
-    const binding = 'R2_ASSETS';
-    const res = spawnSync('npx', ['wrangler','r2','object','list', binding, '--env', cfEnv, '--prefix', prefix, '--json'], { encoding: 'utf8' });
-    if (res.status !== 0) return [];
-    try {
-      const raw = (res.stdout || '').trim();
-      if (!raw) return [];
-      let arr: any[] = [];
-      // Wrangler may output NDJSON lines; parse line-by-line when array parse fails
-      try {
-        const parsed = JSON.parse(raw);
-        arr = Array.isArray(parsed) ? parsed : (Array.isArray((parsed as any)?.objects) ? (parsed as any).objects : []);
-      } catch {
-        arr = raw
-          .split(/\r?\n/)
-          .map(l => l.trim())
-          .filter(Boolean)
-          .map(l => { try { return JSON.parse(l); } catch { return null; } })
-          .filter(Boolean) as any[];
-      }
-      const keys: string[] = [];
-      for (const item of arr) {
-        const k = (item && (item.key || (item as any).name || (item as any).Key)) as string | undefined;
-        if (k) keys.push(k);
-      }
-      return keys;
-    } catch {
-      return [];
-    }
-  }
 
   const index: AlbumIndex = {};
   for (const albumName of albums) {
     const prefix = albumName.endsWith('/') ? albumName : `${albumName}/`;
     const prefixes = [prefix, prefix.replace(/\/images\/?$/, '/')];
     let keys: string[] = [];
+    // If we don't have S3 creds (CI build), prefer manifest first (single request)
+    if (!s3) {
+      try {
+        const manifestUrl = `${cdnBase}/${albumName}/_manifest.json`.replace(/([^:])\/+\/+/g, '$1/');
+        const res = await fetch(manifestUrl, { cache: 'no-cache' });
+        if (res.ok) {
+          const json = await res.json() as { images?: Array<{ filename: string; width?: number; height?: number; alt?: string }> };
+          const images = (json.images || []).map(it => {
+            const url = `${cdnBase}/${albumName}/${it.filename}`.replace(/([^:])\/+\/+/g, '$1/');
+            return { filename: it.filename, largeURL: url, thumbnailURL: url, width: Number(it.width || 1600), height: Number(it.height || 900), alt: it.alt || it.filename } as AlbumImage;
+          });
+          if (images.length) {
+            index[albumName] = images;
+            continue; // next album
+          }
+        }
+      } catch {}
+    }
+
     for (const p of prefixes) {
       if (s3) keys = await listAllKeys(s3, String(bucket), p);
-      else keys = listKeysViaWrangler(p);
-      if (!keys.length && !s3) {
-        // Try manifest over CDN as a last resort
-        try {
-          const manifestUrl = `${cdnBase}/${p.replace(/\/+$/, '')}/_manifest.json`.replace(/([^:])\/+\/+/g, '$1/');
-          const res = await fetch(manifestUrl);
-          if (res.ok) {
-            const json = await res.json() as { images?: Array<{ filename: string; width?: number; height?: number; alt?: string }> };
-            const images = (json.images || []).map(it => {
-              const url = `${cdnBase}/${albumName}/${it.filename}`.replace(/([^:])\/+\/+/g, '$1/');
-              return { filename: it.filename, largeURL: url, thumbnailURL: url, width: Number(it.width || 1600), height: Number(it.height || 900), alt: it.alt || it.filename } as AlbumImage;
-            });
-            if (images.length) {
-              index[albumName] = images;
-              break; // manifest satisfied this album
-            }
-          }
-        } catch {}
-      }
+      // no else branch: without S3 we rely on manifest (above)
       if (keys.length) {
         let filtered = keys.filter(k => {
           if (k.endsWith('/_meta.json')) return false;
