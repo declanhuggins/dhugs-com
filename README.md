@@ -96,7 +96,10 @@ Homepage thumbnail
 - `npm run publish:home-thumb -- --file ./path/to/image.avif` uploads a single image and publishes:
   - `o/thumbnail.avif` (original/transcoded)
   - `s/thumbnail.avif` (320w), `m/thumbnail.avif` (640w), `l/thumbnail.avif` (1280w)
-  The homepage Open Graph image uses the large tier at `${CDN_SITE}/l/thumbnail.avif`.
+  The homepage Open Graph image uses the large tier at `${CDN_SITE}/l/thumbnail.jpg`.
+
+Thumbnail JPG backfill
+- `npm run thumbnails:backfill:jpg` scans `o/`, `s/`, `m/`, and `l/` for `thumbnail.avif` objects and writes a sibling `thumbnail.jpg` if missing. This ensures all OG images can reference JPG variants.
 
 —
 

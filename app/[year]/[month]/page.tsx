@@ -137,7 +137,7 @@ export async function generateMetadata(
     const m = d.toLocaleString('en-US', { timeZone: p.timezone, month: '2-digit' });
     return y === year && m === month && p.thumbnail;
   });
-  const img = hit?.thumbnail || `${cdn}/o/portfolio/thumbnail.avif`;
+  const img = (hit?.thumbnail ? hit.thumbnail.replace(/\/o\//, '/l/').replace(/\.avif$/i, '.jpg') : `${cdn}/l/portfolio/thumbnail.jpg`);
   const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString('en-US', { month: 'long' });
   const title = `Archive – ${monthName} ${year}`;
   const description = `Posts from ${monthName} ${year} on Declan Huggins.`;

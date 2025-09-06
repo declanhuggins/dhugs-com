@@ -29,7 +29,7 @@ export default async function PortfolioPage() {
 export async function generateMetadata(): Promise<Metadata> {
   const base = process.env.BASE_URL || 'https://dhugs.com';
   const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
-  const img = `${cdn}/o/portfolio/thumbnail.avif`;
+  const img = `${cdn}/l/portfolio/thumbnail.jpg`;
   const canonical = '/portfolio';
   return {
     title: 'Portfolio',

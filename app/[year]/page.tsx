@@ -88,7 +88,7 @@ export async function generateMetadata(
   const { getAllPosts } = await import('../../lib/posts');
   const posts = await getAllPosts();
   const first = posts.find(p => new Date(p.date).getFullYear().toString() === year && p.thumbnail);
-  const img = first?.thumbnail || `${cdn}/o/portfolio/thumbnail.avif`;
+  const img = (first?.thumbnail ? first.thumbnail.replace(/\/o\//, '/l/').replace(/\.avif$/i, '.jpg') : `${cdn}/l/portfolio/thumbnail.jpg`);
   const canonical = `/${year}/`;
   const title = `Archive – ${year}`;
   const description = `Posts from ${year} on Declan Huggins.`;

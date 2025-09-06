@@ -68,7 +68,7 @@ export async function generateMetadata(
   const { getProperAuthorName, getAllPosts } = await import('../../../lib/posts');
   const posts = await getAllPosts();
   const first = posts.find(p => p.thumbnail && (p.author && author === (p.author.toLowerCase().replace(/\s+/g,'-'))));
-  const img = first?.thumbnail || `${cdn}/o/portfolio/thumbnail.avif`;
+  const img = (first?.thumbnail ? first.thumbnail.replace(/\/o\//, '/l/').replace(/\.avif$/i, '.jpg') : `${cdn}/l/portfolio/thumbnail.jpg`);
   const display = getProperAuthorName(author);
   const title = `Posts by ${display}`;
   const description = `Articles and albums by ${display}.`;
