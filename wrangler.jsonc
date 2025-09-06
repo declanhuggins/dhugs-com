@@ -3,6 +3,7 @@
 	"name": "dhugs-com",
 	"compatibility_date": "2025-09-06",
 	"compatibility_flags": ["nodejs_compat"],
+	"main": ".vercel/output/static/_worker.js",
 	"assets": {
 		"directory": ".vercel/output/static",
 		"not_found_handling": "404-page",
