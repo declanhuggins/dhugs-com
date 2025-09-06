@@ -341,6 +341,26 @@ async function main() {
   // 3) Generate responsive sizes only for this album (s/m/l)
   await generateResponsiveSizes(avifDir, uploaded, albumRoot);
 
+  // 3.5) Write a manifest for build-time album-index generation in CI without S3 creds
+  try {
+    const manifest = [];
+    for (const f of uploaded) {
+      const p = path.join(avifDir, f);
+      let w = 1600, h = 900;
+      try { const info = await sharp(p).metadata(); if (info.width) w = info.width; if (info.height) h = info.height; } catch {}
+      manifest.push({ filename: f, width: w, height: h, alt: f });
+    }
+    const tmpManifest = path.join(process.cwd(), `.manifest-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
+    fs.writeFileSync(tmpManifest, JSON.stringify({ images: manifest }));
+    const bucket = getR2BucketName();
+    const key = `${imagesPrefix}/_manifest.json`;
+    await s3PutFile(bucket, key, tmpManifest, 'application/json');
+    try { fs.unlinkSync(tmpManifest); } catch {}
+    console.log('Uploaded album manifest ->', key);
+  } catch (e) {
+    console.warn('Warning: failed to upload album manifest:', e.message || e);
+  }
+
   // Optional: sync mode deletes any existing objects not present in the uploaded set
   const doSync = Object.prototype.hasOwnProperty.call(args, 'sync') || Object.prototype.hasOwnProperty.call(args, 'delete_missing');
   if (doSync) {
