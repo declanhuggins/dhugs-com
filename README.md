@@ -24,7 +24,7 @@ Tables
 Build snapshot
 - `npm run content:postsJson` writes `dist/data/posts.json`
 - `npm run content:searchIndex` writes `dist/data/search-index.json` (BM25-like index)
-- `npm run content:albumsIndex` writes `dist/data/album-index.json` (album images list)
+- `npm run content:albumsIndex` writes `dist/data/album-index.json` (album images list). If R2 credentials are not available, this uses per‑album `_manifest.json` files at `o/<album>/images/_manifest.json` on the CDN. The `publish:portfolio` script writes the manifest for the `o/portfolio/images` album so portfolio content works without creds.
 
 —
 
@@ -62,7 +62,7 @@ Content pipeline
 - `content:sitemap`: generate `public/sitemap.xml` and `public/robots.txt`
 - `content:searchIndex`: write `dist/data/search-index.json`
 - `content:postsJson`: write `dist/data/posts.json`
-- `content:albumsIndex`: write `dist/data/album-index.json`
+- `content:albumsIndex`: write `dist/data/album-index.json` (uses R2 listing when creds are present; otherwise reads per‑album manifests). `publish:portfolio` writes the portfolio manifest.
 
 Publishing
 - `publish:album`: single album (uploads to R2, pick thumbnail, generate variants, upsert D1)

@@ -37,9 +37,9 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
   const toMedium = (src: string): string => {
     try {
       const u = new URL(src);
-      return u.origin + u.pathname.replace(/\/o\//, '/m/');
+      return u.origin + u.pathname.replace(/\/(o|l|s)\//, '/m/');
     } catch {
-      return src.replace(/\/o\//, '/m/');
+      return src.replace(/\/(o|l|s)\//, '/m/');
     }
   };
   const imagesWithIndex = React.useMemo<IndexedImage[]>(

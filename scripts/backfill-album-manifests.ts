@@ -27,6 +27,8 @@ async function main() {
   const postsJson = path.join(process.cwd(), 'dist', 'data', 'posts.json');
   const arr = JSON.parse(await fs.readFile(postsJson, 'utf8')) as Post[];
   const albums = arr.filter(p => (p.content ?? '') === '' && p.path).map(p => String(p.path));
+  // Always include the special portfolio album
+  albums.push('portfolio');
   if (!albums.length) {
     console.log('No albums detected in dist/data/posts.json');
     return;
@@ -42,7 +44,7 @@ async function main() {
   const allowed = new Set(['.jpg','.jpeg','.png','.avif']);
   let total = 0;
   for (const p of albums) {
-    const imagesPrefix = `o/${p}/images/`;
+    const imagesPrefix = p === 'portfolio' ? `o/portfolio/images/` : `o/${p}/images/`;
     const keys = (await listAll(s3, bucket, imagesPrefix))
       .filter(k => !k.endsWith('/_manifest.json') && !k.endsWith('/_meta.json'))
       .filter(k => {
@@ -75,4 +77,3 @@ async function main() {
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
-
