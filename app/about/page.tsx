@@ -57,7 +57,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'About',
   description: 'Learn more about Declan Huggins, a computer scientist and photographer at Notre Dame.',
-  alternates: { canonical: '/about/' },
+  alternates: { canonical: '/about' },
   openGraph: {
     title: 'About',
     description: 'Learn more about Declan Huggins, a computer scientist and photographer at Notre Dame.',

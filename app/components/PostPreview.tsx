@@ -65,7 +65,7 @@ export default function PostPreview({ title, author, date, timezone, imageSrc, t
             {displayTags.map((tag, index) => (
               <Link 
                 key={index} 
-                href={`/category/${tagToSlug(tag)}/`} 
+                href={`/category/${tagToSlug(tag)}`} 
                 className={styles.tag}
               >
                 {tag}
