@@ -59,7 +59,24 @@ function tokenize(text: string, weight = 1): string[] {
 }
 
 function buildDocTokens(r: Row): { tf: Map<string, number>; dl: number; meta: DocMeta } {
-  const tagsArr = (r.tags ? String(r.tags).split('||').filter(Boolean) : []) as string[];
+  // Normalize tags into a real array
+  let tagsArr: string[] = [];
+  if (r.tags != null) {
+    const raw = String(r.tags).trim();
+    try {
+      if (raw.startsWith('[')) {
+        const arr = JSON.parse(raw) as unknown[];
+        tagsArr = arr.map(v => String(v)).map(s => s.trim()).filter(s => s && !/^(null|undefined)$/i.test(s));
+      } else if (raw.includes('||')) {
+        tagsArr = raw.split('||').map(s => s.trim()).filter(Boolean);
+      } else if (raw.length) {
+        tagsArr = raw.split(',').map(s => s.trim()).filter(Boolean);
+      }
+      if (tagsArr.length) tagsArr = Array.from(new Set(tagsArr));
+    } catch {
+      // ignore
+    }
+  }
   const title = normalize(r.title);
   const excerpt = normalize(r.excerpt);
   const content = normalize(r.content);

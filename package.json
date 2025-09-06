@@ -21,9 +21,6 @@
 		"db:migration:new": "npx wrangler d1 migrations create D1_POSTS",
 		"db:migrate": "npx wrangler d1 migrations apply D1_POSTS",
 		"db:migrate:remote": "npx wrangler d1 --env prod migrations apply D1_POSTS --remote",
-        
-
-        
             
         "db:upsert:post": "tsx scripts/db-upsert-post.ts",
         "db:upsert:album": "tsx scripts/db-upsert-album.ts",

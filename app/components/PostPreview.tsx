@@ -33,6 +33,24 @@ export default function PostPreview({ title, author, date, timezone, imageSrc, t
     timeZone: timezone
   });
   const imgSrc = thumbnail || imageSrc;
+  const normalizeTags = (t?: string[] | string): string[] | undefined => {
+    if (!t) return undefined;
+    if (Array.isArray(t)) {
+      if (t.length === 1) {
+        const only = String(t[0] ?? '').trim();
+        if (only.startsWith('[')) {
+          try { return (JSON.parse(only) as unknown[]).map(x => String(x)); } catch { return [only]; }
+        }
+      }
+      return t.map(x => String(x));
+    }
+    const s = String(t).trim();
+    try {
+      if (s.startsWith('[')) return (JSON.parse(s) as unknown[]).map(x => String(x));
+    } catch {}
+    return s.split(/[,|]+/).map(x => x.trim()).filter(Boolean);
+  };
+  const displayTags = normalizeTags(tags);
 
   return (
     <article className={styles.wrapper}>
@@ -42,9 +60,9 @@ export default function PostPreview({ title, author, date, timezone, imageSrc, t
             {title}
           </Link>
         </h2>
-        {tags && tags.length > 0 && (
+        {displayTags && displayTags.length > 0 && (
           <div className={styles.tags}>
-            {tags.map((tag, index) => (
+            {displayTags.map((tag, index) => (
               <Link 
                 key={index} 
                 href={`/category/${tagToSlug(tag)}/`} 

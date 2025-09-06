@@ -26,6 +26,25 @@ export default function PostGrid({ posts }: PostGridProps) {
     const m = String(d.getUTCMonth() + 1).padStart(2, '0');
     return `${cdn}/m/${y}/${m}/${post.slug}/thumbnail.avif`;
   };
+  const coerceTags = (t: unknown): string[] | undefined => {
+    if (Array.isArray(t)) {
+      if (t.length === 1) {
+        const only = String(t[0] ?? '').trim();
+        if (only.startsWith('[')) {
+          try { return (JSON.parse(only) as unknown[]).map(x => String(x)); } catch { return [only]; }
+        }
+      }
+      return t.map(x => String(x));
+    }
+    if (typeof t === 'string') {
+      const s = t.trim();
+      try {
+        if (s.startsWith('[')) return (JSON.parse(s) as unknown[]).map(x => String(x));
+      } catch {}
+      return s.split(/[,|]+/).map(x => x.trim()).filter(Boolean);
+    }
+    return undefined;
+  };
   return (
     <div className={styles.grid}>
       {posts.map((post, idx) => (
@@ -38,7 +57,7 @@ export default function PostGrid({ posts }: PostGridProps) {
           timezone={post.timezone}
           imageSrc={mediumThumb(post)}
           thumbnail={toMediumThumb(post.thumbnail)}
-          tags={post.tags}
+          tags={coerceTags((post as unknown as { tags?: unknown }).tags)}
           priority={idx < 2}
         />
       ))}
