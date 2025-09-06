@@ -74,10 +74,21 @@ async function main() {
   const cdnCandidate = process.env.CDN_SITE || '';
   const cdnBase = /^https?:\/\//i.test(cdnCandidate) ? cdnCandidate.replace(/\/+$/, '') : 'https://cdn.dhugs.com';
 
+  function getBucketName(): string {
+    const envBucket = process.env.AWS_BUCKET_NAME || process.env.R2_BUCKET_NAME;
+    if (envBucket) return String(envBucket);
+    try {
+      const cfg = fs.readFileSync(path.join(process.cwd(), 'wrangler.jsonc'), 'utf8');
+      const m = cfg.match(/"bucket_name"\s*:\s*"([^"]+)"/);
+      if (m) return m[1];
+    } catch {}
+    return '';
+  }
+
   // Prefer S3-style creds if available; otherwise fall back to Wrangler R2 CLI (works in CF build env)
   const hasS3 = !!(process.env.S3_ENDPOINT && (process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID_WRITE));
   let s3: S3Client | null = null;
-  let bucket = process.env.AWS_BUCKET_NAME || process.env.R2_BUCKET_NAME || '';
+  let bucket = getBucketName();
   if (hasS3) {
     const endpoint = requireEnv('S3_ENDPOINT');
     const region = process.env.AWS_REGION || 'auto';
@@ -101,8 +112,10 @@ async function main() {
         if (res.ok) {
           const json = await res.json() as { images?: Array<{ filename: string; width?: number; height?: number; alt?: string }> };
           const images = (json.images || []).map(it => {
-            const url = `${cdnBase}/${albumName}/${it.filename}`.replace(/([^:])\/+\/+/g, '$1/');
-            return { filename: it.filename, largeURL: url, thumbnailURL: url, width: Number(it.width || 1600), height: Number(it.height || 900), alt: it.alt || it.filename } as AlbumImage;
+            const base = `${cdnBase}/${albumName}/${it.filename}`.replace(/([^:])\/+\/+/g, '$1/');
+            const large = base.replace(/\/o\//, '/l/');
+            const thumb = base.replace(/\/o\//, '/m/');
+            return { filename: it.filename, largeURL: large, thumbnailURL: thumb, width: Number(it.width || 1600), height: Number(it.height || 900), alt: it.alt || it.filename } as AlbumImage;
           });
           if (images.length) {
             index[albumName] = images;
@@ -110,6 +123,8 @@ async function main() {
           }
         }
       } catch {}
+
+      // Note: No generic CLI list fallback. Without S3 credentials, rely on manifest.json.
     }
 
     for (const p of prefixes) {
@@ -142,8 +157,10 @@ async function main() {
             } catch {}
           }
           const filename = key.replace(p, '');
-          const url = `${cdnBase}/${albumName}/${filename}`.replace(/([^:])\/+\/+/g, '$1/');
-          return { filename, largeURL: url, thumbnailURL: url, width, height, alt: filename } as AlbumImage;
+          const base = `${cdnBase}/${albumName}/${filename}`.replace(/([^:])\/+\/+/g, '$1/');
+          const large = base.replace(/\/o\//, '/l/');
+          const thumb = base.replace(/\/o\//, '/m/');
+          return { filename, largeURL: large, thumbnailURL: thumb, width, height, alt: filename } as AlbumImage;
         }));
         index[albumName] = images;
         break;
@@ -151,8 +168,10 @@ async function main() {
     }
     if (!index[albumName]) {
       // Final fallback: include just the thumbnail so album pages don’t break
-      const thumbUrl = `${cdnBase}/${albumName.replace(/\/images\/?$/, '')}/thumbnail.avif`.replace(/([^:])\/+\/+/g, '$1/');
-      index[albumName] = [{ filename: 'thumbnail.avif', largeURL: thumbUrl, thumbnailURL: thumbUrl, width: 1600, height: 900, alt: 'thumbnail' }];
+      const thumbBase = `${cdnBase}/${albumName.replace(/\/images\/?$/, '')}/thumbnail.avif`.replace(/([^:])\/+\/+/g, '$1/');
+      const large = thumbBase.replace(/\/o\//, '/l/');
+      const thumb = thumbBase.replace(/\/o\//, '/m/');
+      index[albumName] = [{ filename: 'thumbnail.avif', largeURL: large, thumbnailURL: thumb, width: 1600, height: 900, alt: 'thumbnail' }];
     }
   }
 
