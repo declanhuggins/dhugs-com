@@ -2,11 +2,24 @@ import type { NextConfig } from "next";
 
 require('dotenv').config({ quiet: true });
 
-if (!process.env.CDN_SITE) {
-  throw new Error("CDN_SITE must be defined in .env");
+// Require CDN_SITE at build time. In Cloudflare builds, Secrets/Env Vars
+// are available to the Next build process. If this throws, the issue
+// is with the project env configuration, not availability.
+const rawCdn = process.env.CDN_SITE;
+if (!rawCdn) {
+  throw new Error(
+    "CDN base is not defined. Set NEXT_PUBLIC_CDN_SITE or CDN_SITE as a Build Environment Variable in your Cloudflare project."
+  );
 }
 
-const cdnHost = new URL(process.env.CDN_SITE).hostname;
+let cdnHost: string;
+try {
+  // Ensure we accept plain hosts by normalizing to a URL first
+  const url = /^(https?:)?\/\//i.test(rawCdn) ? rawCdn : `https://${rawCdn}`;
+  cdnHost = new URL(url).hostname;
+} catch (e) {
+  throw new Error(`CDN_SITE is not a valid URL/host: ${rawCdn}`);
+}
 
 const nextConfig: NextConfig = {
   trailingSlash: true,

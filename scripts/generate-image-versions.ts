@@ -156,13 +156,13 @@ async function processAlbum(albumName: string) {
 
       // Process and upload thumbnail for each size.
       if (filename === "thumbnail.avif") {
-        // Compute target thumbnail keys under images/<sizeShort>/albums/.../thumbnail.avif
+        // Compute target thumbnail keys under <sizeShort>/YYYY/MM/slug/thumbnail.avif
         let albumFolder = folder.replace(/^o\//, '').replace(/\/images$/, '');
         for (const [sizeName, width] of Object.entries(sizes)) {
           try {
             const resizedBuffer = await resizeImage(buffer, width);
             const sizeShort = sizeName === 'small' ? 's' : sizeName === 'medium' ? 'm' : 'l';
-            const newKey = `${sizeShort}/albums/${albumFolder}/thumbnail.avif`;
+            const newKey = `${sizeShort}/${albumFolder}/thumbnail.avif`;
             const { writeFile, unlink } = await import('fs/promises');
             const tmpOut = `/tmp/${sizeName}-thumb-${Date.now()}-${Math.random().toString(36).slice(2)}.avif`;
             await writeFile(tmpOut, resizedBuffer);

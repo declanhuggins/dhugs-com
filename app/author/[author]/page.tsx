@@ -37,7 +37,7 @@ export default async function AuthorPage({ params }: PageProps): Promise<JSX.Ele
               author={post.author}
               date={post.date}
               timezone={post.timezone}
-              imageSrc={`/medium/thumbnails/${post.slug}.avif`}
+              imageSrc={`/m/${post.slug}.avif`}
               thumbnail={post.thumbnail}
               tags={post.tags}
             />

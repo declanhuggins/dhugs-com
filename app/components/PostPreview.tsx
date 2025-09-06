@@ -16,9 +16,10 @@ interface PostPreviewProps {
   slug: string;
   altText?: string;
   tags?: string[];
+  priority?: boolean;
 }
 
-export default function PostPreview({ title, author, date, timezone, imageSrc, thumbnail, slug, altText, tags }: PostPreviewProps) {
+export default function PostPreview({ title, author, date, timezone, imageSrc, thumbnail, slug, altText, tags, priority }: PostPreviewProps) {
   const postDate = new Date(date);
   const year = postDate.getFullYear().toString();
   const month = postDate.toLocaleString('en-US', {
@@ -85,6 +86,9 @@ export default function PostPreview({ title, author, date, timezone, imageSrc, t
             alt={altText || title}
             width={700}
             height={475}
+            sizes="(min-width: 768px) 50vw, 100vw"
+            loading={priority ? undefined : 'lazy'}
+            priority={!!priority}
             className={styles.image}
           />
         </div>

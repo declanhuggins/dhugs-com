@@ -1,5 +1,4 @@
-// Posts module: Always query D1 via Cloudflare Worker binding at runtime.
-// No wrangler usage here; build-time static generation is avoided in pages.
+// Posts module: Prefer static snapshot (public/posts.json) at runtime to avoid D1 hits.
 
 export function getAuthorSlug(author: string): string {
   return author.toLowerCase().replace(/\s+/g, '-');
@@ -29,45 +28,130 @@ function mapRowToPost(r: RowShape): Post {
   const rawDl = (r as Record<string, unknown>).downloadUrl ?? (r as Record<string, unknown>).download_url;
   let downloadUrl = rawDl == null ? undefined : String(rawDl);
   if (downloadUrl && /^(null|undefined)?$/i.test(downloadUrl.trim())) downloadUrl = undefined;
-  const rawTags = r.tags == null ? undefined : String(r.tags);
-  const tags = rawTags
-    ? rawTags.split('||').map(s => s.trim()).filter(s => s && !/^(null|undefined)$/i.test(s))
-    : undefined;
+  let tags: string[] | undefined;
+  if (r.tags != null) {
+    try {
+      if (typeof r.tags === 'string' && r.tags.trim().startsWith('[')) {
+        tags = (JSON.parse(r.tags) as unknown[])
+          .map(v => String(v).trim())
+          .filter(s => s && !/^(null|undefined)$/i.test(s));
+      } else if (Array.isArray(r.tags)) {
+        const out: string[] = [];
+        for (const v of (r.tags as unknown[])) {
+          const s = String(v).trim();
+          if (!s) continue;
+          if (s.startsWith('[')) {
+            try {
+              const arr = JSON.parse(s) as unknown[];
+              for (const a of arr) {
+                const t = String(a).trim();
+                if (t && !/^(null|undefined)$/i.test(t)) out.push(t);
+              }
+            } catch {
+              out.push(s);
+            }
+          } else {
+            out.push(s);
+          }
+        }
+        tags = out.filter(Boolean);
+      } else {
+        const s = String(r.tags);
+        const parts = (s.includes('||') ? s.split('||') : s.split(','));
+        tags = parts.map(x => x.trim()).filter(x => x && !/^(null|undefined)$/i.test(x));
+      }
+      if (tags && tags.length) tags = Array.from(new Set(tags));
+    } catch {
+      tags = undefined;
+    }
+  }
+  const slug = String(r.slug ?? '');
+  const dateStr = String((r as Record<string, unknown>).date ?? (r as Record<string, unknown>).date_utc ?? '');
+  let thumb: string | undefined = r.thumbnail ? String(r.thumbnail) : undefined;
+  if (!thumb && slug && dateStr) {
+    try {
+      const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE : 'https://cdn.dhugs.com';
+      const d = new Date(dateStr);
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+      thumb = `${cdn}/o/${y}/${m}/${slug}/thumbnail.avif`;
+    } catch {}
+  }
   return {
     path: r.path ? String(r.path) : undefined,
-    slug: String(r.slug ?? ''),
+    slug,
     title: String(r.title ?? ''),
-    date: String((r as Record<string, unknown>).date ?? (r as Record<string, unknown>).date_utc ?? ''),
+    date: dateStr,
     timezone: String(r.timezone ?? ''),
     excerpt: r.excerpt ? String(r.excerpt) : undefined,
     content: r.content ? String(r.content) : '',
     tags,
     author: String(r.author ?? ''),
-    thumbnail: r.thumbnail ? String(r.thumbnail) : undefined,
+    thumbnail: thumb,
     width: (r.width ? String(r.width) : 'medium') as Post['width'],
     downloadUrl,
   };
 }
 
-// SQL fragments
+// SQL fragments (build-time fallback only)
 const SQL_ALL = `SELECT p.path,p.slug,p.type,p.title,p.author,p.excerpt,p.content,p.date_utc as date,p.timezone,p.width,p.thumbnail,p.download_url as downloadUrl, GROUP_CONCAT(t.name,'||') as tags
 FROM posts p
 LEFT JOIN post_tags pt ON pt.post_id=p.id
 LEFT JOIN tags t ON t.id=pt.tag_id
 GROUP BY p.id
 ORDER BY p.date_utc DESC`;
-const SQL_ONE_BY_PATH = `SELECT p.path,p.slug,p.type,p.title,p.author,p.excerpt,p.content,p.date_utc as date,p.timezone,p.width,p.thumbnail,p.download_url as downloadUrl, GROUP_CONCAT(t.name,'||') as tags
-FROM posts p
-LEFT JOIN post_tags pt ON pt.post_id=p.id
-LEFT JOIN tags t ON t.id=pt.tag_id
-WHERE p.path=?
-GROUP BY p.id
-LIMIT 1`;
 
 // Simple in-memory cache to reduce repeated calls during a single request lifecycle
 let allPostsCache: Promise<Post[]> | null = null;
 const singlePostCache = new Map<string, Promise<Post | null>>();
-// No local JSON snapshot support; rely on D1 via binding at runtime and D1 REST API at build-time.
+
+async function loadStaticPosts(reqUrl?: string): Promise<Post[]> {
+  // Try Cloudflare ASSETS binding first
+  try {
+    type CloudflareContext = { env?: Record<string, unknown> };
+    type OpenNextCloudflare = { getCloudflareContext?: (opts?: { async?: boolean }) => Promise<CloudflareContext> };
+    let env: Record<string, unknown> | undefined;
+    try {
+      const mod = (await import('@opennextjs/cloudflare')) as unknown as OpenNextCloudflare;
+      const ctx = await mod.getCloudflareContext?.({ async: true });
+      env = ctx?.env;
+    } catch {
+      const g = globalThis as Record<string | symbol, unknown>;
+      const cfCtxSym = Symbol.for('__cloudflare-context__');
+      const ctx = g[cfCtxSym] as { env?: Record<string, unknown> } | undefined;
+      env = ctx?.env;
+    }
+    const assets = env?.ASSETS as unknown as { fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response> } | undefined;
+    if (assets && typeof assets.fetch === 'function') {
+      const base = reqUrl ? new URL(reqUrl) : new URL('https://local.invalid/');
+      const req = new Request(new URL('/posts.json', base).toString());
+      const res = await assets.fetch(req);
+      if (res.ok) {
+        const arr = await res.json() as unknown[];
+        return (arr as RowShape[]).map(mapRowToPost);
+      }
+    }
+  } catch {}
+  // Node dev/build: read from filesystem
+  if (typeof process !== 'undefined' && process.release?.name === 'node') {
+    try {
+      const fs = await import('node:fs/promises');
+      const p = await fs.readFile('public/posts.json', 'utf8');
+      const arr = JSON.parse(p) as RowShape[];
+      return arr.map(mapRowToPost);
+    } catch {}
+  }
+  // HTTP fallback
+  try {
+    const u = reqUrl ? new URL('/posts.json', reqUrl) : new URL('https://'+(process.env.CDN_SITE || 'cdn.dhugs.com')+'/posts.json');
+    const res = await fetch(u.toString(), { cf: { cacheEverything: true, cacheTtl: 600 } } as RequestInit & { cf?: unknown });
+    if (res.ok) {
+      const arr = await res.json() as RowShape[];
+      return arr.map(mapRowToPost);
+    }
+  } catch {}
+  return [];
+}
 
 async function nodeQueryRest(sql: string): Promise<RowShape[]> {
   try {
@@ -105,68 +189,35 @@ async function nodeQueryRest(sql: string): Promise<RowShape[]> {
 }
 
 // Worker-side query using Cloudflare binding (access env via AsyncLocalStorage symbol)
-async function workerQuery(sql: string, binds?: unknown[]): Promise<RowShape[]> {
-  try {
-    // Prefer official OpenNext Cloudflare context helper
-    type CloudflareContext = { env?: Record<string, unknown> };
-    type OpenNextCloudflare = { getCloudflareContext?: (opts?: { async?: boolean }) => Promise<CloudflareContext> };
-    let env: Record<string, unknown> | undefined;
-    try {
-      const mod = (await import('@opennextjs/cloudflare')) as unknown as OpenNextCloudflare;
-      const ctx = await mod.getCloudflareContext?.({ async: true });
-      env = ctx?.env as Record<string, unknown> | undefined;
-    } catch {
-      // fall back to global symbol if helper not available in this phase
-      const g = globalThis as Record<string | symbol, unknown>;
-      const cfCtxSym = Symbol.for("__cloudflare-context__");
-      const ctx = (g[cfCtxSym] as { env?: unknown } | undefined);
-      env = (ctx?.env ?? (g as Record<string, unknown>).env ?? (g as Record<string, unknown>).ENV ?? (g as Record<string, unknown>).ENVIRONMENT) as Record<string, unknown> | undefined;
-    }
-    const db = env?.D1_POSTS as unknown as { prepare?: (sql: string) => { bind?: (...args: unknown[]) => { all: () => Promise<unknown> }; all: () => Promise<unknown> } } | undefined;
-    const prepared = db?.prepare?.(sql);
-    if (!prepared) return [];
-    const stmt = Array.isArray(binds) && binds.length && prepared.bind ? prepared.bind(...binds) : prepared;
-    const result = await stmt.all() as { results?: unknown; rows?: unknown } | unknown;
-    const maybeResults = (result as { results?: unknown }).results;
-    const maybeRows = (result as { rows?: unknown }).rows;
-    const rowsUnknown = Array.isArray(maybeResults) ? maybeResults : (Array.isArray(maybeRows) ? maybeRows : []);
-    return rowsUnknown as RowShape[];
-  } catch {
-    return [];
-  }
-}
+// Removed workerQuery: runtime access to D1 is not used; pages read from static posts.json
 
 // Merge markdown and album posts from D1
-export async function getAllPosts(): Promise<Post[]> {
+export async function getAllPosts(reqUrl?: string): Promise<Post[]> {
   if (allPostsCache) return allPostsCache;
   allPostsCache = (async () => {
-    const rowsWorker = await workerQuery(SQL_ALL);
-    if (rowsWorker.length) return rowsWorker.map(mapRowToPost) as Post[];
+    const staticPosts = await loadStaticPosts(reqUrl);
+    if (staticPosts.length) return staticPosts;
     if (typeof process !== 'undefined' && process.release?.name === 'node') {
       const rows = await nodeQueryRest(SQL_ALL);
       return rows.map(mapRowToPost) as Post[];
     }
     return [] as Post[];
   })();
-  try {
-    return await allPostsCache;
-  } finally {
-    // keep cache populated for rest of build; don't clear
-  }
+  return allPostsCache;
 }
 
 // Retrieve a post by full path (YYYY/MM/slug) from D1
-export async function getPostByPath(pathSeg: string): Promise<Post | null> {
+export async function getPostByPath(pathSeg: string, reqUrl?: string): Promise<Post | null> {
   if (singlePostCache.has(pathSeg)) return singlePostCache.get(pathSeg)!;
   const promise = (async () => {
-    const sql = SQL_ONE_BY_PATH; // contains a single '?'
-    const rowsRuntime = await workerQuery(sql, [pathSeg]);
-    if (rowsRuntime.length > 0) return mapRowToPost(rowsRuntime[0]);
+    const all = await getAllPosts(reqUrl);
+    const hit = all.find(p => p.path === pathSeg);
+    if (hit) return hit;
     if (typeof process !== 'undefined' && process.release?.name === 'node') {
-      // Fallback for build-time: inline the param safely
-      const esc = pathSeg.replace(/'/g, "''");
-      const rows = await nodeQueryRest(sql.replace('=?', `='${esc}'`));
-      if (rows.length > 0) return mapRowToPost(rows[0]);
+      const rows = await nodeQueryRest(SQL_ALL);
+      const mapped = rows.map(mapRowToPost) as Post[];
+      const m = mapped.find(p => p.path === pathSeg);
+      if (m) return m;
     }
     return null;
   })();

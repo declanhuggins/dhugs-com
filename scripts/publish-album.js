@@ -1,7 +1,7 @@
 // Orchestrate publishing a new album to R2 + D1 in one go.
 // Steps:
-// 1) Upload AVIFs from a local folder to R2 under albums/YYYY/MM/slug/images/
-// 2) Upload thumbnail.avif to albums/YYYY/MM/slug/thumbnail.avif (from chosen file)
+// 1) Upload AVIFs from a local folder to R2 under o/YYYY/MM/slug/images/
+// 2) Upload thumbnail.avif to o/YYYY/MM/slug/thumbnail.avif (from chosen file)
 // 3) Generate small/medium/large variants for that album only
 // 4) Generate _meta.json (width/height) for that album
 // 5) Upsert album row and tags into D1
@@ -48,6 +48,33 @@ async function s3PutFile(bucket, key, filePath, contentType, metadata) {
   const params = { Bucket: bucket, Key: key, Body, ContentType: contentType };
   if (metadata && Object.keys(metadata).length) params.Metadata = metadata; // x-amz-meta-*
   await s3.send(new PutObjectCommand(params));
+}
+
+async function s3ListAll(prefix) {
+  const { ListObjectsV2Command } = await import('@aws-sdk/client-s3');
+  const s3 = await getS3Client();
+  const bucket = getR2BucketName();
+  let token = undefined;
+  const keys = [];
+  do {
+    const out = await s3.send(new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix, ContinuationToken: token }));
+    for (const o of out.Contents || []) if (o.Key) keys.push(o.Key);
+    token = out.IsTruncated ? out.NextContinuationToken : undefined;
+  } while (token);
+  return keys;
+}
+
+async function s3DeleteKeys(keys) {
+  if (!keys.length) return;
+  const { DeleteObjectsCommand } = await import('@aws-sdk/client-s3');
+  const s3 = await getS3Client();
+  const bucket = getR2BucketName();
+  // chunk deletes to 1000 objects
+  const chunk = 900;
+  for (let i=0;i<keys.length;i+=chunk) {
+    const Objects = keys.slice(i,i+chunk).map(Key => ({ Key }));
+    await s3.send(new DeleteObjectsCommand({ Bucket: bucket, Delete: { Objects, Quiet: true } }));
+  }
 }
 
 function getR2BucketName() {
@@ -284,7 +311,7 @@ async function main() {
   const avifDir = findAvifDir(albumDir);
   if (!avifDir) throw new Error('Could not find an AVIF folder inside: ' + albumDir);
 
-  const albumRoot = `o/albums/${year}/${month}/${slug}`;
+  const albumRoot = `o/${year}/${month}/${slug}`;
   const imagesPrefix = `${albumRoot}/images`;
 
   console.log('Detected AVIF folder:', avifDir);
@@ -313,6 +340,30 @@ async function main() {
 
   // 3) Generate responsive sizes only for this album (s/m/l)
   await generateResponsiveSizes(avifDir, uploaded, albumRoot);
+
+  // Optional: sync mode deletes any existing objects not present in the uploaded set
+  const doSync = Object.prototype.hasOwnProperty.call(args, 'sync') || Object.prototype.hasOwnProperty.call(args, 'delete_missing');
+  if (doSync) {
+    console.log('\nSync mode: deleting removed images...');
+    const baseNames = new Set(uploaded.map(f => f));
+    const tiers = ['o','s','m','l'];
+    const toDelete = [];
+    for (const t of tiers) {
+      const pref = `${t}/${year}/${month}/${slug}/images/`;
+      const keys = await s3ListAll(pref);
+      for (const k of keys) {
+        const fname = k.substring(pref.length);
+        if (!fname) continue;
+        if (!baseNames.has(fname)) toDelete.push(k);
+      }
+    }
+    if (toDelete.length) {
+      console.log(`Deleting ${toDelete.length} removed object(s)...`);
+      await s3DeleteKeys(toDelete);
+    } else {
+      console.log('No removed images detected.');
+    }
+  }
 
   // 4) Skip images/_meta.json; dimensions are embedded in object metadata
 

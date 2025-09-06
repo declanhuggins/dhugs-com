@@ -92,7 +92,7 @@ async function main() {
   const binding = process.env.D1_BINDING || 'D1_POSTS';
   const remote = ['--remote', '-e', (process.env.CF_ENV || 'prod')];
   const SQL = `SELECT p.path,p.slug,p.title,p.author,p.excerpt,p.content,p.date_utc as date,p.timezone,p.width,p.thumbnail,
-    GROUP_CONCAT(t.name,'||') as tags
+    json_group_array(DISTINCT t.name) as tags
   FROM posts p
   LEFT JOIN post_tags pt ON pt.post_id=p.id
   LEFT JOIN tags t ON t.id=pt.tag_id

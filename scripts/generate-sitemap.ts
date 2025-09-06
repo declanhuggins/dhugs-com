@@ -33,7 +33,7 @@ async function fetchPostsFromD1(): Promise<PostMeta[]> {
   const binding = process.env.D1_BINDING || 'D1_POSTS'; // fixed binding; env var optional
   const remote = ['--remote','-e', (process.env.CF_ENV || 'prod')];
   const SQL = `SELECT p.slug,p.title,p.date_utc as date,p.timezone,p.author,p.thumbnail,p.width,
-    GROUP_CONCAT(t.name,'||') AS tags
+    json_group_array(DISTINCT t.name) AS tags
   FROM posts p
   LEFT JOIN post_tags pt ON pt.post_id=p.id
   LEFT JOIN tags t ON t.id=pt.tag_id

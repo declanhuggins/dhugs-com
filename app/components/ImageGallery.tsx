@@ -94,6 +94,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
             src: imagesWithIndex[index].mediumSrc,
             width: imagesWithIndex[index].width,
             height: imagesWithIndex[index].height,
+            sizes: '(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 33vw',
             placeholder: 'blur',
             blurDataURL: TRANSPARENT_BLUR,
             className: styles.img,

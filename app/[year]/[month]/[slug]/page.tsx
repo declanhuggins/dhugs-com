@@ -55,7 +55,7 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
     ));
 
   if (post.content.trim() === "") {
-    const albumFolder = post.path ? `o/albums/${post.path}/images` : `o/albums/${year}/${month}/${slug}/images`;
+    const albumFolder = post.path ? `o/${post.path}/images` : `o/${year}/${month}/${slug}/images`;
     const albumImages = await getAlbumImages(albumFolder);
     const images: GalleryImage[] = albumImages.map(img => ({
       src: img.thumbnailURL,

@@ -98,10 +98,10 @@ Ensure the following variables are correctly set in your deployment environment:
 Album images are retrieved from an S3 bucket and served via CDN. The URL structure is:
 
 - **Full-sized images:**  
-  `${CDN_SITE}/albums/[year]/[month]/[slug]/images/[filename]`
+  `${CDN_SITE}/o/[year]/[month]/[slug]/images/[filename]`
 
 - **Thumbnails:**  
-  `${CDN_SITE}/albums/[year]/[month]/[slug]/thumbnail.avif`
+  `${CDN_SITE}/o/[year]/[month]/[slug]/thumbnail.avif`
 
 - **Part-sized images:**  
   `${CDN_SITE}/[small || medium || large]/${imgPath}`

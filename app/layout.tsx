@@ -10,6 +10,14 @@ export const metadata = {
   title: 'Declan Huggins | Photographer | Computer Scientist',
 };
 
+// Apply static generation defaults to the entire app subtree.
+// This ensures Next pre-renders RSC payloads and HTML at build time,
+// so client navigations (with ?_rsc=...) are served from static assets
+// instead of invoking the server function.
+export const dynamic = 'force-static';
+export const revalidate = false;
+export const fetchCache = 'only-cache';
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
