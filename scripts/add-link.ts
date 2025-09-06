@@ -39,12 +39,15 @@ async function main() {
   ensureLinksTable();
   const slug = addShortLink(url, custom || undefined);
 
-  const base = process.env.BASE_URL;
+  const base = String(process.env.BASE_URL || process.env.BASE_URL_2 || '');
   console.log('\nShort link created:');
   console.log('- slug:', slug);
   console.log('- target:', url);
-  console.log('- visit:', `${base.replace(/\/$/, '')}/${slug}`);
+  if (base) {
+    console.log('- visit:', `${base.replace(/\/$/, '')}/${slug}`);
+  } else {
+    console.log('- visit:', `/<base-url>/${slug}`);
+  }
 }
 
 main().catch(err => { console.error(err); process.exit(1); });
-
