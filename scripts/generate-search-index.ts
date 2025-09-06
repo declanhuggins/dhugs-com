@@ -155,7 +155,7 @@ async function main() {
   for (const [tok, id] of vocab.entries()) vocabObj[tok] = id;
 
   const index = { v: 3, N, avdl, df: dfCounts, vocab: vocabObj, postings, docs };
-  const outDir = path.join(process.cwd(), 'public');
+  const outDir = path.join(process.cwd(), 'dist', 'data');
   const outPath = path.join(outDir, 'search-index.json');
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(outPath, JSON.stringify(index));

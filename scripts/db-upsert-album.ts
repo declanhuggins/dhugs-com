@@ -4,7 +4,7 @@
 //   tsx scripts/db-upsert-album.ts \
 //     --slug apr-25 --title "April 25" --date "2025-04-25 America/Chicago" \
 //     --author "Declan Huggins" --tags "Photography, Travel" --width large \
-//     --thumbnail https://cdn.dhugs.com/albums/2025/04/apr-25/thumbnail.avif
+//     --thumbnail https://cdn.dhugs.com/o/2025/04/apr-25/thumbnail.avif
 // Env: CF_ENV=dev|prod selects DB (default prod)
 // Flags:
 //   --slug (required)

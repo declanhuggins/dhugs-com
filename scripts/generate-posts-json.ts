@@ -78,10 +78,10 @@ ORDER BY p.date_utc DESC;`;
   } else if (Array.isArray(parsed?.result)) rows = parsed.result as Row[];
   else if (Array.isArray(parsed?.results)) rows = parsed.results as Row[];
   const list = rows.map(mapRow);
-  const outDir = path.join(process.cwd(), 'public');
+  const outDir = path.join(process.cwd(), 'dist', 'data');
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(path.join(outDir, 'posts.json'), JSON.stringify(list));
-  console.log(`Wrote ${list.length} posts to public/posts.json`);
+  console.log(`Wrote ${list.length} posts to dist/data/posts.json`);
 }
 
 main().catch(err => { console.error(err); process.exit(1); });

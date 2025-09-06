@@ -1,5 +1,6 @@
 // Home: Displays the latest posts (filtered by a specific tag) alongside a sidebar.
 import React from 'react';
+import type { Metadata } from 'next';
 import Sidebar from './components/Sidebar';
 import PostGrid from './components/PostGrid';
 import { getAllPosts } from '../lib/posts';
@@ -52,4 +53,24 @@ export default async function Home() {
       <Sidebar posts={posts} archives={archives} categories={categories} />
     </div>
   );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  // Choose a good default OG image: latest post with thumbnail, else portfolio thumbnail
+  const posts = await getAllPosts();
+  const withThumb = posts.find(p => !!p.thumbnail);
+  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
+  const fallbackImg = `${cdn}/o/portfolio/thumbnail.avif`;
+  const ogImage = withThumb?.thumbnail || fallbackImg;
+  const base = process.env.BASE_URL || 'https://dhugs.com';
+  const canonical = '/';
+  return {
+    alternates: { canonical },
+    openGraph: {
+      title: 'Declan Huggins',
+      description: 'Computer science student and photographer at Notre Dame, Declan Huggins combines technical expertise in software and audio/visual engineering with service and leadership in Air Force ROTC.',
+      url: new URL(canonical, base).toString(),
+      images: [ogImage],
+    },
+  };
 }

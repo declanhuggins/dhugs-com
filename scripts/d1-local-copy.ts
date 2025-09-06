@@ -35,7 +35,7 @@ async function main() {
   const baseDir = path.join('.wrangler', 'state', 'v3', 'd1', 'miniflare-D1DatabaseObject');
   const latest = findLatestSqlite(baseDir);
   if (!latest) {
-    console.error('No local D1 sqlite file found. Run a migration or ingestion first.');
+    console.error('No local D1 sqlite file found. Run a migration first (npm run db:migrate).');
     process.exit(1);
   }
   const dest = 'D1_POSTS.local.sqlite';
