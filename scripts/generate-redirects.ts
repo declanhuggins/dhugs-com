@@ -94,6 +94,7 @@ async function main() {
   ensureLinksTable();
   const rows = fetchLinksFromD1(); // { slug, url }
 
+  // Start with any custom short-links from D1 (same behavior as before)
   const items = rows.flatMap(({ slug, url }) => {
     const clean = String(url).replace(/^“|”$/g, '');
     return [
@@ -101,6 +102,25 @@ async function main() {
       { redirect: { source_url: `${BASE_URL_2}/${slug}`, target_url: clean, status_code: 302, include_subdomains: false, subpath_matching: false } },
     ];
   });
+
+  // Hardcoded canonical redirects that must be environment-aware (prod/dev)
+  // These use absolute URLs rooted at BASE_URL / BASE_URL_2, avoiding cross-domain targets.
+  const builtIns: Array<{ path: string; targetPath: string; status: 308 }>
+    = [
+      { path: '/resume', targetPath: '/2025/01/resume', status: 308 },
+      { path: '/minecraft', targetPath: '/2025/01/minecraft', status: 308 },
+    ];
+
+  const builtInItems = builtIns.flatMap(({ path, targetPath, status }) => [
+    { redirect: { source_url: `${BASE_URL}${path}`,  target_url: `${BASE_URL}${targetPath}`,  status_code: status, include_subdomains: false, subpath_matching: false } },
+    { redirect: { source_url: `${BASE_URL_2}${path}`, target_url: `${BASE_URL_2}${targetPath}`, status_code: status, include_subdomains: false, subpath_matching: false } },
+  ]);
+
+  // Merge with de-duplication by source_url; built-ins take precedence over D1 rows
+  const bySource = new Map<string, (typeof items)[number]>();
+  for (const it of items) bySource.set(it.redirect.source_url, it);
+  for (const it of builtInItems) bySource.set(it.redirect.source_url, it);
+  const finalItems = Array.from(bySource.values());
   
   let listId = await getListIdByName(LIST_NAME);
   if (!listId) {
@@ -119,10 +139,10 @@ async function main() {
   }
   
   console.log("Upserting redirect items (replace all)...");
-  if (items.length === 0) {
+  if (finalItems.length === 0) {
     console.log("No links found in D1; leaving list empty.");
   } else {
-    await replaceAllItems(listId!, items);
+    await replaceAllItems(listId!, finalItems);
     console.log("List items replaced.");
   }
   
