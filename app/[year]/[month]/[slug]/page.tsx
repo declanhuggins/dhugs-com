@@ -90,8 +90,9 @@ export default async function PostPage({ params }: PageProps): Promise<JSX.Eleme
   if (post.content.trim() === "") {
     const albumFolder = post.path ? `o/${post.path}/images` : `o/${year}/${month}/${slug}/images`;
     const albumImages = await getAlbumImages(albumFolder);
+    // Use original-quality URLs for lightbox; thumbnails are derived as /m/ by ImageGallery
     const images: GalleryImage[] = albumImages.map(img => ({
-      src: img.thumbnailURL,
+      src: img.largeURL.replace(/\/l\//, '/o/'),
       alt: img.alt,
       width: img.width,
       height: img.height,

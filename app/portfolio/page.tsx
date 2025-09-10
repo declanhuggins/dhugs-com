@@ -9,8 +9,9 @@ export default async function PortfolioPage() {
   // Portfolio images are stored under o/portfolio/images
   const albumFolder = 'o/portfolio/images';
   const albumImages = await getAlbumImages(albumFolder);
+  // Use original-quality URLs for lightbox; thumbnails are derived as /m/ by ImageGallery
   const images: GalleryImage[] = albumImages.map(img => ({
-    src: img.thumbnailURL,
+    src: img.largeURL.replace(/\/l\//, '/o/'),
     alt: img.alt,
     width: img.width,
     height: img.height,
