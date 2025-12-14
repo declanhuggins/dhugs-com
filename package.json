@@ -1,6 +1,6 @@
 {
 	"name": "dhugs-com",
-	"version": "3.1.0",
+	"version": "3.1.1",
 	"private": true,
 	"scripts": {
 		"dev": "next dev --turbopack",
@@ -83,7 +83,7 @@
 		"@eslint/eslintrc": "^3",
 		"@tailwindcss/postcss": "^4",
 		"@tailwindcss/typography": "^0.5.19",
-		"@types/node": "^25.0.1",
+		"@types/node": "^25.0.2",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"@types/selenium-webdriver": "^4.35.4",
