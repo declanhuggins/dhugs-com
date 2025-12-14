@@ -1,7 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "dhugs-com",
-	"compatibility_date": "2025-09-06",
+	"compatibility_date": "2025-12-14",
 	"compatibility_flags": ["nodejs_compat"],
 	"main": ".vercel/output/static/_worker.js",
 	"assets": {
@@ -15,7 +15,7 @@
 		{ "pattern": "dhugs.com", "custom_domain": true }
 	],
 	"vars": {
-		"NODE_VERSION": "24.7.0",
+		"NODE_VERSION": "24.10.0",
 		"CDN_SITE": "https://cdn.dhugs.com"
 	},
 	"d1_databases": [
@@ -24,7 +24,7 @@
 			"database_name": "dhugs-posts",
 			"database_id": "daa031b4-72fa-4321-ae8f-a5836b334192",
 			"migrations_dir": "migrations/posts",
-			"experimental_remote": true
+			"remote": true
 		}
 	],
 	"secrets_store_secrets": [
@@ -39,7 +39,7 @@
 		{ 
 			"binding": "R2_ASSETS", 
 			"bucket_name": "dhugs-assets",
-			"experimental_remote": true
+			"remote": true
 		}
 	],
 	"env": {
@@ -49,7 +49,7 @@
 				{ "pattern": "dev.dhugs.com", "custom_domain": true }
 			],
 			"vars": {
-				"NODE_VERSION": "24.7.0",
+				"NODE_VERSION": "24.10.0",
 				"CDN_SITE": "https://cdn.dhugs.com"
 			},
 			"d1_databases": [
@@ -58,7 +58,7 @@
 					"database_name": "dhugs-posts",
 					"database_id": "daa031b4-72fa-4321-ae8f-a5836b334192",
 					"migrations_dir": "migrations/posts",
-					"experimental_remote": true
+					"remote": true
 				}
 			],
 			"secrets_store_secrets": [
@@ -73,7 +73,7 @@
 				{ 
 					"binding": "R2_ASSETS", 
 					"bucket_name": "dhugs-assets",
-					"experimental_remote": true
+					"remote": true
 				}
 			]
 		},
@@ -83,7 +83,7 @@
 				{ "pattern": "dhugs.com", "custom_domain": true }
 			],
 			"vars": {
-				"NODE_VERSION": "24.7.0",
+				"NODE_VERSION": "24.10.0",
 				"CDN_SITE": "https://cdn.dhugs.com"
 			},
 			"d1_databases": [
@@ -92,7 +92,7 @@
 					"database_name": "dhugs-posts",
 					"database_id": "daa031b4-72fa-4321-ae8f-a5836b334192",
 					"migrations_dir": "migrations/posts",
-					"experimental_remote": true
+					"remote": true
 				}
 			],
 			"secrets_store_secrets": [
@@ -107,7 +107,7 @@
 				{ 
 					"binding": "R2_ASSETS", 
 					"bucket_name": "dhugs-assets",
-					"experimental_remote": true
+					"remote": true
 				}
 			]
 		}
