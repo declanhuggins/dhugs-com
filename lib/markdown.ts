@@ -47,8 +47,8 @@ export function stripPotentiallyDangerousTags(html: string): string {
   do {
     previous = current;
     current = current
-      .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
-      .replace(/ on[a-z]+="[^"]*"/gi, '');
+      .replace(/<\s*script\b[^>]*>[\s\S]*?<\s*\/\s*script\s*>/gi, '')
+      .replace(/\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
   } while (current !== previous);
   return current;
 }
