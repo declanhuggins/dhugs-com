@@ -17,58 +17,45 @@
 		"deploy:dev": "npm run build:dev && npx wrangler deploy -e dev",
 		"upload:dev": "npm run build:dev && npx wrangler upload -e dev",
 		"cf-typegen": "npx wrangler types --env-interface CloudflareEnv ./env.d.ts",
-		
 		"assets:ignore": "mkdir -p .vercel/output/static && printf '_worker.js\n' > .vercel/output/static/.assetsignore",
-		
 		"db:migration:new": "npx wrangler d1 migrations create D1_POSTS",
 		"db:migrate": "npx wrangler d1 migrations apply D1_POSTS",
 		"db:migrate:remote": "npx wrangler d1 --env prod migrations apply D1_POSTS --remote",
-            
-        "db:upsert:post": "tsx scripts/db-upsert-post.ts",
-        "db:upsert:album": "tsx scripts/db-upsert-album.ts",
-        "db:delete:post": "tsx scripts/db-delete-post.ts",
-
+		"db:upsert:post": "tsx scripts/db-upsert-post.ts",
+		"db:upsert:album": "tsx scripts/db-upsert-album.ts",
+		"db:delete:post": "tsx scripts/db-delete-post.ts",
 		"content:all": "npm run content:postsJson && npm run content:albumsIndex && npm run content:searchIndex && npm run content:sitemap && npm run content:redirects && npm run content:randomImage",
-
 		"content:redirects": "tsx scripts/generate-redirects.ts",
-        "content:sitemap": "tsx scripts/generate-sitemap.ts",
+		"content:sitemap": "tsx scripts/generate-sitemap.ts",
 		"content:searchIndex": "tsx scripts/generate-search-index.ts",
 		"content:postsJson": "tsx scripts/generate-posts-json.ts",
 		"content:albumsIndex": "tsx scripts/generate-album-index.ts",
 		"content:randomImage": "tsx scripts/generate-random-image-json.ts",
-		"content:images": "tsx scripts/generate-image-versions.ts",		
+		"content:images": "tsx scripts/generate-image-versions.ts",
 		"albums:backfill:manifests": "tsx scripts/backfill-album-manifests.ts",
-
 		"prepare:album": "node scripts/prepare-album-folder.js",
-
 		"publish:album": "node scripts/publish-album.js",
-
 		"publish:albums:batch": "node scripts/publish-albums-batch.js",
-		
 		"publish:post": "node scripts/publish-post.js",
-
-        "publish:portfolio": "node scripts/publish-portfolio.js",
-        "publish:home-thumb": "node scripts/publish-home-thumbnail.js",
-
-    	"db:edit:tags": "node scripts/edit-post-tags.js",
-
+		"publish:portfolio": "node scripts/publish-portfolio.js",
+		"publish:home-thumb": "node scripts/publish-home-thumbnail.js",
+		"db:edit:tags": "node scripts/edit-post-tags.js",
 		"link:add": "tsx scripts/add-link.ts",
-
-    	"cdn:robots:disallow": "tsx scripts/upload-cdn-robots.ts disallow",
-    	"cdn:robots:allow": "tsx scripts/upload-cdn-robots.ts allow",
-
+		"cdn:robots:disallow": "tsx scripts/upload-cdn-robots.ts disallow",
+		"cdn:robots:allow": "tsx scripts/upload-cdn-robots.ts allow",
 		"browse": "tsx scripts/selenium-browse.ts",
 		"upgrade": "npx npm-check-updates -u && npm install"
-  },
-  "dependencies": {
-		"@aws-sdk/client-s3": "^3.948.0",
+	},
+	"dependencies": {
+		"@aws-sdk/client-s3": "^3.975.0",
 		"date-fns-tz": "^3.2.0",
 		"dotenv": "^17.2.3",
+		"enquirer": "^2.4.1",
 		"gray-matter": "^4.0.3",
-		"next": "16.0.10",
+		"next": "16.1.5",
 		"next-themes": "^0.4.6",
-		"react": "^19.2.3",
-		"react-photo-album": "^3.3.0",
+		"react": "^19.2.4",
+		"react-photo-album": "^3.4.0",
 		"rehype-sanitize": "^6.0.0",
 		"rehype-stringify": "^10.0.1",
 		"remark": "^15.0.1",
@@ -76,27 +63,27 @@
 		"remark-html": "^16.0.1",
 		"remark-rehype": "^11.1.2",
 		"sitemap": "^9.0.0",
-		"yet-another-react-lightbox": "^3.27.0",
-		"enquirer": "^2.4.1"
-  },
+		"yet-another-react-lightbox": "^3.28.0"
+	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3",
 		"@tailwindcss/postcss": "^4",
 		"@tailwindcss/typography": "^0.5.19",
-		"@types/node": "^25.0.2",
+		"@types/node": "^25.0.10",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
-		"@types/selenium-webdriver": "^4.35.4",
-		"execa": "^9.6.1",
+		"@types/selenium-webdriver": "^4.35.5",
 		"eslint": "^9",
-		"eslint-config-next": "16.0.10",
-		"npm-check-updates": "^19.2.0",
-		"selenium-webdriver": "^4.39.0",
+		"eslint-config-next": "16.1.5",
+		"execa": "^9.6.1",
+		"npm-check-updates": "^19.3.2",
+		"selenium-webdriver": "^4.40.0",
 		"sharp": "^0.34.5",
 		"tailwindcss": "^4",
+		"tar": "^7.5.6",
 		"tsx": "^4.21.0",
 		"typescript": "^5",
-		"vitest": "^4.0.15",
-		"wrangler": "^4.54.0"
+		"vitest": "^4.0.18",
+		"wrangler": "^4.61.0"
 	}
 }

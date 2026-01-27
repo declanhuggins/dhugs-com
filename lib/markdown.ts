@@ -41,7 +41,14 @@ export async function markdownToSafeHtml(markdown: string): Promise<string> {
 
 export function stripPotentiallyDangerousTags(html: string): string {
   // Defense in depth (should already be sanitized). Remove any lingering <script> or on* attributes.
-  return html
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
-    .replace(/ on[a-z]+="[^"]*"/gi, '');
+  // Apply replacements until reaching a fixed point to avoid incomplete multi-character sanitization.
+  let previous: string;
+  let current = html;
+  do {
+    previous = current;
+    current = current
+      .replace(/<\s*script\b[^>]*>[\s\S]*?<\s*\/\s*script\s*>/gi, '')
+      .replace(/\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+  } while (current !== previous);
+  return current;
 }
