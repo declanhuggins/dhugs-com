@@ -73,7 +73,7 @@
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"@types/selenium-webdriver": "^4.35.5",
-		"eslint": "^10",
+		"eslint": "^9.36.0",
 		"eslint-config-next": "16.1.6",
 		"execa": "^9.6.1",
 		"npm-check-updates": "^19.3.2",
