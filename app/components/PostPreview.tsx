@@ -45,9 +45,13 @@ export default function PostPreview({ title, author, date, timezone, imageSrc, t
       return t.map(x => String(x));
     }
     const s = String(t).trim();
-    try {
-      if (s.startsWith('[')) return (JSON.parse(s) as unknown[]).map(x => String(x));
-    } catch {}
+    if (s.startsWith('[')) {
+      try {
+        return (JSON.parse(s) as unknown[]).map(x => String(x));
+      } catch {
+        // Fall back to delimiter parsing below when JSON parsing fails.
+      }
+    }
     return s.split(/[,|]+/).map(x => x.trim()).filter(Boolean);
   };
   const displayTags = normalizeTags(tags);

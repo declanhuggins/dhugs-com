@@ -70,13 +70,11 @@ function mapRowToPost(r: RowShape): Post {
   const dateStr = String((r as Record<string, unknown>).date ?? (r as Record<string, unknown>).date_utc ?? '');
   let thumb: string | undefined = r.thumbnail ? String(r.thumbnail) : undefined;
   if (!thumb && slug && dateStr) {
-    try {
-      const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE : 'https://cdn.dhugs.com';
-      const d = new Date(dateStr);
-      const y = d.getUTCFullYear();
-      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-      thumb = `${cdn}/o/${y}/${m}/${slug}/thumbnail.avif`;
-    } catch {}
+    const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE : 'https://cdn.dhugs.com';
+    const d = new Date(dateStr);
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    thumb = `${cdn}/o/${y}/${m}/${slug}/thumbnail.avif`;
   }
   return {
     path: r.path ? String(r.path) : undefined,
