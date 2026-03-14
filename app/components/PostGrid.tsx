@@ -38,9 +38,13 @@ export default function PostGrid({ posts }: PostGridProps) {
     }
     if (typeof t === 'string') {
       const s = t.trim();
-      try {
-        if (s.startsWith('[')) return (JSON.parse(s) as unknown[]).map(x => String(x));
-      } catch {}
+      if (s.startsWith('[')) {
+        try {
+          return (JSON.parse(s) as unknown[]).map(x => String(x));
+        } catch {
+          // Fall back to delimiter parsing below when JSON parsing fails.
+        }
+      }
       return s.split(/[,|]+/).map(x => x.trim()).filter(Boolean);
     }
     return undefined;
