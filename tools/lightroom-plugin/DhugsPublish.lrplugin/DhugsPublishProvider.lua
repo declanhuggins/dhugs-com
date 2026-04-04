@@ -147,9 +147,9 @@ end
 -- Which metadata changes should mark a photo as needing re-publish
 function provider.metadataThatTriggersRepublish(publishSettings)
   return {
-    default  = false,
-    title    = true,
-    keywords = true,
+    default     = false,
+    title       = true,
+    keywordTags = true,
   }
 end
 
@@ -337,15 +337,13 @@ function provider.processRenderedPhotos(functionContext, exportContext)
       local r2Key = "o/" .. albumPath .. "/images/" .. avifName
 
       -- Check if this photo has a "thumbnail" keyword
-      if not thumbTempFile then
-        local keywords = photo:getRawMetadata("keywords") or {}
-        for _, kw in ipairs(keywords) do
-          local kwName = kw:getName():lower()
-          if kwName == "thumbnail" or kwName == "thumb" then
-            thumbTempFile = filePath
-            logger:trace("Thumbnail keyword found on: " .. avifName)
-            break
-          end
+      local keywords = photo:getRawMetadata("keywords") or {}
+      for _, kw in ipairs(keywords) do
+        local kwName = kw:getName():lower()
+        if kwName == "thumbnail" or kwName == "thumb" then
+          thumbTempFile = filePath
+          logger:trace("Thumbnail keyword found on: " .. avifName)
+          break
         end
       end
 
@@ -416,10 +414,19 @@ function provider.processRenderedPhotos(functionContext, exportContext)
   progress:setCaption("Generating thumbnail...")
 
   if thumbSource then
+    -- Verify the source file still exists (could be deleted if variant processing failed)
+    if not LrFileUtils.exists(thumbSource) then
+      logger:trace("Thumbnail source file missing, falling back to first image")
+      thumbSource = firstTempFile
+    end
+  end
+
+  if thumbSource and LrFileUtils.exists(thumbSource) then
     logger:trace("Generating thumbnail from " .. thumbSource
       .. (thumbTempFile and " (keyword)" or " (first image)"))
     local tmpDir = LrPathUtils.getStandardFilePath("temp")
     local thumbArgsFile = LrPathUtils.child(tmpDir, "dhugs-thumb-args.json")
+    local thumbErrLog = LrPathUtils.child(tmpDir, "dhugs-thumb-err.log")
     local taf = io.open(thumbArgsFile, "w")
     if taf then
       taf:write('{"thumb":' .. '"' .. thumbSource:gsub('\\', '\\\\'):gsub('"', '\\"') .. '"'
@@ -430,15 +437,28 @@ function provider.processRenderedPhotos(functionContext, exportContext)
       taf:close()
     end
     local thumbCmd = string.format(
-      '"%s" "%s" --args-file "%s"',
-      NODE, variantScript, thumbArgsFile)
+      '"%s" "%s" --args-file "%s" 2>"%s"',
+      NODE, variantScript, thumbArgsFile, thumbErrLog)
+    logger:trace("Thumb CMD: " .. thumbCmd)
     local thumbExit = LrTasks.execute(thumbCmd)
-    LrFileUtils.delete(thumbArgsFile)
     if thumbExit ~= 0 then
+      local ef = io.open(thumbErrLog, "r")
+      local errText = ""
+      if ef then
+        errText = ef:read("*a") or ""
+        ef:close()
+      end
+      logger:trace("Thumbnail stderr: " .. errText)
       LrDialogs.message("dhugs.com Publish",
-        "Thumbnail generation failed (exit " .. tostring(thumbExit) .. ").",
+        "Thumbnail generation failed (exit " .. tostring(thumbExit) .. ").\n\n" .. errText,
         "warning")
+    else
+      logger:trace("Thumbnail generated successfully")
     end
+    LrFileUtils.delete(thumbArgsFile)
+    LrFileUtils.delete(thumbErrLog)
+  else
+    logger:trace("No thumbnail source available — skipping thumbnail generation")
   end
 
   -- Clean up temp files
