@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-      <pre className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)] select-none mb-8">{`
+      <pre className="text-sm sm:text-base leading-relaxed text-(--text-muted) select-none mb-8">{`
   _  _    ___  _  _
  | || |  / _ \\| || |
  | || |_| | | | || |_
@@ -20,22 +20,22 @@ export default function NotFound() {
       `.trim()}</pre>
 
       <div className="space-y-3 mb-8">
-        <p className="text-[var(--text-muted)]">
-          <span className="text-[var(--foreground)]">$</span> cat ./page
+        <p className="text-(--text-muted)">
+          <span className="text-(--foreground)">$</span> cat ./page
         </p>
-        <p className="text-[var(--link-hover-color)]">
+        <p className="text-(--link-hover-color)">
           cat: ./page: No such file or directory
         </p>
       </div>
 
       <nav className="flex flex-wrap gap-3 justify-center">
-        <Link href="/" className="border-2 border-[var(--border-color)] px-4 py-2 hover:text-[var(--link-hover-color)] hover:border-[var(--link-hover-color)] transition-colors">
+        <Link href="/" className="border-2 border-(--border-color) px-4 py-2 hover:text-(--link-hover-color) hover:border-(--link-hover-color) transition-colors">
           ~/ Home
         </Link>
-        <Link href="/search" className="border-2 border-[var(--border-color)] px-4 py-2 hover:text-[var(--link-hover-color)] hover:border-[var(--link-hover-color)] transition-colors">
+        <Link href="/search" className="border-2 border-(--border-color) px-4 py-2 hover:text-(--link-hover-color) hover:border-(--link-hover-color) transition-colors">
           /search
         </Link>
-        <Link href="/archive" className="border-2 border-[var(--border-color)] px-4 py-2 hover:text-[var(--link-hover-color)] hover:border-[var(--link-hover-color)] transition-colors">
+        <Link href="/archive" className="border-2 border-(--border-color) px-4 py-2 hover:text-(--link-hover-color) hover:border-(--link-hover-color) transition-colors">
           /archive
         </Link>
       </nav>

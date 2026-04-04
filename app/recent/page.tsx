@@ -51,8 +51,8 @@ export default async function RecentPage() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const base = process.env.BASE_URL || 'https://dhugs.com';
-  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
-  const img = `${cdn}/l/portfolio/thumbnail.jpg`;
+  const { CDN_BASE } = await import('../../lib/constants');
+  const img = `${CDN_BASE}/l/portfolio/thumbnail.jpg`;
   const canonical = '/recent';
   return {
     title: 'Recent Posts',

@@ -1,15 +1,16 @@
 import type { NextConfig } from "next";
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
-require('dotenv').config({ quiet: true });
+// Enable Cloudflare bindings (D1, R2, KV) in local dev mode
+if (process.env.NODE_ENV === "development") {
+  initOpenNextCloudflareForDev();
+}
 
-// Resolve CDN base for Next image config. In Cloudflare Pages builds, Secrets
-// are NOT injected into process.env at build time. Default to the canonical
-// CDN host if the env var is unavailable so the build does not fail.
+// Resolve CDN base for Next image config.
 const rawCdn = process.env.CDN_SITE || 'https://cdn.dhugs.com';
 
 let cdnHost: string;
 try {
-  // Ensure we accept plain hosts by normalizing to a URL first
   const url = /^(https?:)?\/\//i.test(rawCdn) ? rawCdn : `https://${rawCdn}`;
   cdnHost = new URL(url).hostname;
 } catch (e) {
@@ -17,13 +18,15 @@ try {
 }
 
 const nextConfig: NextConfig = {
-  // Normalize to non-trailing-slash URLs (matches next-on-pages runtime)
   trailingSlash: false,
   devIndicators: false,
   poweredByHeader: false,
+  // Limit build workers to avoid SQLITE_BUSY when multiple workers hit the
+  // wrangler D1 proxy concurrently during page data collection.
+  experimental: {
+    cpus: 3,
+  },
   images: {
-    // Keep images unoptimized — assets are pre-generated on the CDN.
-    // Flip to `unoptimized: false` to use Next's image optimizer in Node.
     unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: cdnHost, pathname: '/**' },
@@ -33,7 +36,7 @@ const nextConfig: NextConfig = {
     const csp = [
       "default-src 'self'",
       `img-src 'self' https: data: blob:`,
-      "script-src 'self' 'unsafe-inline'", // adjust if adding analytics; prefer hashes nonces later
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''}`,
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
       "connect-src 'self' https:",
@@ -49,7 +52,6 @@ const nextConfig: NextConfig = {
           { key: 'Content-Security-Policy', value: csp },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-            // X-Frame-Options deprecated in favor of CSP frame-ancestors but still widely respected
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-XSS-Protection', value: '0' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' }

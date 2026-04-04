@@ -2,11 +2,11 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import styles from './Header.module.css';
 import ClientTimestamp from './ClientTimestamp';
 import HamburgerMenu from './HamburgerMenu';
 import Search from './Search';
+import Icon from './Icon';
 
 export default function Header() {
   return (
@@ -22,37 +22,19 @@ export default function Header() {
             <li>
               <Link href="https://linkedin.com/in/declanhuggins" target="_blank" rel="noopener noreferrer" className={styles.socialButton}>
                 <span className="sr-only">LinkedIn</span>
-                <Image
-                  src="/icons/linkedin.svg"
-                  alt="LinkedIn"
-                  width={20}
-                  height={20}
-                  className={`svg-foreground ${styles.socialIcon}`}
-                />
+                <Icon name="linkedin" size={20} className={styles.socialIcon} />
               </Link>
             </li>
             <li>
               <Link href="https://github.com/declanhuggins" target="_blank" rel="noopener noreferrer" className={styles.socialButton}>
                 <span className="sr-only">GitHub</span>
-                <Image
-                  src="/icons/github.svg"
-                  alt="GitHub"
-                  width={20}
-                  height={20}
-                  className={`svg-foreground ${styles.socialIcon}`}
-                />
+                <Icon name="github" size={20} className={styles.socialIcon} />
               </Link>
             </li>
             <li>
               <Link href="https://www.instagram.com/declanhuggins/" target="_blank" rel="noopener noreferrer" className={styles.socialButton}>
                 <span className="sr-only">Instagram</span>
-                <Image
-                  src="/icons/instagram.svg"
-                  alt="Instagram"
-                  width={20}
-                  height={20}
-                  className={`svg-foreground ${styles.socialIcon}`}
-                />
+                <Icon name="instagram" size={20} className={styles.socialIcon} />
               </Link>
             </li>
           </ul>
@@ -78,12 +60,12 @@ export default function Header() {
           <div className={`${styles.hamburgerWrapper} gap-2`}>
             <HamburgerMenu 
               menuItems={[
-                { title: 'About', href: '/about', icon: '/icons/user.svg' },
-                { title: 'Portfolio', href: '/portfolio', icon: '/icons/camera.svg' },
-                { title: 'Resume', href: '/resume', icon: '/icons/resume.svg' },
-                { title: 'LinkedIn', href: 'https://linkedin.com/in/declanhuggins', icon: '/icons/linkedin.svg' },
-                { title: 'Github', href: 'https://github.com/declanhuggins', icon: '/icons/github.svg' },
-                { title: 'Instagram', href: 'https://www.instagram.com/declanhuggins/', icon: '/icons/instagram.svg' }
+                { title: 'About', href: '/about', icon: 'user' },
+                { title: 'Portfolio', href: '/portfolio', icon: 'camera' },
+                { title: 'Resume', href: '/resume', icon: 'resume' },
+                { title: 'LinkedIn', href: 'https://linkedin.com/in/declanhuggins', icon: 'linkedin' },
+                { title: 'Github', href: 'https://github.com/declanhuggins', icon: 'github' },
+                { title: 'Instagram', href: 'https://www.instagram.com/declanhuggins/', icon: 'instagram' }
               ]}
               orientation="horizontal"
               position="right"

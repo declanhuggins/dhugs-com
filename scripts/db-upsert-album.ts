@@ -1,48 +1,62 @@
-// db-upsert-album.ts
-// Upsert an album-style post directly into D1 using simple CLI flags (Option B DB-first authoring).
+// db-upsert-album.ts — Upsert album metadata via admin API.
 // Usage:
-//   tsx scripts/db-upsert-album.ts \
+//   CF_ENV=dev tsx scripts/db-upsert-album.ts \
 //     --slug apr-25 --title "April 25" --date "2025-04-25 America/Chicago" \
 //     --author "Declan Huggins" --tags "Photography, Travel" --width large \
 //     --thumbnail https://cdn.dhugs.com/o/2025/04/apr-25/thumbnail.avif
-// Env: CF_ENV=dev|prod selects DB (default prod)
-// Flags:
-//   --slug (required)
-//   --title (required)
-//   --date "YYYY-MM-DD Timezone" (required)
-//   --author (required)
-//   --excerpt (optional)
-//   --tags comma or semicolon list (optional)
-//   --width small|medium|large (optional, default large)
-//   --thumbnail url (optional)
-//   --downloadUrl url (optional)
 
-import { execa } from 'execa';
 import { createInterface } from 'node:readline';
+import { apiUpsertAlbum } from './lib/api-client';
 
-function parseArgs(): Record<string,string> {
-  const out: Record<string,string> = {};
-  for (let i=2;i<process.argv.length;i++) {
+function parseArgs(): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (let i = 2; i < process.argv.length; i++) {
     const a = process.argv[i];
     if (a.startsWith('--')) {
       const key = a.slice(2);
-      const val = process.argv[i+1] && !process.argv[i+1].startsWith('--') ? process.argv[++i] : 'true';
+      const val = process.argv[i + 1] && !process.argv[i + 1].startsWith('--') ? process.argv[++i] : 'true';
       out[key] = val;
     }
   }
   return out;
 }
 
-function esc(v: unknown): string { return v == null ? 'NULL' : `'${String(v).replace(/'/g,"''")}'`; }
+function dateIso(dateField: string): { iso: string; timezone: string } {
+  const parts = String(dateField).trim().split(/\s+/);
+  if (parts.length < 2) throw new Error('Date must be "YYYY-MM-DD Timezone"');
+  const head = parts[0];
+  const tz = parts.slice(1).join(' ');
+  let d: Date;
+  if (head.includes('T')) {
+    d = new Date(head);
+  } else {
+    // Default to 11:59 PM local time in the given timezone
+    const guess = new Date(Date.UTC(+head.slice(0,4), +head.slice(5,7)-1, +head.slice(8,10), 23, 59));
+    for (let i = 0; i < 3; i++) {
+      const p = Object.fromEntries(
+        new Intl.DateTimeFormat('en-US', {
+          timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hour12: false,
+        }).formatToParts(guess).map(x => [x.type, x.value])
+      );
+      const localMs = Date.UTC(+p.year, +p.month-1, +p.day, p.hour === '24' ? 0 : +p.hour, +p.minute);
+      const wantMs = Date.UTC(+head.slice(0,4), +head.slice(5,7)-1, +head.slice(8,10), 23, 59);
+      guess.setTime(guess.getTime() + (wantMs - localMs));
+    }
+    d = guess;
+  }
+  if (isNaN(d.getTime())) throw new Error('Invalid date: ' + head);
+  return { iso: d.toISOString(), timezone: tz };
+}
 
 async function main() {
   const args = parseArgs();
+
   async function prompt(q: string): Promise<string> {
     const rl = createInterface({ input: process.stdin, output: process.stdout });
     return new Promise(res => rl.question(q, ans => { rl.close(); res(ans); }));
   }
 
-  // Prompt for any missing required fields
   if (!args.slug) args.slug = await prompt('Slug (e.g., apr-25): ');
   if (!args.title) args.title = await prompt('Title: ');
   if (!args.date) args.date = await prompt('Date (YYYY-MM-DD Timezone): ');
@@ -53,62 +67,25 @@ async function main() {
   if (!args.excerpt) args.excerpt = await prompt('Excerpt (optional): ');
   if (!args.downloadUrl) args.downloadUrl = await prompt('Download URL (optional): ');
 
-  const slug = args.slug;
-  const tags = args.tags ? args.tags.split(/[,;]+/).map(s=>s.trim()).filter(Boolean) : [];
-  const binding = process.env.D1_BINDING || 'D1_POSTS';
-  const envName = process.env.CF_ENV || 'prod';
+  const tags = args.tags ? args.tags.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : [];
+  const { iso, timezone } = dateIso(args.date);
 
-  // Compute path from UTC parts of date
-  const d = new Date(dateIso(args.date).iso);
-  const yyyy = String(d.getUTCFullYear());
-  const mm = String(d.getUTCMonth() + 1).padStart(2,'0');
-  const pathSeg = `${yyyy}/${mm}/${slug}`;
+  console.log('Upserting album:', args.slug);
 
-  const insert = `INSERT INTO posts (path,slug,type,title,author,excerpt,content,date_utc,timezone,width,thumbnail,download_url)
-    VALUES (
-      ${esc(pathSeg)},
-      ${esc(slug)},
-      'album',
-      ${esc(args.title)},
-      ${esc(args.author)},
-      ${esc(args.excerpt)},
-      '',
-      ${esc(dateIso(args.date).iso)},
-      ${esc(dateIso(args.date).timezone)},
-      ${esc(args.width || 'large')},
-      ${esc(args.thumbnail)},
-      ${esc(args.downloadUrl)}
-    ) ON CONFLICT(path) DO UPDATE SET title=excluded.title,author=excluded.author,excerpt=excluded.excerpt,date_utc=excluded.date_utc,timezone=excluded.timezone,width=excluded.width,thumbnail=excluded.thumbnail,download_url=excluded.download_url;`;
+  const result = await apiUpsertAlbum({
+    slug: args.slug,
+    title: args.title,
+    date_utc: iso,
+    timezone,
+    author: args.author,
+    tags,
+    excerpt: args.excerpt || undefined,
+    thumbnail: args.thumbnail || undefined,
+    download_url: args.downloadUrl || undefined,
+    width: args.width || 'large',
+  });
 
-  const tagSql: string[] = [];
-  for (const t of tags) {
-    const safe = t.replace(/'/g,"''");
-    tagSql.push(`INSERT INTO tags (name) VALUES ('${safe}') ON CONFLICT(name) DO NOTHING;`);
-    tagSql.push(`INSERT INTO post_tags (post_id, tag_id) SELECT p.id, tg.id FROM posts p, tags tg WHERE p.path=${esc(pathSeg)} AND tg.name='${safe}' ON CONFLICT(post_id, tag_id) DO NOTHING;`);
-  }
-  const sql = [insert, ...tagSql].join('\n');
-  const execArgs = ['wrangler','d1','execute',binding,'--command',sql,'--remote','--env', envName];
-  console.log('Upserting album:', slug);
-  await execa('npx', execArgs, { stdio: 'inherit' });
-  console.log('Done.');
-}
-
-function dateIso(dateField: string): { iso: string; timezone: string } {
-  const parts = String(dateField).trim().split(/\s+/);
-  if (parts.length < 2) throw new Error('Date must be "YYYY-MM-DD Timezone" or "ISO Timezone"');
-  const head = parts[0];
-  const tz = parts.slice(1).join(' ');
-  let iso: string;
-  if (head.includes('T')) {
-    const d = new Date(head);
-    if (isNaN(d.getTime())) throw new Error('Invalid ISO timestamp: ' + head);
-    iso = d.toISOString();
-  } else {
-    const d = new Date(head + 'T00:00:00Z');
-    if (isNaN(d.getTime())) throw new Error('Invalid date: ' + head);
-    iso = d.toISOString();
-  }
-  return { iso, timezone: tz };
+  console.log('Done:', result);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

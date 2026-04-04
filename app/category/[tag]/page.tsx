@@ -6,10 +6,6 @@ import { getAllPosts } from '../../../lib/posts';
 import PostGrid from '../../components/PostGrid';
 import { slugToTag, formatTag, tagToSlug } from '../../../lib/tagUtils';
 
-// Enforce fully static generation for categories
-export const dynamic = 'force-static';
-export const revalidate = false;
-export const fetchCache = 'only-cache';
 
 // Pre-generate all categories at build time
 export async function generateStaticParams() {
@@ -55,14 +51,14 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { tag } = await params;
   const base = process.env.BASE_URL || 'https://dhugs.com';
-  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
+  const { CDN_BASE, cdnResize } = await import('../../../lib/constants');
   const { slugToTag, formatTag } = await import('../../../lib/tagUtils');
   const norm = slugToTag(tag);
   const display = formatTag(norm);
   const { getAllPosts } = await import('../../../lib/posts');
   const posts = await getAllPosts();
   const first = posts.find(p => p.tags?.some(t => t.toLowerCase() === norm.toLowerCase()) && p.thumbnail);
-  const img = (first?.thumbnail ? first.thumbnail.replace(/\/o\//, '/l/').replace(/\.avif$/i, '.jpg') : `${cdn}/l/portfolio/thumbnail.jpg`);
+  const img = (first?.thumbnail ? cdnResize(first.thumbnail, 'large').replace(/\.avif$/i, '.jpg') : `${CDN_BASE}/l/portfolio/thumbnail.jpg`);
   const title = `Posts in ${display}`;
   const description = `Articles and albums tagged “${display}”.`;
   const canonical = `/category/${tag}`;

@@ -6,10 +6,6 @@ import PostPreview from '../../../app/components/PostPreview';
 import Link from 'next/link';
 import { getAuthorSlug, getProperAuthorName } from '../../../lib/posts';
 
-// Enforce fully static generation for author pages
-export const dynamic = 'force-static';
-export const revalidate = false;
-export const fetchCache = 'only-cache';
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
@@ -29,7 +25,7 @@ export default async function AuthorPage({ params }: PageProps): Promise<JSX.Ele
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">
-        <Link href="/author" className="--link-color hover:underline">Author:</Link> {getProperAuthorName(authorSlug)}
+        <Link href="/author" className="hover:underline">Author:</Link> {getProperAuthorName(authorSlug)}
       </h1>
       {posts.length === 0 ? (
         <p>No posts found for this author.</p>
@@ -51,7 +47,7 @@ export default async function AuthorPage({ params }: PageProps): Promise<JSX.Ele
         </div>
       )}
       <p className="mt-6">
-        <Link href="/" className="--link-color hover:underline">
+        <Link href="/" className="hover:underline">
           ← Back to Home
         </Link>
       </p>
@@ -64,11 +60,11 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { author } = await params;
   const base = process.env.BASE_URL || 'https://dhugs.com';
-  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
+  const { CDN_BASE, cdnResize } = await import('../../../lib/constants');
   const { getProperAuthorName, getAllPosts } = await import('../../../lib/posts');
   const posts = await getAllPosts();
   const first = posts.find(p => p.thumbnail && (p.author && author === (p.author.toLowerCase().replace(/\s+/g,'-'))));
-  const img = (first?.thumbnail ? first.thumbnail.replace(/\/o\//, '/l/').replace(/\.avif$/i, '.jpg') : `${cdn}/l/portfolio/thumbnail.jpg`);
+  const img = (first?.thumbnail ? cdnResize(first.thumbnail, 'large').replace(/\.avif$/i, '.jpg') : `${CDN_BASE}/l/portfolio/thumbnail.jpg`);
   const display = getProperAuthorName(author);
   const title = `Posts by ${display}`;
   const description = `Articles and albums by ${display}.`;
