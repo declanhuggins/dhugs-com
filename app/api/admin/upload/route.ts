@@ -36,8 +36,18 @@ export async function POST(request: Request) {
     if (heightStr) customMetadata.height = heightStr;
     if (alt) customMetadata.alt = alt;
 
+    // Thumbnails change when the user re-tags — use short cache so CDN doesn't serve stale.
+    // Album images are immutable, so they can cache longer.
+    const isThumbnail = key.includes('/thumbnail.');
+    const cacheControl = isThumbnail
+      ? 'public, max-age=60, s-maxage=60'
+      : 'public, max-age=31536000, immutable';
+
     await env.R2_ASSETS.put(key, buffer, {
-      httpMetadata: { contentType: value.type || 'application/octet-stream' },
+      httpMetadata: {
+        contentType: value.type || 'application/octet-stream',
+        cacheControl,
+      },
       customMetadata,
     });
 

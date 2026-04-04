@@ -338,14 +338,16 @@ function provider.processRenderedPhotos(functionContext, exportContext)
 
       -- Check if this photo has a "thumbnail" keyword
       local keywords = photo:getRawMetadata("keywords") or {}
+      local kwNames = {}
       for _, kw in ipairs(keywords) do
+        kwNames[#kwNames + 1] = kw:getName()
         local kwName = kw:getName():lower()
         if kwName == "thumbnail" or kwName == "thumb" then
           thumbTempFile = filePath
-          logger:trace("Thumbnail keyword found on: " .. avifName)
-          break
         end
       end
+      logger:trace("Keywords on " .. avifName .. ": [" .. table.concat(kwNames, ", ") .. "]"
+        .. (thumbTempFile == filePath and " ** THUMBNAIL **" or ""))
 
       step = step + 1
       progress:setPortionComplete(step, totalSteps)
@@ -511,9 +513,12 @@ function provider.processRenderedPhotos(functionContext, exportContext)
     exportContext.publishedCollectionInfo.remoteId = albumPath
   end
 
+  local thumbMsg = thumbTempFile
+    and "Thumbnail: from keyword-tagged photo"
+    or "Thumbnail: from first image (no keyword found)"
   LrDialogs.message("dhugs.com Publish",
-    string.format("Published %d/%d photos to /%s",
-      uploadedCount, nPhotos, albumPath),
+    string.format("Published %d/%d photos to /%s\n%s",
+      uploadedCount, nPhotos, albumPath, thumbMsg),
     "info")
 end
 
