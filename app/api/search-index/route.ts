@@ -1,9 +1,9 @@
-// Search index — built at build time as a static response, zero KV reads.
-// Rebuilt on every deploy (when D1 data is fresh).
+// Search index — cached in KV to avoid rebuilding on every request.
 import { buildSearchIndex } from '../../../lib/db';
+import { kvGet } from '../../../lib/kv-cache';
 
 export async function GET() {
-  const index = await buildSearchIndex();
+  const index = await kvGet('search-index', buildSearchIndex);
 
   return new Response(JSON.stringify(index), {
     headers: {

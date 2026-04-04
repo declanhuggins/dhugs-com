@@ -1,6 +1,6 @@
-// Album images: queries R2 directly (at build time via wrangler proxy).
-// No KV caching needed — pages are fully static.
+// Album images: R2 queries cached through in-memory + KV layer.
 
+import { kvGet } from './kv-cache';
 import { queryAlbumImages } from './db';
 
 export interface AlbumImage {
@@ -13,5 +13,6 @@ export interface AlbumImage {
 }
 
 export async function getAlbumImages(albumName: string): Promise<AlbumImage[]> {
-  return queryAlbumImages(albumName);
+  const normalized = albumName.replace(/\/+$/, '');
+  return kvGet<AlbumImage[]>(`album:${normalized}`, () => queryAlbumImages(albumName));
 }
