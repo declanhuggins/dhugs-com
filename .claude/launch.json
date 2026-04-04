@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Next.js Dev (Turbopack)",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-l", "-c", "npm run dev"],
+      "port": 3000
+    },
+    {
+      "name": "Next.js Start (Production)",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-l", "-c", "npm run start"],
+      "port": 3000
+    },
+    {
+      "name": "Wrangler Preview (Prod)",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-l", "-c", "npm run preview"],
+      "port": 3000
+    }
+  ]
+}
