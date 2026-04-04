@@ -129,46 +129,30 @@ async function generateThumbnail(filePath) {
   const left = Math.floor((ow - cw) / 2);
   const top = Math.floor((oh - ch) / 2);
 
-  // Full-size cropped thumbnail (for /o/)
-  const croppedAvif = await sharp(filePath)
-    .rotate()
-    .extract({ left, top, width: cw, height: ch })
-    .toFormat('avif', { quality: 60 })
-    .toBuffer();
-  const croppedJpg = await sharp(filePath)
-    .rotate()
-    .extract({ left, top, width: cw, height: ch })
-    .jpeg({ quality: 88, progressive: true })
-    .toBuffer();
+  // Generate all sizes (o/s/m/l) from the source file directly to avoid
+  // double-compression artifacts and ensure all prefixes stay in sync.
+  const allSizes = { o: null, ...SIZES };
 
-  const avifMeta = await sharp(croppedAvif).metadata();
-  const tw = avifMeta.width || cw;
-  const th = avifMeta.height || ch;
-
-  // Upload original-size thumbnail
-  await upload(croppedAvif, `o/${albumPath}/thumbnail.avif`, 'image/avif', tw, th);
-  await upload(croppedJpg, `o/${albumPath}/thumbnail.jpg`, 'image/jpeg', tw, th);
-  console.log(`Uploaded o/ thumbnail (${tw}x${th})`);
-
-  // Generate and upload s/m/l variants of the thumbnail
-  for (const [prefix, targetWidth] of Object.entries(SIZES)) {
+  for (const [prefix, targetWidth] of Object.entries(allSizes)) {
     try {
-      const sizedAvif = await sharp(croppedAvif)
-        .resize(targetWidth)
-        .toFormat('avif', { quality: 60 })
-        .toBuffer();
-      const sizedJpg = await sharp(croppedJpg)
-        .resize(targetWidth)
-        .jpeg({ quality: 88, progressive: true })
-        .toBuffer();
+      let pipeline = sharp(filePath)
+        .rotate()
+        .extract({ left, top, width: cw, height: ch });
 
-      const sm = await sharp(sizedAvif).metadata();
-      const sw = sm.width || targetWidth;
-      const sh = sm.height || 0;
+      if (targetWidth) {
+        pipeline = pipeline.resize(targetWidth);
+      }
 
-      await upload(sizedAvif, `${prefix}/${albumPath}/thumbnail.avif`, 'image/avif', sw, sh);
-      await upload(sizedJpg, `${prefix}/${albumPath}/thumbnail.jpg`, 'image/jpeg', sw, sh);
-      console.log(`Uploaded ${prefix}/ thumbnail (${sw}x${sh})`);
+      const avifBuf = await pipeline.clone().toFormat('avif', { quality: 60 }).toBuffer();
+      const jpgBuf = await pipeline.clone().jpeg({ quality: 88, progressive: true }).toBuffer();
+
+      const avifMeta = await sharp(avifBuf).metadata();
+      const w = avifMeta.width || cw;
+      const h = avifMeta.height || ch;
+
+      await upload(avifBuf, `${prefix}/${albumPath}/thumbnail.avif`, 'image/avif', w, h);
+      await upload(jpgBuf, `${prefix}/${albumPath}/thumbnail.jpg`, 'image/jpeg', w, h);
+      console.log(`Uploaded ${prefix}/ thumbnail (${w}x${h})`);
     } catch (e) {
       console.error(`Failed ${prefix}/ thumbnail:`, e.message);
       process.exitCode = 1;

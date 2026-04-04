@@ -1,6 +1,7 @@
-// Posts module: queries D1 directly (at build time via wrangler proxy).
-// No KV caching needed — pages are fully static.
+// Posts module: D1 queries cached through in-memory + KV layer.
+// Prevents repeated D1 hits on RSC navigations and cache misses.
 
+import { kvGet } from './kv-cache';
 import { queryAllPosts, queryPostByPath } from './db';
 
 export function getAuthorSlug(author: string): string {
@@ -28,9 +29,9 @@ export interface Post {
 }
 
 export async function getAllPosts(): Promise<Post[]> {
-  return queryAllPosts();
+  return kvGet<Post[]>('posts:all', queryAllPosts);
 }
 
 export async function getPostByPath(pathSeg: string): Promise<Post | null> {
-  return queryPostByPath(pathSeg);
+  return kvGet<Post | null>(`post:${pathSeg}`, () => queryPostByPath(pathSeg));
 }

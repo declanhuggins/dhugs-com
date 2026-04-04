@@ -16,7 +16,7 @@ export default async function CategoryIndex() {
   const tags = Array.from(tagSet).sort((a, b) => a.localeCompare(b));
 
   return (
-    <div className="max-w-screen-xl mx-auto p-4">
+    <div className="max-w-7xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Categories</h1>
       {tags.length === 0 ? (
         <p>No categories available.</p>
