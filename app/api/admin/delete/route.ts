@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       await env.R2_ASSETS.delete(key);
       deleted.push(key);
     } catch (e) {
-      console.error(`Failed to delete ${key}:`, e);
+      console.error('Failed to delete key %s:', key, e);
     }
   }
 
