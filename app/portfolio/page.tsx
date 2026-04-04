@@ -2,8 +2,8 @@ import React from 'react';
 import type { Metadata } from 'next';
 import ImageGallery, { GalleryImage } from '../components/ImageGallery';
 import { getAlbumImages } from '../../lib/album';
+import { cdnResize, CDN_BASE } from '../../lib/constants';
 
-export const dynamic = 'force-static';
 
 export default async function PortfolioPage() {
   // Portfolio images are stored under o/portfolio/images
@@ -11,7 +11,7 @@ export default async function PortfolioPage() {
   const albumImages = await getAlbumImages(albumFolder);
   // Use original-quality URLs for lightbox; thumbnails are derived as /m/ by ImageGallery
   const images: GalleryImage[] = albumImages.map(img => ({
-    src: img.largeURL.replace(/\/l\//, '/o/'),
+    src: cdnResize(img.largeURL, 'original'),
     alt: img.alt,
     width: img.width,
     height: img.height,
@@ -29,8 +29,7 @@ export default async function PortfolioPage() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const base = process.env.BASE_URL || 'https://dhugs.com';
-  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
-  const img = `${cdn}/l/portfolio/thumbnail.jpg`;
+  const img = `${CDN_BASE}/l/portfolio/thumbnail.jpg`;
   const canonical = '/portfolio';
   return {
     title: 'Portfolio',

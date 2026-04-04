@@ -31,10 +31,8 @@ export const metadata: Metadata = {
   },
 };
 
-// Apply static generation defaults to the entire app subtree.
-// This ensures Next pre-renders RSC payloads and HTML at build time,
-// so client navigations (with ?_rsc=...) are served from static assets
-// instead of invoking the server function.
+// Static generation: all content pages are pre-rendered at build time.
+// Dynamic routes (API, random) override this with force-dynamic.
 export const dynamic = 'force-static';
 export const revalidate = false;
 export const fetchCache = 'only-cache';
@@ -42,7 +40,7 @@ export const fetchCache = 'only-cache';
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning className="bg-[var(--background)] text-[var(--foreground)] font-mono">
+      <body suppressHydrationWarning className="bg-(--background) text-(--foreground) font-mono">
         <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem={true}>
           <Header />
           <Body>

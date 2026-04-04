@@ -7,10 +7,6 @@ import { sanitizePathSegment } from '../../../lib/sanitizeUrl';
 import { tagToSlug } from '../../../lib/tagUtils';
 import { toDate } from 'date-fns-tz';
 
-// Enforce fully static generation for month archives
-export const dynamic = 'force-static';
-export const revalidate = false;
-export const fetchCache = 'only-cache';
 
 // Generate parameters for year and month archives.
 // Pre-generate all year-month combinations at build time
@@ -65,7 +61,7 @@ export default async function MonthArchive({ params }: PageProps): Promise<JSX.E
   const archiveDate = new Date(parseInt(year), parseInt(month) - 1);
 
   return (
-    <div className="max-w-screen-xl mx-auto p-4">
+    <div className="max-w-7xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">
         <Link href="/archive" className="hover:underline">
           Archive
@@ -82,7 +78,7 @@ export default async function MonthArchive({ params }: PageProps): Promise<JSX.E
                 {post.title}
               </Link>
               {/* Combined metadata line */}
-              <div className="text-sm text-[var(--text-muted)]">
+              <div className="text-sm text-(--text-muted)">
                 {(() => {
                   const postDate = toDate(post.date, { timeZone: post.timezone });
                   const dateString = postDate.toLocaleDateString('en-US', {
@@ -128,7 +124,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { year, month } = await params;
   const base = process.env.BASE_URL || 'https://dhugs.com';
-  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE! : 'https://cdn.dhugs.com';
+  const { CDN_BASE, cdnResize } = await import('../../../lib/constants');
   const { getAllPosts } = await import('../../../lib/posts');
   const posts = await getAllPosts();
   const hit = posts.find(p => {
@@ -137,7 +133,7 @@ export async function generateMetadata(
     const m = d.toLocaleString('en-US', { timeZone: p.timezone, month: '2-digit' });
     return y === year && m === month && p.thumbnail;
   });
-  const img = (hit?.thumbnail ? hit.thumbnail.replace(/\/o\//, '/l/').replace(/\.avif$/i, '.jpg') : `${cdn}/l/portfolio/thumbnail.jpg`);
+  const img = (hit?.thumbnail ? cdnResize(hit.thumbnail, 'large').replace(/\.avif$/i, '.jpg') : `${CDN_BASE}/l/portfolio/thumbnail.jpg`);
   const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString('en-US', { month: 'long' });
   const title = `Archive – ${monthName} ${year}`;
   const description = `Posts from ${monthName} ${year} on Declan Huggins.`;

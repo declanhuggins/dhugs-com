@@ -30,41 +30,63 @@ const baseUrl = process.env.BASE_URL || 'https://dhugs.com';
 const crawlBaseUrl = process.env.CRAWL_BASE_URL || '';
 const crawlMaxPages = Number(process.env.CRAWL_MAX_PAGES || 1000);
 
-async function loadPostsFromSnapshot(): Promise<PostMeta[]> {
-  // Use the precomputed snapshot from dist/data/posts.json
-  const fs = await import('node:fs/promises');
-  const path = await import('node:path');
-  const file = path.join(process.cwd(), 'dist', 'data', 'posts.json');
-  const content = await fs.readFile(file, 'utf8');
-  const rows = JSON.parse(content) as Array<{
-    slug: string;
-    title: string;
-    date: string;
-    timezone: string;
-    author: string;
-    thumbnail?: string | null;
-    width?: string | null;
-    tags?: string[] | null;
-  }>;
-  return rows.map(r => ({
-    slug: r.slug,
-    title: r.title,
-    date: r.date,
-    timezone: r.timezone,
-    author: r.author,
-    thumbnail: r.thumbnail || undefined,
-    width: r.width || undefined,
-    tags: r.tags || undefined,
-  }));
+async function loadPostsFromD1(): Promise<PostMeta[]> {
+  // Query D1 directly via wrangler CLI
+  const { spawnSync } = await import('node:child_process');
+  const binding = process.env.D1_BINDING || 'D1_POSTS';
+  const envName = process.env.CF_ENV || '';
+  const sql = `SELECT p.slug, p.title, p.date_utc as date, p.timezone, p.author, p.thumbnail, p.width,
+    json_group_array(DISTINCT t.name) as tags
+    FROM posts p LEFT JOIN post_tags pt ON pt.post_id=p.id LEFT JOIN tags t ON t.id=pt.tag_id
+    GROUP BY p.id ORDER BY p.date_utc DESC`;
+  const args = ['wrangler', 'd1', 'execute', binding, '--command', sql.replace(/\s+/g, ' ').trim(), '--json', '--remote'];
+  if (envName) args.push('--env', envName);
+  const res = spawnSync('npx', args, { encoding: 'utf8' });
+  if (res.status !== 0) throw new Error(res.stderr || 'wrangler d1 execute failed');
+  const parsed = JSON.parse(res.stdout || '[]');
+  // Extract rows from wrangler response format
+  let rows: Array<Record<string, unknown>> = [];
+  if (Array.isArray(parsed)) {
+    for (const part of parsed) {
+      if (Array.isArray(part?.result)) rows = part.result;
+      else if (Array.isArray(part?.results)) rows = part.results;
+    }
+  } else if (Array.isArray(parsed?.result)) {
+    rows = parsed.result;
+  } else if (Array.isArray(parsed?.results)) {
+    rows = parsed.results;
+  }
+  return rows.map(r => {
+    let tags: string[] | undefined;
+    if (r.tags) {
+      try {
+        const raw = String(r.tags).trim();
+        if (raw.startsWith('[')) {
+          tags = (JSON.parse(raw) as unknown[])
+            .map(v => String(v).trim())
+            .filter(s => s && s !== 'null');
+        }
+      } catch { /* ignore */ }
+    }
+    return {
+      slug: String(r.slug || ''),
+      title: String(r.title || ''),
+      date: String(r.date || ''),
+      timezone: String(r.timezone || ''),
+      author: String(r.author || ''),
+      thumbnail: r.thumbnail ? String(r.thumbnail) : undefined,
+      width: r.width ? String(r.width) : undefined,
+      tags,
+    };
+  });
 }
 
 async function generateSitemap() {
-  // Use the precomputed posts snapshot (no DB at sitemap time)
   let posts: PostMeta[] = [];
   try {
-    posts = await loadPostsFromSnapshot();
+    posts = await loadPostsFromD1();
   } catch (e) {
-    console.warn('Could not load dist/data/posts.json for sitemap; generating minimal sitemap.', e);
+    console.warn('Could not load posts from D1 for sitemap; generating minimal sitemap.', e);
   }
   // Buckets for sitemap grouping
   type Entry = { url: string; changefreq?: string; priority?: number; lastmod?: string; img?: Array<{ url: string; title?: string; caption?: string }>; };

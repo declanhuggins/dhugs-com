@@ -1,19 +1,45 @@
-// db-upsert-post.ts
-// Upsert a markdown post directly into D1 (Option B: DB-first authoring)
-// Usage examples:
+// db-upsert-post.ts — Upsert a markdown post via admin API.
+// Usage:
 //   CF_ENV=dev tsx scripts/db-upsert-post.ts posts/new-article.md
 //   CF_ENV=prod tsx scripts/db-upsert-post.ts posts/new-article.md
-// The markdown file MUST have frontmatter:
-// ---\n title: My Title\n date: 2025-08-27 America/Chicago\n tags: [Tag One, Tag Two]\n excerpt: Short blurb\n author: Declan Huggins\n width: medium\n thumbnail: https://cdn.example.com/... (optional)\n downloadUrl: https://... (optional)\n ---
-// Content body after frontmatter is stored as full content.
 
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { execa } from 'execa';
 import { createInterface } from 'node:readline';
+import { apiUpsertPost } from './lib/api-client';
 
-function esc(v: unknown): string { return v == null ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`; }
+function slugify(s: string): string {
+  return String(s)
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/['']/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function dateIso(dateField: string): { iso: string; timezone: string } {
+  const parts = String(dateField).trim().split(/\s+/);
+  if (parts.length < 2) throw new Error('Date must be "YYYY-MM-DD Timezone"');
+  const ymd = parts[0];
+  const tz = parts.slice(1).join(' ');
+  // Default to 11:59 PM local time in the given timezone
+  const guess = new Date(Date.UTC(+ymd.slice(0,4), +ymd.slice(5,7)-1, +ymd.slice(8,10), 23, 59));
+  for (let i = 0; i < 3; i++) {
+    const p = Object.fromEntries(
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hour12: false,
+      }).formatToParts(guess).map(x => [x.type, x.value])
+    );
+    const localMs = Date.UTC(+p.year, +p.month-1, +p.day, p.hour === '24' ? 0 : +p.hour, +p.minute);
+    const wantMs = Date.UTC(+ymd.slice(0,4), +ymd.slice(5,7)-1, +ymd.slice(8,10), 23, 59);
+    guess.setTime(guess.getTime() + (wantMs - localMs));
+  }
+  const iso = guess.toISOString();
+  return { iso, timezone: tz };
+}
 
 async function main() {
   async function prompt(q: string): Promise<string> {
@@ -28,85 +54,59 @@ async function main() {
     if (!fs.existsSync(entered)) { console.error('File not found:', entered); continue; }
     file = entered;
   }
+
   const raw = fs.readFileSync(file, 'utf8');
-  const parsed = matter(raw) as any;
+  const parsed = matter(raw);
   const data = parsed.data || {};
   const content = parsed.content.trim();
-  // Derive slug from filename (without extension) using improved rules
-  function slugify(s: string): string {
-    return String(s)
-      .toLowerCase()
-      .replace(/&/g, ' and ')
-      .replace(/[’']/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  }
-  const slug = slugify(path.basename(file).replace(/\.md$/,''));
-  const required = ['title','date','author'];
-  for (const r of required) if (!data[r]) { console.error(`Missing required frontmatter field: ${r}`); process.exit(1); }
-  const tags: string[] = Array.isArray(data.tags) ? data.tags : (typeof data.tags === 'string' ? data.tags.split(/[,;]+/).map((s:string)=>s.trim()).filter(Boolean) : []);
-  const binding = process.env.D1_BINDING || 'D1_POSTS';
-  const envName = process.env.CF_ENV || 'prod';
+  const slug = slugify(path.basename(file).replace(/\.md$/, ''));
 
-  // Compute path from UTC parts of date
-  const d = new Date(dateIso(data.date).iso);
-  const yyyy = String(d.getUTCFullYear());
-  const mm = String(d.getUTCMonth() + 1).padStart(2,'0');
-  const pathSeg = `${yyyy}/${mm}/${slug}`;
-
-  // Insert with empty content first to avoid oversized SQL literals, then append in chunks.
-  const cdn = process.env.CDN_SITE || '';
-  const defaultThumb = data.thumbnail || (cdn ? `${cdn}/o/${yyyy}/${mm}/${slug}/thumbnail.avif` : undefined);
-  const insertPost = `INSERT INTO posts (path,slug,type,title,author,excerpt,content,date_utc,timezone,width,thumbnail,download_url)
-    VALUES (
-      ${esc(pathSeg)},
-      ${esc(slug)},
-      'markdown',
-      ${esc(data.title)},
-      ${esc(data.author)},
-      ${esc(data.excerpt)},
-      '',
-      ${esc(dateIso(data.date).iso)},
-      ${esc(dateIso(data.date).timezone)},
-      ${esc(data.width || 'medium')},
-      ${esc(defaultThumb)},
-      ${esc(data.downloadUrl)}
-    ) ON CONFLICT(path) DO UPDATE SET title=excluded.title,author=excluded.author,excerpt=excluded.excerpt,date_utc=excluded.date_utc,timezone=excluded.timezone,width=excluded.width,thumbnail=excluded.thumbnail,download_url=excluded.download_url;`;
-
-  const tagSql: string[] = [];
-  for (const t of tags) {
-    const safeTag = t.replace(/'/g,"''");
-    tagSql.push(`INSERT INTO tags (name) VALUES ('${safeTag}') ON CONFLICT(name) DO NOTHING;`);
-    tagSql.push(`INSERT INTO post_tags (post_id, tag_id)
-      SELECT p.id, tg.id FROM posts p, tags tg WHERE p.path=${esc(pathSeg)} AND tg.name='${safeTag}' ON CONFLICT(post_id, tag_id) DO NOTHING;`);
+  const required = ['title', 'date', 'author'];
+  for (const r of required) {
+    if (!data[r]) {
+      console.error(`Missing required frontmatter field: ${r}`);
+      process.exit(1);
+    }
   }
 
-  const stmts: string[] = [insertPost];
-  // Append content in safe chunks
-  const chunkSize = 4000;
-  for (let i = 0; i < content.length; i += chunkSize) {
-    const part = content.slice(i, i + chunkSize).replace(/'/g, "''");
-    stmts.push(`UPDATE posts SET content = COALESCE(content,'') || '${part}' WHERE path=${esc(pathSeg)};`);
-  }
-  stmts.push(...tagSql);
+  const tags: string[] = Array.isArray(data.tags)
+    ? data.tags
+    : (typeof data.tags === 'string' ? data.tags.split(/[,;]+/).map((s: string) => s.trim()).filter(Boolean) : []);
 
-  const sql = stmts.join('\n');
-  const args = ['wrangler','d1','execute',binding,'--command',sql,'--remote','--env', envName];
+  const { iso, timezone } = dateIso(data.date);
+  // Derive year/month from local date in the post's timezone (not UTC)
+  const d = new Date(iso);
+  const dateParts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone, year: 'numeric', month: '2-digit',
+    }).formatToParts(d).map(p => [p.type, p.value])
+  );
+  const yyyy = dateParts.year;
+  const mm = dateParts.month;
+  const postPath = `${yyyy}/${mm}/${slug}`;
 
-  console.log('Executing upsert for markdown post:', slug);
-  await execa('npx', args, { stdio: 'inherit' });
-  console.log('Done.');
-}
+  const cdn = process.env.CDN_SITE || 'https://cdn.dhugs.com';
+  const thumbnail = data.thumbnail || `${cdn}/o/${yyyy}/${mm}/${slug}/thumbnail.avif`;
 
-function dateIso(dateField: string): { iso: string; timezone: string } {
-  // Expect format 'YYYY-MM-DD TZ'
-  const parts = String(dateField).trim().split(/\s+/);
-  if (parts.length < 2) throw new Error('Date must be "YYYY-MM-DD Timezone"');
-  const [ymd, tz] = [parts[0], parts.slice(1).join(' ')];
-  // Leave ISO conversion to browser? Keep stored date_utc as "YYYY-MM-DDT00:00:00.000Z" by naive UTC interpretation.
-  const iso = new Date(ymd + 'T00:00:00Z').toISOString();
-  return { iso, timezone: tz };
+  console.log(`Upserting post: ${slug} -> ${postPath}`);
+
+  const result = await apiUpsertPost({
+    path: postPath,
+    slug,
+    type: 'markdown',
+    title: data.title,
+    author: data.author,
+    date_utc: iso,
+    timezone,
+    excerpt: data.excerpt,
+    content,
+    width: data.width || 'medium',
+    thumbnail,
+    download_url: data.downloadUrl,
+    tags,
+  });
+
+  console.log('Done:', result);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

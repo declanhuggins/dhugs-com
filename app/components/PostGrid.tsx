@@ -3,51 +3,19 @@ import React from 'react';
 import PostPreview from './PostPreview';
 import { Post } from '../../lib/posts';
 import styles from './PostGrid.module.css';
+import { parseTags } from '../../lib/tagUtils';
+import { CDN_BASE, cdnResize } from '../../lib/constants';
 
 interface PostGridProps {
   posts: Post[];
 }
 
 export default function PostGrid({ posts }: PostGridProps) {
-  const cdn = (process.env.CDN_SITE && /^https?:\/\//.test(process.env.CDN_SITE)) ? process.env.CDN_SITE : 'https://cdn.dhugs.com';
-  const toMediumThumb = (src?: string): string | undefined => {
-    if (!src) return src;
-    try {
-      const u = new URL(src);
-      return u.origin + u.pathname.replace(/\/o\//, '/m/');
-    } catch {
-      return src.replace(/\/o\//, '/m/');
-    }
-  };
   const mediumThumb = (post: Post): string => {
-    // Build m/YYYY/MM/slug/thumbnail.avif for card thumbnails
     const d = new Date(post.date);
     const y = d.getUTCFullYear();
     const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-    return `${cdn}/m/${y}/${m}/${post.slug}/thumbnail.avif`;
-  };
-  const coerceTags = (t: unknown): string[] | undefined => {
-    if (Array.isArray(t)) {
-      if (t.length === 1) {
-        const only = String(t[0] ?? '').trim();
-        if (only.startsWith('[')) {
-          try { return (JSON.parse(only) as unknown[]).map(x => String(x)); } catch { return [only]; }
-        }
-      }
-      return t.map(x => String(x));
-    }
-    if (typeof t === 'string') {
-      const s = t.trim();
-      if (s.startsWith('[')) {
-        try {
-          return (JSON.parse(s) as unknown[]).map(x => String(x));
-        } catch {
-          // Fall back to delimiter parsing below when JSON parsing fails.
-        }
-      }
-      return s.split(/[,|]+/).map(x => x.trim()).filter(Boolean);
-    }
-    return undefined;
+    return `${CDN_BASE}/m/${y}/${m}/${post.slug}/thumbnail.avif`;
   };
   return (
     <div className={styles.grid}>
@@ -60,8 +28,8 @@ export default function PostGrid({ posts }: PostGridProps) {
           date={post.date}
           timezone={post.timezone}
           imageSrc={mediumThumb(post)}
-          thumbnail={toMediumThumb(post.thumbnail)}
-          tags={coerceTags((post as unknown as { tags?: unknown }).tags)}
+          thumbnail={post.thumbnail ? cdnResize(post.thumbnail, 'medium') : undefined}
+          tags={parseTags((post as unknown as { tags?: unknown }).tags)}
           priority={idx < 2}
         />
       ))}

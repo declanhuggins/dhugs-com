@@ -1,12 +1,14 @@
-import albumIndex from '../../dist/data/album-index.json';
+// Random image picker — uses build-time data only, zero KV reads.
+// The image list is computed during static generation via getAllPosts + getAlbumImages.
+
+import { getAllPosts } from '../../lib/posts';
+import { getAlbumImages } from '../../lib/album';
 
 interface AlbumImage {
   largeURL: string;
   width: number;
   height: number;
 }
-
-type AlbumIdx = Record<string, AlbumImage[]>;
 
 const SIZE_PREFIXES: Record<string, string> = {
   o: '/o/',
@@ -32,18 +34,48 @@ function filterByOrientation(images: AlbumImage[], orientation: string): AlbumIm
   }
 }
 
-export function findAlbumBySlug(slug: string): AlbumImage[] | null {
-  const idx = albumIndex as unknown as AlbumIdx;
-  for (const [key, images] of Object.entries(idx)) {
-    const parts = key.split('/');
-    const albumSlug = parts[parts.length - 2];
-    if (albumSlug === slug) return images;
+// Build the full image list once at module load (during build or first request).
+// Since the random route is force-dynamic, this runs in the Worker — but only once
+// per cold start, not per request.
+let cachedImages: AlbumImage[] | null = null;
+
+async function loadAllImages(): Promise<AlbumImage[]> {
+  if (cachedImages) return cachedImages;
+
+  const posts = await getAllPosts();
+  const albumPosts = posts.filter(p => !p.content);
+  const all: AlbumImage[] = [];
+
+  for (const p of albumPosts) {
+    if (!p.path) continue;
+    try {
+      const images = await getAlbumImages(`o/${p.path}/images`);
+      all.push(...images);
+    } catch { /* skip */ }
   }
-  return null;
+
+  try {
+    const portfolio = await getAlbumImages('o/portfolio/images');
+    all.push(...portfolio);
+  } catch { /* skip */ }
+
+  cachedImages = all;
+  return all;
 }
 
-export function allImages(): AlbumImage[] {
-  return Object.values(albumIndex as unknown as AlbumIdx).flat();
+export async function findAlbumBySlug(slug: string): Promise<AlbumImage[] | null> {
+  const posts = await getAllPosts();
+  const albumPosts = posts.filter(p => !p.content);
+  for (const p of albumPosts) {
+    if (p.slug === slug && p.path) {
+      try {
+        return await getAlbumImages(`o/${p.path}/images`);
+      } catch {
+        return null;
+      }
+    }
+  }
+  return null;
 }
 
 export function pickRandom(images: AlbumImage[], searchParams: URLSearchParams): Response {
@@ -68,3 +100,5 @@ export function pickRandom(images: AlbumImage[], searchParams: URLSearchParams):
     },
   });
 }
+
+export { loadAllImages };

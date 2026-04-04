@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
@@ -28,33 +26,28 @@ yarn-error.log*
 # local env files
 .env*.local
 
-# vercel
-.vercel
-
 # typescript
 *.tsbuildinfo
 env.d.ts
 next-env.d.ts
 
-# OpenNext
+# OpenNext / Cloudflare
 /.open-next
-
-# wrangler files
 .wrangler
 .dev.vars*
 !.dev.vars.example
 .env*
 !.env.example
-/dist*
 
-# Vercel build output for Next-on-Pages
-.vercel/output
+# Claude Code (keep launch.json, ignore personal settings/memory)
+.claude/settings.json
+.claude/settings.local.json
 
-# data
-/data*
-/public/search-index.json
-/public/random-image.json
+# Visual test screenshots (keep baselines, ignore current runs)
+tests/e2e/screenshots/current/
 
-# sitemap
+# Generated public assets
 /public/sitemap.xml
 /public/sitemaps*
+/public/search-index.json
+/public/random-image.json

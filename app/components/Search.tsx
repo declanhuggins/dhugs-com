@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import styles from './Header.module.css';
+import Icon from './Icon';
 
 export default function Search() {
   const [query, setQuery] = useState('');
@@ -21,33 +21,23 @@ export default function Search() {
       {isExpanded ? (
         <form onSubmit={handleSearch} className={styles.searchForm}>
           <input
-            type="text"
+            type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search..."
+            autoComplete="off"
+            aria-label="Search posts and albums"
             className={styles.searchInput}
           />
           <button type="submit" className={`${styles.searchButton} ${styles.searchButtonExtra}`}>
-            <Image
-              src="/icons/magnifying.svg"
-              alt="Search"
-              width={20}
-              height={20}
-              className={`svg-foreground ${styles.socialIcon}`}
-            />
+            <Icon name="magnifying" size={20} label="Search" className={styles.socialIcon} />
           </button>
           <button
             type="button"
             onClick={() => setIsExpanded(false)}
             className={`${styles.searchButton} ${styles.searchButtonExtra}`}
           >
-            <Image
-              src="/icons/cross.svg"
-              alt="Close"
-              width={20}
-              height={20}
-              className={`svg-foreground ${styles.socialIcon} ${styles.closeIcon}`}
-            />
+            <Icon name="cross" size={20} label="Close" className={`${styles.socialIcon} ${styles.closeIcon}`} />
           </button>
         </form>
       ) : (
@@ -55,13 +45,7 @@ export default function Search() {
           onClick={() => setIsExpanded(true)}
           className={styles.searchButton}
         >
-          <Image
-            src="/icons/magnifying.svg"
-            alt="Search"
-            width={20}
-            height={20}
-            className={`svg-foreground ${styles.socialIcon}`}
-          />
+          <Icon name="magnifying" size={20} label="Search" className={styles.socialIcon} />
         </button>
       )}
     </div>

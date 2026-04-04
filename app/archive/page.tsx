@@ -42,7 +42,7 @@ export default async function ArchivesTimeline() {
                     <Link
                       key={month}
                       href={`/${year}/${month}`}
-                      className="px-4 py-2 bg-[var(--footer-background)] text-[var(--foreground)] rounded hover:bg-[var(--link-color)] hover:text-[var(--background)] whitespace-nowrap"
+                      className="px-4 py-2 bg-(--footer-background) text-(--foreground) rounded hover:bg-(--link-color) hover:text-(--background) whitespace-nowrap"
                     >
                       {new Date(parseInt(year), parseInt(month) - 1)
                         .toLocaleDateString('en-US', { month: 'long' })}

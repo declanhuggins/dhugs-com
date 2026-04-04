@@ -1,13 +1,16 @@
 'use client';
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import styles from './Header.module.css';
+import Icon from './Icon';
+import type { ComponentProps } from 'react';
+
+type IconName = ComponentProps<typeof Icon>['name'];
 
 export interface MenuItem {
   title: string;
   href: string;
-  icon: string;
+  icon: IconName;
 }
 
 interface HamburgerMenuProps {
@@ -18,6 +21,29 @@ interface HamburgerMenuProps {
 
 export default function HamburgerMenu({ menuItems, orientation = 'vertical', position = 'below' }: HamburgerMenuProps) {
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const close = useCallback(() => setOpen(false), []);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open, close]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        close();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [open, close]);
 
   const allowedDomains = ['instagram.com', 'linkedin.com'];
   function shouldOpenInNewTab(href: string): boolean {
@@ -30,17 +56,10 @@ export default function HamburgerMenu({ menuItems, orientation = 'vertical', pos
   const dropdownClass = `${styles.hamburgerMenuDropdown} ${styles[position]} ${orientation === 'horizontal' ? styles.horizontalDropdown : ''}`;
   
   return (
-    <div className="hamburgerContainer" style={{ position: 'relative' }}>
-      <button onClick={() => setOpen(!open)} className={styles.searchButton}>
+    <div ref={containerRef} className="hamburgerContainer" style={{ position: 'relative' }}>
+      <button onClick={() => setOpen(!open)} aria-expanded={open} className={styles.searchButton}>
         <span className="sr-only">Menu</span>
-        <Image 
-          key={open ? "cross" : "burger"}
-          src={open ? "/icons/cross.svg" : "/icons/burger.svg"} 
-          alt="Menu" 
-          width={30} 
-          height={30} 
-          className="svg-foreground" 
-        />
+        <Icon name={open ? "cross" : "burger"} size={30} />
       </button>
       {open && (
         <div className={dropdownClass}>
@@ -52,13 +71,7 @@ export default function HamburgerMenu({ menuItems, orientation = 'vertical', pos
               onClick={() => setOpen(false)}
               target={shouldOpenInNewTab(item.href) ? '_blank' : '_self'}
             >
-              <Image
-                src={item.icon}
-                alt={item.title}
-                width={20}
-                height={20}
-                className={`svg-foreground ${styles.socialIcon}`}
-              />
+              <Icon name={item.icon} size={20} className={styles.socialIcon} />
             </Link>
           ))}
         </div>

@@ -1,8 +1,9 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState, Suspense } from 'react';
+import { useEffect, useMemo, useRef, useState, useDeferredValue, Suspense } from 'react';
 import PostGrid from '../components/PostGrid';
 import type { Post } from '../../lib/posts';
+import { parseTags } from '../../lib/tagUtils';
 
 type DocMeta = {
   path?: string;
@@ -32,7 +33,7 @@ function tokenize(q: string): string[] {
 }
 
 async function loadIndex(): Promise<BM25IndexV3 | LegacyIndexItem[]> {
-  const res = await fetch('/search-index.json', { cache: 'force-cache' });
+  const res = await fetch('/api/search-index', { cache: 'force-cache' });
   if (!res.ok) return [] as LegacyIndexItem[];
   const json = await res.json();
   return json as BM25IndexV3 | LegacyIndexItem[];
@@ -75,19 +76,6 @@ function scoreLegacy(list: LegacyIndexItem[], terms: string[]): Post[] {
   const q = terms.join(' ');
   const out: Post[] = [];
   for (const item of list) if (item.h.includes(q)) {
-    // Normalize legacy tags which may be serialized as a JSON string
-    let normTags: string[] | undefined = undefined;
-    if (Array.isArray(item.tags)) normTags = item.tags;
-    else if (typeof (item as unknown as { tags?: unknown }).tags === 'string') {
-      const s = String((item as unknown as { tags?: string }).tags);
-      try {
-        normTags = s.trim().startsWith('[')
-          ? (JSON.parse(s) as unknown[]).map(x => String(x))
-          : s.split(/[,|]+/).map(x => x.trim()).filter(Boolean);
-      } catch {
-        normTags = s.split(/[,|]+/).map(x => x.trim()).filter(Boolean);
-      }
-    }
     out.push({
       path: item.path,
       slug: item.slug,
@@ -96,7 +84,7 @@ function scoreLegacy(list: LegacyIndexItem[], terms: string[]): Post[] {
       timezone: item.timezone,
       excerpt: item.excerpt,
       content: '',
-      tags: normTags,
+      tags: parseTags(item.tags),
       author: item.author,
       thumbnail: item.thumbnail,
       width: (item.width || 'medium') as Post['width'],
@@ -114,51 +102,33 @@ function isV3Index(idx: BM25IndexV3 | LegacyIndexItem[] | null): idx is BM25Inde
 
 function SearchResultsContent() {
   const searchParams = useSearchParams();
-  const query = searchParams ? searchParams.get('q') || '' : '';
+  const rawQuery = searchParams ? searchParams.get('q') || '' : '';
+  const query = useDeferredValue(rawQuery);
   const [posts, setPosts] = useState<Post[]>([]);
-  const loading = useRef(false);
+  const [indexError, setIndexError] = useState(false);
+  const loadingRef = useRef(false);
+  const isStale = rawQuery !== query;
 
   useEffect(() => {
     let mounted = true;
     async function run() {
-      if (!indexCache && !loading.current) {
-        loading.current = true;
-        try { indexCache = await loadIndex(); } finally { loading.current = false; }
+      if (!indexCache && !loadingRef.current) {
+        loadingRef.current = true;
+        try {
+          indexCache = await loadIndex();
+          if (mounted) setIndexError(false);
+        } catch {
+          if (mounted) setIndexError(true);
+        } finally {
+          loadingRef.current = false;
+        }
       }
       const terms = tokenize(query);
       if (!indexCache || !mounted) return;
       const results = isV3Index(indexCache)
         ? scoreV3(indexCache, terms)
         : scoreLegacy(indexCache as LegacyIndexItem[], terms);
-      // Normalize tags to string[] for consistent rendering
-      const normalized = results.map((p) => {
-        let t: string[] | undefined = undefined;
-        if (Array.isArray(p.tags)) {
-          // Handle bad shape: ["[\"Tag1\",\"Tag2\"]"]
-          if (p.tags.length === 1) {
-            const only = String(p.tags[0] ?? '').trim();
-            if (only.startsWith('[')) {
-              try { t = (JSON.parse(only) as unknown[]).map(x => String(x)); }
-              catch { t = [only]; }
-            } else {
-              t = p.tags.map(x => String(x));
-            }
-          } else {
-            t = p.tags.map(x => String(x));
-          }
-        } else {
-          const rawTags: unknown = (p as unknown as { tags?: unknown }).tags;
-          if (typeof rawTags === 'string') {
-            const s = rawTags;
-            try {
-              t = s.trim().startsWith('[') ? (JSON.parse(s) as string[]).map(x=>String(x)) : s.split(/[,|]+/).map(x=>x.trim()).filter(Boolean);
-            } catch {
-              t = s.split(/[,|]+/).map(x=>x.trim()).filter(Boolean);
-            }
-          }
-        }
-        return { ...p, tags: t } as Post;
-      });
+      const normalized = results.map(p => ({ ...p, tags: parseTags(p.tags) } as Post));
       if (mounted) setPosts(normalized);
     }
     run();
@@ -166,13 +136,17 @@ function SearchResultsContent() {
   }, [query]);
 
   const title = useMemo(() => (
-    <h1 className="text-2xl font-bold mb-4">Search Results for &quot;{query}&quot;</h1>
-  ), [query]);
+    <h1 className="text-2xl font-bold mb-4">Search Results for &quot;{rawQuery}&quot;</h1>
+  ), [rawQuery]);
 
   return (
-    <div>
+    <div style={{ opacity: isStale ? 0.7 : 1, transition: 'opacity 150ms' }}>
       {title}
-      <PostGrid posts={posts} />
+      {indexError ? (
+        <p className="text-(--text-muted)">Search is temporarily unavailable. Please try again later.</p>
+      ) : (
+        <PostGrid posts={posts} />
+      )}
     </div>
   );
 }

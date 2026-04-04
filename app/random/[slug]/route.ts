@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
-  const images = findAlbumBySlug(slug);
+  const images = await findAlbumBySlug(slug);
   if (!images || !images.length) {
     return new Response(`Album "${slug}" not found`, { status: 404 });
   }
