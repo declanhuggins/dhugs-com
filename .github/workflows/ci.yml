@@ -13,7 +13,7 @@ jobs:
       - name: Read NODE_VERSION from wrangler.jsonc
         id: node
         run: |
-          version=$(node -p "JSON.parse(require('fs').readFileSync('wrangler.jsonc','utf8').replace(/\/\/.*/g,''))?.vars?.NODE_VERSION")
+          version=$(grep -m1 '"NODE_VERSION"' wrangler.jsonc | sed 's/.*: *"\([^"]*\)".*/\1/')
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v4
