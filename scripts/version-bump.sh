@@ -42,7 +42,7 @@ mv wrangler.jsonc.tmp wrangler.jsonc
 echo "Compatibility date set to $TODAY"
 
 # 3. Commit and tag
-git add package.json wrangler.jsonc
+git add package.json package-lock.json wrangler.jsonc
 git commit -m "$(cat <<EOF
 v${NEW_VERSION}
 
@@ -53,4 +53,7 @@ EOF
 git tag -a "v${NEW_VERSION}" -m "v${NEW_VERSION}"
 echo ""
 echo "Created commit and tag v${NEW_VERSION}"
-echo "Run 'git push --follow-tags' to push and trigger a Cloudflare deploy."
+
+# 4. Push commit and tags
+git push --follow-tags
+echo "Pushed to remote — Cloudflare deploy triggered."
