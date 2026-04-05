@@ -3,8 +3,8 @@
 
 import { useTheme } from 'next-themes';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import "./ThemeToggle.module.css";
+import Icon from './Icon';
 
 export default function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -16,9 +16,10 @@ export default function ThemeToggle() {
   if (!mounted) {
     return (
       <button
-        disabled
+        disabled={true}
         className="theme-toggle-button rounded-full loading"
         aria-label="Toggle theme loading"
+        suppressHydrationWarning
       >
         <div className="theme-toggle-loading-icon rounded-full" />
       </button>
@@ -33,12 +34,11 @@ export default function ThemeToggle() {
       className="theme-toggle-button rounded-full"
       aria-label="Toggle theme"
     >
-      <Image
-        src={currentTheme === 'light' ? '/icons/moon.svg' : '/icons/sun.svg'}
-        alt={currentTheme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-        width={20}
-        height={20}
-        className="theme-toggle-icon svg-foreground"
+      <Icon
+        name={currentTheme === 'light' ? 'moon' : 'sun'}
+        size={20}
+        label={currentTheme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+        className="theme-toggle-icon"
       />
     </button>
   );

@@ -1,11 +1,12 @@
 // CategoryIndex: Lists all unique categories from posts.
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getAllPosts } from '../../lib/posts';
 import { tagToSlug } from '../../lib/tagUtils';
 
-export default function CategoryIndex() {
-  const posts = getAllPosts();
+export default async function CategoryIndex() {
+  const posts = await getAllPosts();
   const tagSet = new Set<string>();
   posts.forEach(post => {
     if (post.tags && Array.isArray(post.tags)) {
@@ -15,7 +16,7 @@ export default function CategoryIndex() {
   const tags = Array.from(tagSet).sort((a, b) => a.localeCompare(b));
 
   return (
-    <div className="max-w-screen-xl mx-auto p-4">
+    <div className="max-w-7xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Categories</h1>
       {tags.length === 0 ? (
         <p>No categories available.</p>
@@ -33,3 +34,13 @@ export default function CategoryIndex() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: 'Categories',
+  description: 'Browse posts and photo albums by category.',
+  alternates: { canonical: '/category' },
+  openGraph: {
+    title: 'Categories',
+    description: 'Browse posts and photo albums by category.',
+  },
+};

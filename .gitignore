@@ -1,14 +1,8 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+.pnp.js
+.yarn/install-state.gz
 
 # testing
 /coverage
@@ -28,21 +22,32 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
+# local env files
+.env*.local
 
 # typescript
 *.tsbuildinfo
+env.d.ts
 next-env.d.ts
 
-# wrangler files
+# OpenNext / Cloudflare
+/.open-next
 .wrangler
 .dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
 
-# links
-/links*
+# Claude Code (keep launch.json, ignore personal settings/memory)
+.claude/settings.json
+.claude/settings.local.json
+
+# Visual test screenshots (keep baselines, ignore current runs)
+tests/e2e/screenshots/current/
+
+# Generated public assets
+/public/sitemap.xml
+/public/sitemaps*
+/public/search-index.json
+/public/random-image.json

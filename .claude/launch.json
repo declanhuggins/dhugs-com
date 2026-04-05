@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "configurations": [
+    {
+      "name": "Next.js Dev (Turbopack)",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-c", "source ~/.zprofile 2>/dev/null; export PWD=$(git rev-parse --show-toplevel 2>/dev/null || pwd) && cd $PWD && npm run dev"],
+      "port": 3000
+    },
+    {
+      "name": "Next.js Start (Production)",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-c", "source ~/.zprofile 2>/dev/null; export PWD=$(git rev-parse --show-toplevel 2>/dev/null || pwd) && cd $PWD && npm run start"],
+      "port": 3000
+    },
+    {
+      "name": "Wrangler Preview (Prod)",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-c", "source ~/.zprofile 2>/dev/null; export PWD=$(git rev-parse --show-toplevel 2>/dev/null || pwd) && cd $PWD && npm run preview"],
+      "port": 3000
+    },
+    {
+      "name": "Wrangler Preview (Dev)",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-c", "source ~/.zprofile 2>/dev/null; export PWD=$(git rev-parse --show-toplevel 2>/dev/null || pwd) && cd $PWD && npm run preview:dev"],
+      "port": 3000
+    }
+  ]
+}

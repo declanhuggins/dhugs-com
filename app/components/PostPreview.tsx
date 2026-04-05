@@ -3,8 +3,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './PostPreview.module.css';
 import React from 'react';
-import { tagToSlug } from '../../lib/tagUtils';
+import { tagToSlug, parseTags } from '../../lib/tagUtils';
 import { sanitizePathSegment } from '../../lib/sanitizeUrl';
+import Icon from './Icon';
 
 interface PostPreviewProps {
   title: string;
@@ -16,9 +17,10 @@ interface PostPreviewProps {
   slug: string;
   altText?: string;
   tags?: string[];
+  priority?: boolean;
 }
 
-export default function PostPreview({ title, author, date, timezone, imageSrc, thumbnail, slug, altText, tags }: PostPreviewProps) {
+export default function PostPreview({ title, author, date, timezone, imageSrc, thumbnail, slug, altText, tags, priority }: PostPreviewProps) {
   const postDate = new Date(date);
   const year = postDate.getFullYear().toString();
   const month = postDate.toLocaleString('en-US', {
@@ -32,6 +34,7 @@ export default function PostPreview({ title, author, date, timezone, imageSrc, t
     timeZone: timezone
   });
   const imgSrc = thumbnail || imageSrc;
+  const displayTags = parseTags(tags);
 
   return (
     <article className={styles.wrapper}>
@@ -41,12 +44,12 @@ export default function PostPreview({ title, author, date, timezone, imageSrc, t
             {title}
           </Link>
         </h2>
-        {tags && tags.length > 0 && (
+        {displayTags && displayTags.length > 0 && (
           <div className={styles.tags}>
-            {tags.map((tag, index) => (
+            {displayTags.map((tag, index) => (
               <Link 
                 key={index} 
-                href={`/category/${tagToSlug(tag)}/`} 
+                href={`/category/${tagToSlug(tag)}`} 
                 className={styles.tag}
               >
                 {tag}
@@ -57,34 +60,24 @@ export default function PostPreview({ title, author, date, timezone, imageSrc, t
       </div>
       <div className={styles.meta}>
         <Link href={`/author/${author.toLowerCase().replace(/\s+/g, '-')}`} className={styles.author}>
-          <Image 
-            src="/icons/user.svg" 
-            alt="Author" 
-            width={16} 
-            height={16} 
-            className={`${styles.icon} svg-foreground`} 
-          />
+          <Icon name="user" size={16} className={styles.icon} />
           {author}
         </Link>
         <span className={styles.date}>
-          <Image 
-            src="/icons/calendar.svg" 
-            alt="Calendar" 
-            width={16} 
-            height={16} 
-            className={`${styles.icon} svg-foreground`} 
-          />
+          <Icon name="calendar" size={16} className={styles.icon} />
           {formattedDate}
         </span>
       </div>
       <Link href={`/${sanitizePathSegment(year)}/${sanitizePathSegment(month)}/${sanitizePathSegment(slug)}`} className={styles.link}>
         <div className={styles.imageWrapper}>
           <Image
-            unoptimized={!!thumbnail}
             src={imgSrc}
             alt={altText || title}
             width={700}
             height={475}
+            sizes="(min-width: 768px) 50vw, 100vw"
+            loading={priority ? undefined : 'lazy'}
+            priority={!!priority}
             className={styles.image}
           />
         </div>

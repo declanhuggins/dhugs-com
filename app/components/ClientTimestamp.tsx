@@ -28,5 +28,5 @@ export default function ClientTimestamp() {
     setTimestamp(computeTimestamp());
   }, []);
 
-  return <span style={{ opacity: timestamp === placeholder ? 0 : 1 }}>{timestamp}</span>;
+  return <span>{timestamp}</span>;
 }

@@ -1,14 +1,14 @@
 // AuthorPage: Displays posts for a specific author.
 import React, { JSX } from 'react';
+import type { Metadata } from 'next';
 import { getAllPosts } from '../../../lib/posts';
 import PostPreview from '../../../app/components/PostPreview';
 import Link from 'next/link';
 import { getAuthorSlug, getProperAuthorName } from '../../../lib/posts';
 
-export const dynamic = 'force-static';
 
 export async function generateStaticParams() {
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
   const authors = Array.from(new Set(posts.map(post => getAuthorSlug(post.author))));
   return authors.map(author => ({ author }));
 }
@@ -20,12 +20,12 @@ interface PageProps {
 
 export default async function AuthorPage({ params }: PageProps): Promise<JSX.Element> {
   const { author: authorSlug } = await params;
-  const posts = getAllPosts().filter(post => getAuthorSlug(post.author) === authorSlug);
+  const posts = (await getAllPosts()).filter(post => getAuthorSlug(post.author) === authorSlug);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">
-        <Link href="/author" className="--link-color hover:underline">Author:</Link> {getProperAuthorName(authorSlug)}
+        <Link href="/author" className="hover:underline">Author:</Link> {getProperAuthorName(authorSlug)}
       </h1>
       {posts.length === 0 ? (
         <p>No posts found for this author.</p>
@@ -39,7 +39,7 @@ export default async function AuthorPage({ params }: PageProps): Promise<JSX.Ele
               author={post.author}
               date={post.date}
               timezone={post.timezone}
-              imageSrc={`/thumbnails/${post.slug}.avif`}
+              imageSrc={`/m/${post.slug}.avif`}
               thumbnail={post.thumbnail}
               tags={post.tags}
             />
@@ -47,10 +47,37 @@ export default async function AuthorPage({ params }: PageProps): Promise<JSX.Ele
         </div>
       )}
       <p className="mt-6">
-        <Link href="/" className="--link-color hover:underline">
+        <Link href="/" className="hover:underline">
           ← Back to Home
         </Link>
       </p>
     </div>
   );
+}
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ author: string }> }
+): Promise<Metadata> {
+  const { author } = await params;
+  const base = process.env.BASE_URL || 'https://dhugs.com';
+  const { CDN_BASE, cdnResize } = await import('../../../lib/constants');
+  const { getProperAuthorName, getAllPosts } = await import('../../../lib/posts');
+  const posts = await getAllPosts();
+  const first = posts.find(p => p.thumbnail && (p.author && author === (p.author.toLowerCase().replace(/\s+/g,'-'))));
+  const img = (first?.thumbnail ? cdnResize(first.thumbnail, 'large').replace(/\.avif$/i, '.jpg') : `${CDN_BASE}/l/portfolio/thumbnail.jpg`);
+  const display = getProperAuthorName(author);
+  const title = `Posts by ${display}`;
+  const description = `Articles and albums by ${display}.`;
+  const canonical = `/author/${author}`;
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: new URL(canonical, base).toString(),
+      images: [img],
+    },
+  };
 }

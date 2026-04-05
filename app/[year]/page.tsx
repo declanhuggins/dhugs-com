@@ -1,9 +1,12 @@
 import React, { JSX } from 'react';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAllPosts } from '../../lib/posts';
 import Link from 'next/link';
 
+
 // Generate unique year params based on post dates.
+// Pre-generate all years at build time
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   const yearSet = new Set<string>();
@@ -45,7 +48,7 @@ export default async function YearArchive({ params }: PageProps): Promise<JSX.El
   const months = Array.from(monthMap.values()).sort((a, b) => parseInt(a.month) - parseInt(b.month));
 
   return (
-    <div className="max-w-screen-xl mx-auto p-4">
+    <div className="max-w-7xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">
         <Link href="/archive" className="hover:underline">
           Archive
@@ -56,12 +59,12 @@ export default async function YearArchive({ params }: PageProps): Promise<JSX.El
           <li key={month} className="flex items-center space-x-2">
             <Link
               href={`/${year}/${month}`}
-              className="text-xl --link-color hover:underline"
+              className="text-xl hover:underline"
             >
               {new Date(parseInt(year), parseInt(month) - 1)
                 .toLocaleDateString('en-US', { month: 'long' })}
             </Link>
-            <span className="text-sm text-[var(--text-muted)]">
+            <span className="text-sm text-(--text-muted)">
               {posts.length} post{posts.length !== 1 ? "s" : ""}
             </span>
           </li>
@@ -69,4 +72,30 @@ export default async function YearArchive({ params }: PageProps): Promise<JSX.El
       </ul>
     </div>
   );
+}
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ year: string }> }
+): Promise<Metadata> {
+  const { year } = await params;
+  const base = process.env.BASE_URL || 'https://dhugs.com';
+  const { CDN_BASE, cdnResize } = await import('../../lib/constants');
+  const { getAllPosts } = await import('../../lib/posts');
+  const posts = await getAllPosts();
+  const first = posts.find(p => new Date(p.date).getFullYear().toString() === year && p.thumbnail);
+  const img = (first?.thumbnail ? cdnResize(first.thumbnail, 'large').replace(/\.avif$/i, '.jpg') : `${CDN_BASE}/l/portfolio/thumbnail.jpg`);
+  const canonical = `/${year}/`;
+  const title = `Archive – ${year}`;
+  const description = `Posts from ${year} on Declan Huggins.`;
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: new URL(canonical, base).toString(),
+      images: [img],
+    },
+  };
 }

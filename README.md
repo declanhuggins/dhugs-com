@@ -1,192 +1,165 @@
-# dhugs-com
+# dhugs-com — Architecture, Data, and Workflows
 
-dhugs-com is a personal website showcasing photo albums, blog posts, and various projects. Built with Next.js, React, and Tailwind CSS, it offers a modern, responsive design.
+Static Next.js (App Router) site deployed to Cloudflare Workers via Wrangler. Content metadata lives in Cloudflare D1; images live in Cloudflare R2; the site builds to fully static assets and RSC payloads.
 
----
+—
 
-## Features
+## Stack & Infra
 
-- **Photo Albums:** Browse albums sorted by year and month.
-- **Blog Posts:** Read and explore written content.
-- **Dynamic Routing:** Enjoy seamless navigation with Next.js routing.
-- **Responsive Design:** Optimized for both desktop and mobile devices.
+- Next.js 15 (App Router), React 19, Tailwind
+- Wrangler + Workers (static export served via Worker assets)
+- D1 (binding `D1_POSTS`) for posts metadata
+- R2 (binding `R2_ASSETS`) for originals and responsive variants
+- Static assets served by Cloudflare ASSETS binding; CDN host: `CDN_SITE`
 
----
+—
 
-## Technologies
+## Data Model (D1)
 
-- [Next.js](https://nextjs.org): React framework for server-side rendering and static site generation.
-- [React](https://reactjs.org): Library for building user interfaces.
-- [Tailwind CSS](https://tailwindcss.com): Utility-first CSS framework for rapid UI development.
-- Various npm libraries for enhanced functionality.
+Tables
+- `posts`: `path (YYYY/MM/slug)`, `slug`, `type ('markdown'|'album')`, `title`, `author`, `excerpt`, `content`, `date_utc`, `timezone`, `width ('small'|'medium'|'large')`, `thumbnail`, `download_url`, timestamps
+- `tags`: unique tag names
+- `post_tags`: many-to-many join between posts and tags
 
----
+Build snapshot
+- `npm run content:postsJson` writes `dist/data/posts.json`
+- `npm run content:searchIndex` writes `dist/data/search-index.json` (BM25-like index)
+- `npm run content:albumsIndex` writes `dist/data/album-index.json` (album images list). If R2 credentials are not available, this uses per‑album `_manifest.json` files at `o/<album>/images/_manifest.json` on the CDN. The `publish:portfolio` script writes the manifest for the `o/portfolio/images` album so portfolio content works without creds.
 
-## Getting Started
+—
 
-1. **Install Dependencies:**
+## R2 Layout
 
-   ```bash
-   npm install
-   ```
+Mirrored size prefixes: `o/` (originals), `s/`, `m/`, `l/`.
 
-2. **Create Boilerplate Files:**
+- Album: `o/YYYY/MM/slug/thumbnail.avif` and `o/YYYY/MM/slug/images/*.avif`
+- Portfolio: `o/portfolio/thumbnail.avif`, `o/portfolio/images/*`
+- Metadata: per-object width/height stored as custom metadata
 
-   ### .env.local
+—
 
-   Create a `.env.local` file in the root directory with the following:
+## Runtime & Build Behavior
 
-   ```plaintext
-   AWS_REGION=your_aws_region
-   AWS_BUCKET_NAME=your_aws_bucket_name
-   S3_ENDPOINT=your_s3_endpoint
-   AWS_ACCESS_KEY_ID=your_aws_access_key_id
-   AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
-   AWS_ACCESS_KEY_ID_WRITE=your_aws_access_key_id_write
-   AWS_SECRET_ACCESS_KEY_WRITE=your_aws_secret_access_key_write
-   AWS_REDIRECT_API_KEY=your_aws_redirect_api_key
-   CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
-   BASE_URL=your_base_url
-   BASE_URL_2=your_base_url_2
-   CDN_SITE=your_cdn_site
-   ```
+- Pages are static by default (`dynamic = 'force-static'`).
+- lib/posts.ts imports `dist/data/posts.json`; no runtime DB reads.
+- lib/album.ts imports `dist/data/album-index.json`; no runtime bucket listing.
+- Search happens entirely client-side: the search page fetches `/search-index.json` and ranks locally.
+- SEO: per-page `generateMetadata` with Open Graph image (post thumbnail or fallback).
+- Sitemap: `public/sitemap.xml` with trailing slashes, lastmod, and image entries.
 
-   ### links.md
+—
 
-   Create a `links.md` file in the `links` directory with the following content:
+## Scripts
 
-   ```markdown
-   ---
-   example-key: https://example.com
-   another-key: https://another-example.com
-   ---
-   ```
+Dev & build
+- `dev`: Next dev with Turbopack
+- `build:dev` / `build:prod`: run content generation → Next build → static export to `out/` → `wrangler build`
+- `preview:dev` / `preview`: local Worker dev via Wrangler with asset serving from `out/`
+- `deploy:dev` / `deploy`: deploy Worker via Wrangler
 
-3. **Build & Run:**
+Content pipeline
+- `content:redirects`: set bulk redirects and entry rule from `links/`
+- `content:sitemap`: generate `public/sitemap.xml` (index) and `public/sitemaps/` child sitemaps plus `public/robots.txt`
+- `content:searchIndex`: write `dist/data/search-index.json`
+- `content:postsJson`: write `dist/data/posts.json`
+- `content:albumsIndex`: write `dist/data/album-index.json` (uses R2 listing when creds are present; otherwise reads per‑album manifests). `publish:portfolio` writes the portfolio manifest.
 
-   Run helper scripts and build the project:
+Publishing
+- `publish:album`: single album (uploads to R2, pick thumbnail, generate variants, upsert D1)
+- `publish:albums:batch`: batch importer from a root folder
+- `publish:post`: upsert a markdown post into D1
+- `prepare:album`: local helper to prep an album folder
 
-   ```bash
-   npm run dev-build
-   ```
+DB utilities
+- `db:migration:new` / `db:migrate` / `db:migrate:remote`: D1 schema changes
+- `db:upsert:post` / `db:upsert:album` / `db:delete:post`: optional DB-first tools
 
-   Then start the development server:
+CDN robots
+- `cdn:robots:disallow` / `cdn:robots:allow`: upload robots.txt to R2 root for cdn.dhugs.com
 
-   ```bash
-   npm run dev
-   ```
+—
 
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+## Publishing Workflows
 
----
+Album (single)
+1) Convert source into AVIFs (e.g., tools/ or external workflow)
+2) `npm run publish:album` and follow prompts (AVIF folder, title, date, tags, width)
+3) Script uploads originals to `o/YYYY/MM/slug/images`, sets thumbnail, generates `s/m/l` variants, and upserts D1
 
-## Environment Variables
+Album (batch)
+- `npm run publish:albums:batch -- --root <drive> --author "..." --tz "..." --tags "..."`
 
-Ensure the following variables are correctly set in your deployment environment:
+Markdown post
+- `npm run publish:post` and pick a file from `./posts` with frontmatter
 
-- **AWS_REGION**
-- **AWS_BUCKET_NAME**
-- **S3_ENDPOINT**
-- **AWS_ACCESS_KEY_ID**
-- **AWS_SECRET_ACCESS_KEY**
-- **CDN_SITE** – Base URL for the Content Delivery Network (e.g., `https://cdn.example.com`).
+Homepage thumbnail
+- `npm run publish:home-thumb -- --file ./path/to/image.avif` uploads a single image and publishes:
+  - `o/thumbnail.avif` (original/transcoded)
+  - `s/thumbnail.avif` (320w), `m/thumbnail.avif` (640w), `l/thumbnail.avif` (1280w)
+  The homepage Open Graph image uses the large tier at `${CDN_SITE}/l/thumbnail.jpg`.
 
----
+Thumbnail JPG backfill
+- `npm run thumbnails:backfill:jpg` scans `o/`, `s/`, `m/`, and `l/` for `thumbnail.avif` objects and writes a sibling `thumbnail.jpg` if missing. This ensures all OG images can reference JPG variants.
 
-## Album Images
+—
 
-Album images are retrieved from an S3 bucket and served via CDN. The URL structure is:
+## Environment
 
-- **Full-sized images:**  
-  `${CDN_SITE}/albums/[year]/[month]/[slug]/images/[filename]`
+`.env` (build-time, dev)
+- `CDN_SITE=https://cdn.dhugs.com`
+- `AWS_REGION=auto`
+- `AWS_BUCKET_NAME=dhugs-assets`
+- `S3_ENDPOINT=...r2.cloudflarestorage.com`
+- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (read)
+- `AWS_ACCESS_KEY_ID_WRITE`, `AWS_SECRET_ACCESS_KEY_WRITE` (write)
+- `CLOUDFLARE_ACCOUNT_ID`, `BASE_URL`, `BASE_URL_2`
 
-- **Thumbnails:**  
-  `${CDN_SITE}/albums/[year]/[month]/[slug]/thumbnail.avif`
+Cloudflare (Workers)
+- Bindings configured in `wrangler.jsonc` (D1, R2, vars, secrets store). Scripts also use Wrangler for content tools.
 
-- **Part-sized images:**  
-  `${CDN_SITE}/[small || medium || large]/${imgPath}`
+—
 
----
+## Project Structure
 
-##  Cloudflare Pages
+- `app/` — Next.js routes (App Router)
+- `lib/` — content helpers (posts, album, markdown)
+- `scripts/` — publishing + content generation tools
+- `public/` — static assets (favicon, icons, sitemap, robots)
+- `dist/data/` — generated content snapshots consumed at build/runtime (not public)
 
-### Setting Up Cloudflare Pages
+—
 
-1. Log in to the Cloudflare dashboard.
-2. Navigate to **Workers & Pages** and click **Create**.
-3. Select the **Pages** tab and connect to your GitHub repository.
-4. Choose the Next.js framework preset.
-5. Add the necessary environment variables.
-6. In the new Pages worker, add `nodejs_compat` to the Compatibility flags.
+## SEO & Social
 
-## Scripts & Tools
+- Open Graph metadata on all key routes (og:image uses post thumbnail or portfolio fallback)
+- Sitemap includes trailing slashes, lastmod per post, image entries
+- Search page is `noindex`
+- cdn.dhugs.com can be toggled for indexing via `cdn:robots:*`
 
-### Update Image Metadata
+—
 
-The `scripts/update-image-metadata.ts` script updates image metadata in the S3 bucket with dimensions using Sharp.
+## How to Run / Deploy
 
-**Usage:**
+1) Fork and clone repo; `npm install`
+2) Create `.env` with the variables above (for content tooling)
+3) Generate content snapshots: `npm run content:all`
+4) Local dev (Node): `npm run dev`
+5) Local Worker preview (dev env): `npm run preview:dev`
+6) Deploy dev: `npm run deploy:dev`
+7) Deploy production: `npm run deploy`
 
-```bash
-npm run metadata
-```
+—
 
-### Generate Image Versions
+## Troubleshooting
 
-The `scripts/generate-image-versions.ts` script creates small, medium, and large versions of images. It processes images in `albums/`, `about/`, `portfolio/`, and `thumbnails/` directories, skipping images that already have resized versions.
+- Empty posts at build: ensure `CF_ENV` and D1 credentials are available for content scripts
+- Missing album images at build: ensure `S3_ENDPOINT`, `AWS_*_WRITE`, and `AWS_BUCKET_NAME` are set; run `content:albumsIndex`
+- cdn robots: toggle with `npm run cdn:robots:disallow` or `:allow`
 
-**Usage:**
-
-```bash
-npm run images
-```
-
-### Precompile Posts
-
-The `scripts/precompile-posts.mjs` script compiles markdown posts and album JSON data into a unified search data file (`data/search-data.json`).
-
-*(Run via Node directly as needed.)*
-
-### Generate Sitemap
-
-The `scripts/generate-sitemap.mjs` script dynamically creates a sitemap that includes static pages and posts. The sitemap is written to `public/sitemap.xml`.
-
-**Usage:**
-
-```bash
-npm run generate-sitemap
-```
-
-### Bulk Redirects
-
-The `scripts/generate-redirects.cjs` script sets up bulk redirects on Cloudflare using data from `links/links.md`.
-
-**Usage:**
-
-```bash
-npm run generate-redirects
-```
-
-### Avifier Script
-
-The `tools/avifier.sh` script converts supported image formats (JPEG, PNG, CR2) to AVIF using ImageMagick.
-
-**Usage:**
-
-```bash
-./tools/avifier.sh /path/to/source /path/to/destination
-```
-
----
-
-## Contributing
-
-Contributions are welcome! Please submit any issues or pull requests following the standard GitHub workflow.
-
----
+—
 
 ## License
 
 The code in this repository is licensed under the MIT License. However, all photographs and other visual assets are not open source and are © Declan Huggins. These assets may not be reused or redistributed without explicit permission.
 
-Vectors and icons by <a href="https://www.svgrepo.com" target="_blank">SVG Repo</a>
+Vectors and icons by <a href="https://www.svgrepo.com" target="_blank" rel="noopener noreferrer">SVG Repo</a>

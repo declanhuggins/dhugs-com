@@ -1,10 +1,11 @@
 // ArchivesTimeline: Renders a horizontal timeline of archives grouped by year.
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getAllPosts } from '../../lib/posts';
 
-export default function ArchivesTimeline() {
-  const posts = getAllPosts();
+export default async function ArchivesTimeline() {
+  const posts = await getAllPosts();
   const archiveMap: { [year: string]: Set<string> } = {};
 
   posts.forEach(post => {
@@ -32,7 +33,7 @@ export default function ArchivesTimeline() {
             return (
               <div key={year} className="min-w-max">
                 <h2 className="text-xl font-semibold mb-2">
-                  <Link href={`/${year}/`} className="hover:underline">
+                  <Link href={`/${year}`} className="hover:underline">
                     {year}
                   </Link>
                 </h2>
@@ -41,7 +42,7 @@ export default function ArchivesTimeline() {
                     <Link
                       key={month}
                       href={`/${year}/${month}`}
-                      className="px-4 py-2 bg-[var(--footer-background)] text-[var(--foreground)] rounded hover:bg-[var(--link-color)] hover:text-[var(--background)] whitespace-nowrap"
+                      className="px-4 py-2 bg-(--footer-background) text-(--foreground) rounded hover:bg-(--link-color) hover:text-(--background) whitespace-nowrap"
                     >
                       {new Date(parseInt(year), parseInt(month) - 1)
                         .toLocaleDateString('en-US', { month: 'long' })}
@@ -56,3 +57,13 @@ export default function ArchivesTimeline() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: 'Archive',
+  description: 'Browse all posts and photo albums by year and month.',
+  alternates: { canonical: '/archive' },
+  openGraph: {
+    title: 'Archive',
+    description: 'Browse all posts and photo albums by year and month.',
+  },
+};
