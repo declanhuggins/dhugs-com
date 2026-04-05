@@ -1,6 +1,6 @@
 {
 	"name": "dhugs-com",
-	"version": "3.1.1",
+	"version": "3.2.0",
 	"private": true,
 	"scripts": {
 		"dev": "next dev --turbopack",
@@ -13,7 +13,7 @@
 		"test:e2e": "vitest run tests/e2e/",
 		"test:e2e:dev": "TEST_ENV=dev vitest run tests/e2e/",
 		"test:e2e:prod": "TEST_ENV=prod vitest run tests/e2e/",
-	    "test:e2e:watch": "HEADED=1 vitest run tests/e2e/",
+		"test:e2e:watch": "HEADED=1 vitest run tests/e2e/",
 		"test:e2e:dev:watch": "HEADED=1 TEST_ENV=dev vitest run tests/e2e/",
 		"test:e2e:prod:watch": "HEADED=1 TEST_ENV=prod vitest run tests/e2e/",
 		"preview": "npm run build:prod && npx opennextjs-cloudflare preview",
