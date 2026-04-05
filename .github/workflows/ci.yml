@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, dev]
+  push:
+    branches: [main, dev]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read NODE_VERSION from wrangler.jsonc
+        id: node
+        run: echo "version=$(grep -o '"NODE_VERSION": "[^"]*"' wrangler.jsonc | head -1 | cut -d'"' -f4)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.node.outputs.version }}
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test

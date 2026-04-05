@@ -49,3 +49,14 @@
   transition: opacity 0.5s ease;
   pointer-events: none;
 }
+
+/* Zoom cursor: zoom-in by default, zoom-out when zoomed */
+.lightboxActive :global(.yarl__slide img),
+.lightboxIdle :global(.yarl__slide img) {
+  cursor: zoom-in;
+}
+
+.lightboxActive :global(.yarl__slide_wrapper_interactive img),
+.lightboxIdle :global(.yarl__slide_wrapper_interactive img) {
+  cursor: zoom-out;
+}

@@ -27,6 +27,30 @@ interface ImageGalleryProps {
 const PLACEHOLDER_BLUR =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOQkpICAACgAE8sk/soAAAAAElFTkSuQmCC';
 
+/** Distribute images into columns using shortest-column-first. */
+function distributeToColumns(images: GalleryImage[], columnCount: number) {
+  const cols: GalleryImage[][] = Array.from({ length: columnCount }, () => []);
+  const colIndices: number[][] = Array.from({ length: columnCount }, () => []);
+  const heights = new Array(columnCount).fill(0);
+  images.forEach((img, i) => {
+    let shortest = 0;
+    for (let col = 1; col < columnCount; col++) {
+      if (heights[col] < heights[shortest]) shortest = col;
+    }
+    cols[shortest].push(img);
+    colIndices[shortest].push(i);
+    heights[shortest] += img.height / img.width;
+  });
+  return { cols, colIndices };
+}
+
+/** Check if all images share the same aspect ratio (placeholder dimensions). */
+function hasUniformAspectRatios(images: GalleryImage[]): boolean {
+  if (images.length < 2) return false;
+  const r = images[0].height / images[0].width;
+  return images.every((img) => Math.abs(img.height / img.width - r) < 0.001);
+}
+
 function useColumnCount(containerRef: React.RefObject<HTMLDivElement | null>) {
   const [columns, setColumns] = useState(3);
   useEffect(() => {
@@ -52,41 +76,51 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [toolbarVisible, setToolbarVisible] = useState(true);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const zoomRef = useRef<any>(null);
 
-  // Shortest-column-first distribution: each image goes into the column
-  // with the least cumulative height. This keeps columns balanced while
-  // preserving natural reading order (images flow top-to-bottom visually).
-  const { cols, colIndices } = React.useMemo(() => {
-    const c: GalleryImage[][] = Array.from({ length: columnCount }, () => []);
-    const idx: number[][] = Array.from({ length: columnCount }, () => []);
-    const heights = new Array(columnCount).fill(0);
-    images.forEach((img, i) => {
-      let shortest = 0;
-      for (let col = 1; col < columnCount; col++) {
-        if (heights[col] < heights[shortest]) shortest = col;
+  // When DB dimensions are all identical (placeholder data), we correct them
+  // client-side by reading naturalWidth/naturalHeight from loaded images.
+  const needsCorrection = hasUniformAspectRatios(images);
+  const [correctedImages, setCorrectedImages] = useState<GalleryImage[] | null>(null);
+  const loadedDims = useRef<Map<number, { w: number; h: number }>>(new Map());
+
+  const handleImageLoad = useCallback(
+    (index: number, e: React.SyntheticEvent<HTMLImageElement>) => {
+      if (!needsCorrection) return;
+      const img = e.currentTarget;
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      if (w && h) {
+        loadedDims.current.set(index, { w, h });
+        // Once we have enough real dimensions (first batch of visible images),
+        // re-compute the layout. Trigger after first 6 images or all loaded.
+        const threshold = Math.min(images.length, columnCount * 2);
+        if (loadedDims.current.size >= threshold) {
+          const fixed = images.map((img, i) => {
+            const real = loadedDims.current.get(i);
+            return real ? { ...img, width: real.w, height: real.h } : img;
+          });
+          setCorrectedImages(fixed);
+        }
       }
-      c[shortest].push(img);
-      idx[shortest].push(i);
-      heights[shortest] += img.height / img.width;
-    });
-    return { cols: c, colIndices: idx };
-  }, [images, columnCount]);
+    },
+    [needsCorrection, images, columnCount]
+  );
 
-  // Progressive slides: /m/ loads instantly, /l/ for mid-res, /o/ for full-res.
-  // The lightbox picks the best variant based on viewport width.
+  const effectiveImages = correctedImages ?? images;
+
+  const { cols, colIndices } = React.useMemo(
+    () => distributeToColumns(effectiveImages, columnCount),
+    [effectiveImages, columnCount]
+  );
+
+  // Lightbox slides: use /o/ originals, no width/height so the lightbox
+  // scales images to fill the viewport rather than capping at pixel dims.
   const slides = React.useMemo(
     () =>
       images.map((img) => ({
         src: img.src,
         alt: img.alt,
-        width: img.width,
-        height: img.height,
-        srcSet: [
-          { src: cdnResize(img.src, 'small'), width: 480, height: Math.round(480 * (img.height / img.width)) },
-          { src: cdnResize(img.src, 'medium'), width: 960, height: Math.round(960 * (img.height / img.width)) },
-          { src: cdnResize(img.src, 'large'), width: 1920, height: Math.round(1920 * (img.height / img.width)) },
-          { src: img.src, width: img.width, height: img.height },
-        ],
         ...(img.downloadUrl ? { download: img.downloadUrl } : {}),
       })),
     [images]
@@ -105,6 +139,70 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
     hideTimerRef.current = setTimeout(() => setToolbarVisible(false), 3000);
   }, []);
 
+  // Single-click zoom: zoom in to mouse position, click again to zoom out.
+  // Uses capture phase to intercept before the library's own handlers.
+  useEffect(() => {
+    if (!lightboxOpen) return;
+
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.matches('.yarl__slide img')) return;
+
+      const zoom = zoomRef.current;
+      if (!zoom || zoom.disabled) return;
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      if (zoom.zoom > 1.01) {
+        // Currently zoomed — zoom back to fit
+        zoom.changeZoom(1);
+      } else {
+        // Zoom in towards mouse position
+        const rect = target.getBoundingClientRect();
+        const dx = e.clientX - (rect.left + rect.width / 2);
+        const dy = e.clientY - (rect.top + rect.height / 2);
+        zoom.changeZoom(2, false, dx, dy);
+      }
+    };
+
+    // Dampen two-finger trackpad panning when zoomed in.
+    // The library passes raw wheel deltas to changeOffsets without dividing
+    // by zoom, so visual pan speed scales with zoom level. We intercept the
+    // wheel event, cancel it, and re-dispatch a dampened copy.
+    const wheelHandler = (e: WheelEvent) => {
+      const z = zoomRef.current;
+      if (!z || z.zoom <= 1) return;
+      // Only intercept non-ctrl (pan) wheel events inside the lightbox
+      if (e.ctrlKey) return;
+      const target = e.target as HTMLElement;
+      if (!target.closest('.yarl__root')) return;
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      const dampen = 1 / z.zoom;
+      const dampened = new WheelEvent('wheel', {
+        ...e,
+        deltaX: e.deltaX * dampen,
+        deltaY: e.deltaY * dampen,
+        bubbles: true,
+        cancelable: true,
+      });
+      // Re-dispatch without our capture listener catching it again
+      document.removeEventListener('wheel', wheelHandler, true);
+      target.dispatchEvent(dampened);
+      document.addEventListener('wheel', wheelHandler, { capture: true, passive: false });
+    };
+
+    document.addEventListener('click', handler, true);
+    document.addEventListener('wheel', wheelHandler, { capture: true, passive: false });
+    return () => {
+      document.removeEventListener('click', handler, true);
+      document.removeEventListener('wheel', wheelHandler, true);
+    };
+  }, [lightboxOpen]);
+
   useEffect(() => {
     if (!lightboxOpen) return;
     resetHideTimer();
@@ -121,12 +219,9 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
   // Scroll gallery to the viewed image when lightbox closes
   const handleClose = useCallback(() => {
     setLightboxOpen(false);
-    // Buttons are distributed across columns, so query by data attribute instead
     requestAnimationFrame(() => {
       const allButtons = containerRef.current?.querySelectorAll('button');
       if (!allButtons) return;
-      // Build a flat map: each button stores its original index via order in columns
-      // We tagged buttons with keys, but we can match by iterating colIndices
       let target: HTMLElement | undefined;
       let btnIdx = 0;
       for (let c = 0; c < cols.length; c++) {
@@ -168,6 +263,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
                     className={styles.img}
                     priority={originalIndex < 5}
                     loading={originalIndex < 5 ? undefined : 'lazy'}
+                    onLoad={(e) => handleImageLoad(originalIndex, e)}
                   />
                 </button>
               );
@@ -180,7 +276,9 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
         close={handleClose}
         slides={slides}
         index={currentIndex}
-        on={{ view: ({ index }) => setCurrentIndex(index) }}
+        on={{
+          view: ({ index }) => setCurrentIndex(index),
+        }}
         carousel={{ finite: false, preload: 3, padding: 0 }}
         animation={{
           swipe: 250,
@@ -201,15 +299,17 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
         className={toolbarVisible ? styles.lightboxActive : styles.lightboxIdle}
         styles={{
           root: { zIndex: 100001 },
-          container: { background: 'rgba(0,0,0,0.9)' },
+          container: { background: 'rgba(0,0,0,1)' },
         }}
         plugins={[Counter, Zoom, Download]}
         zoom={{
-          maxZoomPixelRatio: 3,
-          wheelZoomDistanceFactor: 133,
-          pinchZoomDistanceFactor: 133,
-          doubleClickMaxStops: 2,
-          doubleClickDelay: 300,
+          ref: zoomRef,
+          maxZoomPixelRatio: 2,
+          wheelZoomDistanceFactor: 100,
+          pinchZoomDistanceFactor: 100,
+          doubleClickMaxStops: 0,
+          scrollToZoom: false,
+          pinchZoomV4: true,
         }}
         counter={{
           separator: ' / ',

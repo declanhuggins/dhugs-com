@@ -41,7 +41,10 @@
 		"cdn:robots:disallow": "tsx scripts/upload-cdn-robots.ts disallow",
 		"cdn:robots:allow": "tsx scripts/upload-cdn-robots.ts allow",
 		"browse": "TEST_ENV=local vitest run tests/e2e/site.test.ts",
-		"upgrade": "npx npm-check-updates -u && npm install"
+		"upgrade": "npx npm-check-updates -u && npm install",
+		"release": "./scripts/version-bump.sh patch",
+		"release:minor": "./scripts/version-bump.sh minor",
+		"release:major": "./scripts/version-bump.sh major"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.1024.0",

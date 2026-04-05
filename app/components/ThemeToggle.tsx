@@ -16,9 +16,10 @@ export default function ThemeToggle() {
   if (!mounted) {
     return (
       <button
-        disabled
+        disabled={true}
         className="theme-toggle-button rounded-full loading"
         aria-label="Toggle theme loading"
+        suppressHydrationWarning
       >
         <div className="theme-toggle-loading-icon rounded-full" />
       </button>
