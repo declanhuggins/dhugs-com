@@ -53,4 +53,4 @@ EOF
 git tag -a "v${NEW_VERSION}" -m "v${NEW_VERSION}"
 echo ""
 echo "Created commit and tag v${NEW_VERSION}"
-echo "Run 'git push && git push --tags' to publish."
+echo "Run 'git push --follow-tags' to push and trigger a Cloudflare deploy."
