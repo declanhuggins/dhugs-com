@@ -67,13 +67,14 @@ describe('markdownToSafeHtml', () => {
 });
 
 describe('stripPotentiallyDangerousTags', () => {
-  it('removes script tags', () => {
-    expect(stripPotentiallyDangerousTags('<p>safe</p><script>evil()</script>'))
-      .toBe('<p>safe</p>');
+  it('neutralizes script tags by encoding <', () => {
+    const output = stripPotentiallyDangerousTags('<p>safe</p><script>evil()</script>');
+    expect(output).not.toContain('<script');
+    expect(output).toContain('<p>safe</p>');
   });
 
-  it('removes incomplete script tags', () => {
-    expect(stripPotentiallyDangerousTags('<script src="evil.js">')).toBe('');
+  it('neutralizes incomplete script tags', () => {
+    expect(stripPotentiallyDangerousTags('<script src="evil.js">')).not.toContain('<script');
   });
 
   it('removes event handlers', () => {
@@ -85,7 +86,7 @@ describe('stripPotentiallyDangerousTags', () => {
   it('handles multiple dangerous patterns', () => {
     const input = '<div onclick="evil()"><script>bad()</script></div>';
     const output = stripPotentiallyDangerousTags(input);
-    expect(output).not.toContain('script');
+    expect(output).not.toContain('<script');
     expect(output).not.toContain('onclick');
   });
 
@@ -98,10 +99,9 @@ describe('stripPotentiallyDangerousTags', () => {
     expect(stripPotentiallyDangerousTags('')).toBe('');
   });
 
-  it('handles nested/recursive script patterns', () => {
+  it('neutralizes nested/recursive script patterns', () => {
     const input = '<scr<script>ipt>alert(1)</script>';
     const output = stripPotentiallyDangerousTags(input);
-    expect(output).not.toContain('script');
-    expect(output).not.toContain('alert');
+    expect(output).not.toContain('<script');
   });
 });
