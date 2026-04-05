@@ -20,7 +20,7 @@ local provider = {}
 -- Publish service capabilities
 -- ---------------------------------------------------------------------------
 provider.supportsIncrementalPublish = true
-provider.small_icon = nil
+provider.small_icon = "icon.png"
 provider.canAddCommentsToService = false
 provider.supportsCustomSortOrder = false
 

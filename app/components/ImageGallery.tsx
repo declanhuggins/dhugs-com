@@ -5,7 +5,7 @@ import Image from 'next/image';
 import styles from './ImageGallery.module.css';
 import Lightbox from 'yet-another-react-lightbox';
 import Counter from 'yet-another-react-lightbox/plugins/counter';
-import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import Zoom, { type ZoomRef } from 'yet-another-react-lightbox/plugins/zoom';
 import Download from 'yet-another-react-lightbox/plugins/download';
 import 'yet-another-react-lightbox/styles.css';
 import { cdnResize } from '../../lib/constants';
@@ -76,7 +76,7 @@ export default function ImageGallery({ images, galleryID }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [toolbarVisible, setToolbarVisible] = useState(true);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
-  const zoomRef = useRef<any>(null);
+  const zoomRef = useRef<ZoomRef>(null);
 
   // When DB dimensions are all identical (placeholder data), we correct them
   // client-side by reading naturalWidth/naturalHeight from loaded images.
