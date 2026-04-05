@@ -10,6 +10,7 @@
 		"start": "next start",
 		"lint": "eslint app lib",
 		"test": "vitest run --passWithNoTests",
+		"test:ci": "vitest run tests/unit/ --passWithNoTests",
 		"test:e2e": "vitest run tests/e2e/",
 		"test:e2e:dev": "TEST_ENV=dev vitest run tests/e2e/",
 		"test:e2e:prod": "TEST_ENV=prod vitest run tests/e2e/",
