@@ -8,7 +8,7 @@ jobs:
   lint-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Read NODE_VERSION from wrangler.jsonc
         id: node
@@ -16,7 +16,7 @@ jobs:
           version=$(grep -m1 '"NODE_VERSION"' wrangler.jsonc | sed 's/.*: *"\([^"]*\)".*/\1/')
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ steps.node.outputs.version }}
           cache: npm
