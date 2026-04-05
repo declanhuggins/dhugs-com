@@ -3,9 +3,9 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styles from './ImageGallery.module.css';
-import Lightbox from 'yet-another-react-lightbox';
+import Lightbox, { type ZoomRef } from 'yet-another-react-lightbox';
 import Counter from 'yet-another-react-lightbox/plugins/counter';
-import Zoom, { type ZoomRef } from 'yet-another-react-lightbox/plugins/zoom';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import Download from 'yet-another-react-lightbox/plugins/download';
 import 'yet-another-react-lightbox/styles.css';
 import { cdnResize } from '../../lib/constants';
