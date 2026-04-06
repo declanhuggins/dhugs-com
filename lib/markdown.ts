@@ -42,5 +42,5 @@ export function stripPotentiallyDangerousTags(html: string): string {
   // that cannot be recombined to recreate `<script` (fixes CodeQL js/incomplete-multi-character-sanitization).
   return html
     .replace(/<(?=\s*\/?script\b)/gi, '&lt;')
-    .replace(/\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+    .replace(/\s+on([a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))/gi, ' data-$1');
 }
