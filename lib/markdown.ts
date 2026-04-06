@@ -37,17 +37,10 @@ export async function markdownToSafeHtml(markdown: string): Promise<string> {
 }
 
 export function stripPotentiallyDangerousTags(html: string): string {
-  // Defense in depth (should already be sanitized). Remove any lingering <script> or on* attributes.
-  // Apply replacements until reaching a fixed point to avoid incomplete multi-character sanitization.
-  let previous: string;
-  let current = html;
-  do {
-    previous = current;
-    current = current
-      // Remove complete <script> blocks and any incomplete <script fragments
-      .replace(/<\s*script\b[^>]*>[\s\S]*?<\s*\/\s*script\b[^>]*>/gi, '')
-      .replace(/<\s*script\b[\s\S]*?(>|$)/gi, '')
-      .replace(/\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
-  } while (current !== previous);
-  return current;
+  // Defense in depth (should already be sanitized by rehype-sanitize).
+  // Encode `<` before script tags rather than removing — a single-character substitution
+  // that cannot be recombined to recreate `<script` (fixes CodeQL js/incomplete-multi-character-sanitization).
+  return html
+    .replace(/<(?=\s*\/?script\b)/gi, '&lt;')
+    .replace(/\s+on([a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))/gi, ' data-$1');
 }
