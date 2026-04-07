@@ -64,8 +64,7 @@ export default function Header() {
                 { title: 'Portfolio', href: '/portfolio', icon: 'camera' },
                 { title: 'Resume', href: '/resume', icon: 'resume' },
                 { title: 'LinkedIn', href: 'https://linkedin.com/in/declanhuggins', icon: 'linkedin' },
-                { title: 'Github', href: 'https://github.com/declanhuggins', icon: 'github' },
-                { title: 'Instagram', href: 'https://www.instagram.com/declanhuggins/', icon: 'instagram' }
+                { title: 'Github', href: 'https://github.com/declanhuggins', icon: 'github' }
               ]}
               orientation="horizontal"
               position="right"
