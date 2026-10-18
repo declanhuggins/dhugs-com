@@ -3,7 +3,7 @@
 	"name": "dhugs-com",
 	"compatibility_date": "2026-04-05",
 	"compatibility_flags": ["nodejs_compat"],
-	"main": ".open-next/worker.js",
+	"main": "worker.ts",
 	"assets": {
 		"directory": ".open-next/assets",
 		"not_found_handling": "404-page",

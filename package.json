@@ -5,8 +5,8 @@
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"build": "npx wrangler types --env-interface CloudflareEnv ./env.d.ts && next build",
-		"build:prod": "npx opennextjs-cloudflare build",
-		"build:dev": "npx opennextjs-cloudflare build --env dev",
+		"build:prod": "npx opennextjs-cloudflare build && tsx scripts/build-edge-routes.ts",
+		"build:dev": "npx opennextjs-cloudflare build --env dev && tsx scripts/build-edge-routes.ts",
 		"start": "next start",
 		"lint": "eslint app lib",
 		"test": "vitest run --passWithNoTests",
